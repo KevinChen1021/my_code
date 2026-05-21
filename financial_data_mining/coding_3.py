@@ -197,5 +197,6 @@ calls['Mid_Price'] = (calls['Bid'] + calls['Ask']) / 2.0
 calls_clean = calls[calls['Mid_Price'] > 0].copy()
 
 # 3. Use lambda and apply to run the function across the dataframe
+# we do not need to loop through each row, we can apply the function directly to the dataframe.
 # axis=1 means "apply this function across each row"
 calls_clean['Implied_Vol'] = calls_clean.apply(lambda row: implied_vol_put_min(S, row['Strike'], T, r, row['Mid_Price']), axis=1)
