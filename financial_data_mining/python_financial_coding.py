@@ -27,6 +27,8 @@ import statsmodels.api as sm
 import scipy.optimize
 from scipy.optimize import minimize
 # from scipy.optimize import fmax
+import datetime
+import sqlite3
 
 
 '''
@@ -1006,15 +1008,132 @@ delta2 = delta2_f(10, 10, 0.5, 0.01, 0.02)
 print(delta1, delta2)
 
 
-'''volatility smile'''
+'''volatility smile: strike price and implied volatility'''
+'''implied volatility is not constant across different strike prices'''
+
+# infile = "callsfor15mar2024.txt"
+# calls = pd.read_table(infile)
+
+ticker = 'IBM'
+r = 0.0003
+begdate = "2024-1-1"
+enddate = "2024-3-1"
+enddate2 = datetime.date(2024,3,1)
+
+def implied_vol_call_min(S, X, T, r, c):
+    implied_vol = 1.0
+    min_value = 100
+    for i in range(10000):
+        sigma = 0.0001 * (i + 1)
+        d1 = (log(S/X) + (r + sigma*sigma/2)*T)/(sigma * sqrt(T))
+        d2 = d1 - sigma*sqrt(T)
+        c2 = S * stats.norm.cdf(d1) - X*exp(-r*T) * stats.norm.cdf(d2)
+        abs_diff = abs(c2 - c)
+        if abs_diff < min_value:
+            min_value = abs_diff
+            implied_vol = sigma
+    return implied_vol
+
+
+#to get the stock data
+#df = yf.download(ticker, begdate, enddate)
+# df = pd.read_pickle("ibm.pkl")
+
+# # to get the option data
+# first_contract = calls["Contract Name"].iloc[0]
+# date_str = first_contract[len(ticker):len(ticker) +6]
+
+# exp_date0 = int("20" + date_str)
+
+# s = float(df["Close"].iloc[-1])
+
+# y = int(exp_date0/10000)
+# m = int(exp_date0/100) - y*100
+# d = exp_date0 - y*10000 - m*100
+
+# #get the exact expiring date
+# exp_date = datetime.date(y, m, d)
+# T = (exp_date - enddate2).days/252.0
+
+# #run a loop to estimate the implied volatility for each option
+# n = len(calls["Strike"]) # the number of strikes
+
+# #initialization
+# strike = []
+# implied_vol = []
+# call2 = []
+# x_old = 0
+
+# for i in range(n):
+#     x = calls["Strike"].iloc[i]
+#     c = (calls["Bid"].iloc[i] + calls["Ask"].iloc[i])/2
+
+#     if c > 0:
+#         print(f"i: {i}, call price: {c}")
+#         if x != x_old:
+#             vol = implied_vol_call_min(s, x, T, r, c)
+#             strike.append(x)
+#             implied_vol.append(vol)
+#             call2.append(c)
+#             print(x, c, vol)
+#             x_old = x
+
+# # plotting the volatility smile
+# plt.plot(strike, implied_vol, marker = "o", linestyle = "-")
+# plt.title("volatility smile")
+# plt.xlabel("strike price")
+# plt.ylabel("implied volatility")
+# plt.grid(True)
+# plt.show()
 
 
 
-'''hahahaha'''
+'''sqlite basics'''
+'''connect to a database'''
+conn = sqlite3.connect(':memory:')
 
+cursor = conn.cursor()
 
+'''create some mock data'''
+cursor.execute('''
+CREATE TABLE departments (
+    id INTEGER PRIMARY KEY,
+    dept_name TEXT
+)
+''')
 
+cursor.execute('''
+CREATE TABLE employees (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    dept_id INTEGER,
+)
+''')
 
+cursor.executemany('INSERT INTO departments VALUES (?, ?)', [
+    ('10','ENG'),
+    ('20','HR'),
+    ('30','MKT')
+    ])
 
+cursor.executemany('INSERT INTO employees VALUES (?, ?, ?)', [
+    ('1', 'Alice', '10'),
+    ('2', 'Bob', '20'),
+    ('3', 'Charlie', 'None')
+])
+
+inner_join_query = '''
+    SELECT employees.name, departments.dept_name
+    FROM employees
+    INNER JOIN departments ON employees.dept_id = departments.id
+'''
+
+cursor.execute(inner_join_query)
+
+df = pd.read_sql_query(inner_join_query, conn)
+df.to_csv("results.csv", index=False)
+
+# do not forget to close the connection
+conn.close()
 
 
