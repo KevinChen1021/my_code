@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for binomial_tree_model_n_step."""
 
 import numpy as np
 import pandas as pd
@@ -9,25 +9,26 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def BTM_Nstep(S, K, sigma, r, T, N, types):
-    t = T / N  # 每一步长时期限（年）
-    u = exp(sigma * sqrt(t))  # 基础资产价格上涨比例
+def binomial_tree_model_n_step(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps, option_type):
+    """Compute binomial_tree_model_n_step."""
+    t = time_to_maturity / steps  # 每一步长时期限（年）
+    u = exp(volatility * sqrt(t))  # 基础资产价格上涨比例
     d = 1 / u  # 基础资产价格下跌比例
-    p = (exp(r * t) - d) / (u - d)  # 基础资产价格上涨概率
-    N_list = range(0, N + 1)  # 从0到N的自然数序列
+    p = (exp(interest_rate * t) - d) / (u - d)  # 基础资产价格上涨概率
+    N_list = range(0, steps + 1)  # 从0到N的自然数序列
     A = []  # 空列表
 
     for j in N_list:
         # 期权到期日某节点的期权价值
-        C_Nj = maximum(S * power(u, j) * power(d, N - j) - K, 0)
+        C_Nj = maximum(spot_price * power(u, j) * power(d, steps - j) - strike_price, 0)
         # 到达该节点的实现路径数量
-        Num = factorial(N) / (factorial(j) * factorial(N - j))
-        A.append(Num * power(p, j) * power(1 - p, N - j) * C_Nj)  # 列表尾部添加新元素
+        Num = factorial(steps) / (factorial(j) * factorial(steps - j))
+        A.append(Num * power(p, j) * power(1 - p, steps - j) * C_Nj)  # 列表尾部添加新元素
 
-    call = exp(-r * T) * sum(A)  # 看涨期权期初价值
-    put = call + K * np.exp(-r * T) - S  # 看跌期权期初价值
+    call = exp(-interest_rate * time_to_maturity) * sum(A)  # 看涨期权期初价值
+    put = call + strike_price * np.exp(-interest_rate * time_to_maturity) - spot_price  # 看跌期权期初价值
 
-    if types == 'call':
+    if option_type == 'call':
         value = call
     else:
         value = put

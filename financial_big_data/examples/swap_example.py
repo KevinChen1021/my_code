@@ -9,12 +9,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from financial_big_data import set_plot_style
-from financial_big_data.swap import IRS_cashflow
+from financial_big_data.swap import irs_cashflow
 
 set_plot_style()
 
 try:
-    cashflow = IRS_cashflow(R_flt=np.array([0.025, 0.027, 0.03]), R_fix=0.028, L=1000000, m=2, position="long")
+    cashflow = irs_cashflow(R_flt=np.array([0.025, 0.027, 0.03]), R_fix=0.028, L=1000000, m=2, position="long")
 except TypeError:
     cashflow = np.array([1000000 * (r - 0.028) / 2 for r in [0.025, 0.027, 0.03]])
 

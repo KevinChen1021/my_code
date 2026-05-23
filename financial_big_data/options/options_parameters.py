@@ -14,7 +14,7 @@ register_matplotlib_converters()
 
 '''Delta'''
 # 1. 定义欧式期权Delta计算函数
-def delta_EurOpt(S, K, sigma, r, T, optype, positype):
+def delta_eur_opt(spot_price, strike_price, volatility, interest_rate, time_to_maturity, option_type, position_type):
     '''计算欧式期权Delta的函数
     S: 基础资产价格
     K: 行权价格
@@ -23,14 +23,14 @@ def delta_EurOpt(S, K, sigma, r, T, optype, positype):
     T: 期权期限（年）
     optype: 期权类型（'call'=看涨，其他=看跌）
     positype: 头寸方向（'long'=多头，其他=空头）'''
-    d1 = (log(S/K) + (r + power(sigma, 2)/2)*T) / (sigma * sqrt(T))
-    if optype == 'call':
-        if positype == 'long':
+    d1 = (log(spot_price/strike_price) + (interest_rate + power(volatility, 2)/2)*time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    if option_type == 'call':
+        if position_type == 'long':
             delta = norm.cdf(d1)
         else:
             delta = -norm.cdf(d1)
     else:
-        if positype == 'long':
+        if position_type == 'long':
             delta = norm.cdf(d1) - 1
         else:
             delta = 1 - norm.cdf(d1)
@@ -38,14 +38,14 @@ def delta_EurOpt(S, K, sigma, r, T, optype, positype):
 
 
 # 2. 定义BSM期权定价函数
-def option_BSM(S, K, sigma, r, T, opt):
+def black_scholes_option_price(spot_price, strike_price, volatility, interest_rate, time_to_maturity, option_type):
     '''运用布莱克-斯科尔斯-默顿模型计算欧式期权价格'''
-    d1 = (log(S/K) + (r + power(sigma, 2)/2)*T) / (sigma * sqrt(T))
-    d2 = d1 - sigma * sqrt(T)
-    if opt == 'call':
-        value = S * norm.cdf(d1) - K * exp(-r*T) * norm.cdf(d2)
+    d1 = (log(spot_price/strike_price) + (interest_rate + power(volatility, 2)/2)*time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    d2 = d1 - volatility * sqrt(time_to_maturity)
+    if option_type == 'call':
+        value = spot_price * norm.cdf(d1) - strike_price * exp(-interest_rate*time_to_maturity) * norm.cdf(d2)
     else:
-        value = K * exp(-r*T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+        value = strike_price * exp(-interest_rate*time_to_maturity) * norm.cdf(-d2) - spot_price * norm.cdf(-d1)
     return value
 
 
@@ -175,56 +175,56 @@ import datetime as dt
 
 
 # 4. 美式期权Delta计算函数
-def delta_AmerCall(S, K, sigma, r, T, N, positype):
-    t = T / N
-    u = np.exp(sigma * np.sqrt(t))
+def delta_amer_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps, position_type):
+    t = time_to_maturity / steps
+    u = np.exp(volatility * np.sqrt(t))
     d = 1 / u
-    p = (np.exp(r * t) - d) / (u - d)
-    call_matrix = np.zeros((N + 1, N + 1))
-    N_list = np.arange(0, N + 1)
-    S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-    call_matrix[:, -1] = np.maximum(S_end - K, 0)
+    p = (np.exp(interest_rate * t) - d) / (u - d)
+    call_matrix = np.zeros((steps + 1, steps + 1))
+    N_list = np.arange(0, steps + 1)
+    S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+    call_matrix[:, -1] = np.maximum(S_end - strike_price, 0)
 
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i + 1)
         for j in j_list:
-            Si = S * np.power(u, i - j) * np.power(d, j)
-            call_strike = np.maximum(Si - K, 0)
-            call_nostrike = np.exp(-r * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
+            Si = spot_price * np.power(u, i - j) * np.power(d, j)
+            call_strike = np.maximum(Si - strike_price, 0)
+            call_nostrike = np.exp(-interest_rate * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
             call_matrix[i, j] = np.maximum(call_strike, call_nostrike)
 
-    Delta = (call_matrix[0, 1] - call_matrix[1, 1]) / (S * u - S * d)
-    if positype == 'long':
+    Delta = (call_matrix[0, 1] - call_matrix[1, 1]) / (spot_price * u - spot_price * d)
+    if position_type == 'long':
         result = Delta
     else:
         result = -Delta
     return result
 
 
-def delta_AmerPut(S, K, sigma, r, T, N, positype):
-    t = T / N
-    u = np.exp(sigma * np.sqrt(t))
+def delta_amer_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps, position_type):
+    t = time_to_maturity / steps
+    u = np.exp(volatility * np.sqrt(t))
     d = 1 / u
-    p = (np.exp(r * t) - d) / (u - d)
-    put_matrix = np.zeros((N + 1, N + 1))
-    N_list = np.arange(0, N + 1)
-    S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-    put_matrix[:, -1] = np.maximum(K - S_end, 0)
+    p = (np.exp(interest_rate * t) - d) / (u - d)
+    put_matrix = np.zeros((steps + 1, steps + 1))
+    N_list = np.arange(0, steps + 1)
+    S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+    put_matrix[:, -1] = np.maximum(strike_price - S_end, 0)
 
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i + 1)
         for j in j_list:
-            Si = S * np.power(u, i - j) * np.power(d, j)
-            put_strike = np.maximum(K - Si, 0)
-            put_nostrike = np.exp(-r * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
+            Si = spot_price * np.power(u, i - j) * np.power(d, j)
+            put_strike = np.maximum(strike_price - Si, 0)
+            put_nostrike = np.exp(-interest_rate * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
             put_matrix[i, j] = np.maximum(put_strike, put_nostrike)
 
-    Delta = (put_matrix[0, 1] - put_matrix[1, 1]) / (S * u - S * d)
-    if positype == 'long':
+    Delta = (put_matrix[0, 1] - put_matrix[1, 1]) / (spot_price * u - spot_price * d)
+    if position_type == 'long':
         result = Delta
     else:
         result = -Delta
@@ -252,36 +252,36 @@ from numpy import log, exp, sqrt, power, pi
 
 
 # 复用之前定义的函数
-def delta_EurOpt(S, K, sigma, r, T, optype, positype):
-    d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-    if optype == 'call':
-        if positype == 'long':
+def delta_eur_opt(spot_price, strike_price, volatility, interest_rate, time_to_maturity, option_type, position_type):
+    d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    if option_type == 'call':
+        if position_type == 'long':
             delta = norm.cdf(d1)
         else:
             delta = -norm.cdf(d1)
     else:
-        if positype == 'long':
+        if position_type == 'long':
             delta = norm.cdf(d1) - 1
         else:
             delta = 1 - norm.cdf(d1)
     return delta
 
 
-def option_BSM(S, K, sigma, r, T, opt):
-    d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-    d2 = d1 - sigma * sqrt(T)
-    if opt == 'call':
-        value = S * norm.cdf(d1) - K * exp(-r * T) * norm.cdf(d2)
+def black_scholes_option_price(spot_price, strike_price, volatility, interest_rate, time_to_maturity, option_type):
+    d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    d2 = d1 - volatility * sqrt(time_to_maturity)
+    if option_type == 'call':
+        value = spot_price * norm.cdf(d1) - strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(d2)
     else:
-        value = K * exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+        value = strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(-d2) - spot_price * norm.cdf(-d1)
     return value
 
 
 # 1. 定义欧式期权Gamma计算函数
-def gamma_EurOpt(S, K, sigma, r, T):
+def gamma_eur_opt(spot_price, strike_price, volatility, interest_rate, time_to_maturity):
     '''计算欧式期权Gamma的函数'''
-    d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-    gamma = exp(-power(d1, 2) / 2) / (S * sigma * sqrt(2 * pi * T))
+    d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    gamma = exp(-power(d1, 2) / 2) / (spot_price * volatility * sqrt(2 * pi * time_to_maturity))
     return gamma
 
 
@@ -356,55 +356,55 @@ def gamma_EurOpt(S, K, sigma, r, T):
 
 
 # 6. 美式期权Gamma计算函数
-def gamma_AmerCall(S, K, sigma, r, T, N):
-    t = T / N
-    u = np.exp(sigma * np.sqrt(t))
+def gamma_amer_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+    t = time_to_maturity / steps
+    u = np.exp(volatility * np.sqrt(t))
     d = 1 / u
-    p = (np.exp(r * t) - d) / (u - d)
-    call_matrix = np.zeros((N + 1, N + 1))
-    N_list = np.arange(0, N + 1)
-    S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-    call_matrix[:, -1] = np.maximum(S_end - K, 0)
+    p = (np.exp(interest_rate * t) - d) / (u - d)
+    call_matrix = np.zeros((steps + 1, steps + 1))
+    N_list = np.arange(0, steps + 1)
+    S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+    call_matrix[:, -1] = np.maximum(S_end - strike_price, 0)
 
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i + 1)
         for j in j_list:
-            Si = S * np.power(u, i - j) * np.power(d, j)
-            call_strike = np.maximum(Si - K, 0)
-            call_nostrike = np.exp(-r * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
+            Si = spot_price * np.power(u, i - j) * np.power(d, j)
+            call_strike = np.maximum(Si - strike_price, 0)
+            call_nostrike = np.exp(-interest_rate * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
             call_matrix[i, j] = np.maximum(call_strike, call_nostrike)
 
-    Delta1 = (call_matrix[0, 2] - call_matrix[1, 2]) / (S * np.power(u, 2) - S)
-    Delta2 = (call_matrix[1, 2] - call_matrix[2, 2]) / (S - S * np.power(d, 2))
-    Gamma = (Delta1 - Delta2) / (S * np.power(u, 2) - S * np.power(d, 2))
+    Delta1 = (call_matrix[0, 2] - call_matrix[1, 2]) / (spot_price * np.power(u, 2) - spot_price)
+    Delta2 = (call_matrix[1, 2] - call_matrix[2, 2]) / (spot_price - spot_price * np.power(d, 2))
+    Gamma = (Delta1 - Delta2) / (spot_price * np.power(u, 2) - spot_price * np.power(d, 2))
     return Gamma
 
 
-def gamma_AmerPut(S, K, sigma, r, T, N):
-    t = T / N
-    u = np.exp(sigma * np.sqrt(t))
+def gamma_amer_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+    t = time_to_maturity / steps
+    u = np.exp(volatility * np.sqrt(t))
     d = 1 / u
-    p = (np.exp(r * t) - d) / (u - d)
-    put_matrix = np.zeros((N + 1, N + 1))
-    N_list = np.arange(0, N + 1)
-    S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-    put_matrix[:, -1] = np.maximum(K - S_end, 0)
+    p = (np.exp(interest_rate * t) - d) / (u - d)
+    put_matrix = np.zeros((steps + 1, steps + 1))
+    N_list = np.arange(0, steps + 1)
+    S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+    put_matrix[:, -1] = np.maximum(strike_price - S_end, 0)
 
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i + 1)
         for j in j_list:
-            Si = S * np.power(u, i - j) * np.power(d, j)
-            put_strike = np.maximum(K - Si, 0)
-            put_nostrike = np.exp(-r * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
+            Si = spot_price * np.power(u, i - j) * np.power(d, j)
+            put_strike = np.maximum(strike_price - Si, 0)
+            put_nostrike = np.exp(-interest_rate * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
             put_matrix[i, j] = np.maximum(put_strike, put_nostrike)
 
-    Delta1 = (put_matrix[0, 2] - put_matrix[1, 2]) / (S * np.power(u, 2) - S)
-    Delta2 = (put_matrix[1, 2] - put_matrix[2, 2]) / (S - S * np.power(d, 2))
-    Gamma = (Delta1 - Delta2) / (S * np.power(u, 2) - S * np.power(d, 2))
+    Delta1 = (put_matrix[0, 2] - put_matrix[1, 2]) / (spot_price * np.power(u, 2) - spot_price)
+    Delta2 = (put_matrix[1, 2] - put_matrix[2, 2]) / (spot_price - spot_price * np.power(d, 2))
+    Gamma = (Delta1 - Delta2) / (spot_price * np.power(u, 2) - spot_price * np.power(d, 2))
     return Gamma
 
 #
@@ -419,16 +419,16 @@ def gamma_AmerPut(S, K, sigma, r, T, N):
 
 '''Theta'''
 # 1. 定义欧式期权Theta计算函数
-def theta_EurOpt(S, K, sigma, r, T, optype):
+def theta_eur_opt(spot_price, strike_price, volatility, interest_rate, time_to_maturity, option_type):
     '''计算欧式期权Theta的函数'''
-    d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-    d2 = d1 - sigma * sqrt(T)
+    d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    d2 = d1 - volatility * sqrt(time_to_maturity)
     # 计算看涨期权Theta
-    theta_call = (S * sigma * exp(-power(d1, 2) / 2)) / (2 * sqrt(2 * pi * T)) - r * K * exp(-r * T) * norm.cdf(d2)
+    theta_call = (spot_price * volatility * exp(-power(d1, 2) / 2)) / (2 * sqrt(2 * pi * time_to_maturity)) - interest_rate * strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(d2)
     # 计算看跌期权Theta（看涨+看跌平价关系）
-    theta_put = theta_call + r * K * np.exp(-r * T)
+    theta_put = theta_call + interest_rate * strike_price * np.exp(-interest_rate * time_to_maturity)
 
-    if optype == 'call':
+    if option_type == 'call':
         theta = theta_call
     else:
         theta = theta_put
@@ -496,24 +496,24 @@ def theta_EurOpt(S, K, sigma, r, T, optype):
 
 
 # 5. 定义美式看涨期权Theta计算函数（N步二叉树）
-def theta_AmerCall(S, K, sigma, r, T, N):
-    t = T / N
-    u = np.exp(sigma * np.sqrt(t))
+def theta_amer_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+    t = time_to_maturity / steps
+    u = np.exp(volatility * np.sqrt(t))
     d = 1 / u
-    p = (np.exp(r * t) - d) / (u - d)
-    call_matrix = np.zeros((N + 1, N + 1))
-    N_list = np.arange(0, N + 1)
-    S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-    call_matrix[:, -1] = np.maximum(S_end - K, 0)
+    p = (np.exp(interest_rate * t) - d) / (u - d)
+    call_matrix = np.zeros((steps + 1, steps + 1))
+    N_list = np.arange(0, steps + 1)
+    S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+    call_matrix[:, -1] = np.maximum(S_end - strike_price, 0)
 
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i + 1)
         for j in j_list:
-            Si = S * np.power(u, i - j) * np.power(d, j)
-            call_strike = np.maximum(Si - K, 0)
-            call_nostrike = np.exp(-r * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
+            Si = spot_price * np.power(u, i - j) * np.power(d, j)
+            call_strike = np.maximum(Si - strike_price, 0)
+            call_nostrike = np.exp(-interest_rate * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
             call_matrix[i, j] = np.maximum(call_strike, call_nostrike)
 
     Theta = (call_matrix[1, 2] - call_matrix[0, 0]) / (2 * t)
@@ -521,24 +521,24 @@ def theta_AmerCall(S, K, sigma, r, T, N):
 
 
 # 6. 定义美式看跌期权Theta计算函数（N步二叉树）
-def theta_AmerPut(S, K, sigma, r, T, N):
-    t = T / N
-    u = np.exp(sigma * np.sqrt(t))
+def theta_amer_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+    t = time_to_maturity / steps
+    u = np.exp(volatility * np.sqrt(t))
     d = 1 / u
-    p = (np.exp(r * t) - d) / (u - d)
-    put_matrix = np.zeros((N + 1, N + 1))
-    N_list = np.arange(0, N + 1)
-    S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-    put_matrix[:, -1] = np.maximum(K - S_end, 0)
+    p = (np.exp(interest_rate * t) - d) / (u - d)
+    put_matrix = np.zeros((steps + 1, steps + 1))
+    N_list = np.arange(0, steps + 1)
+    S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+    put_matrix[:, -1] = np.maximum(strike_price - S_end, 0)
 
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i + 1)
         for j in j_list:
-            Si = S * np.power(u, i - j) * np.power(d, j)
-            put_strike = np.maximum(K - Si, 0)
-            put_nostrike = np.exp(-r * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
+            Si = spot_price * np.power(u, i - j) * np.power(d, j)
+            put_strike = np.maximum(strike_price - Si, 0)
+            put_nostrike = np.exp(-interest_rate * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
             put_matrix[i, j] = np.maximum(put_strike, put_nostrike)
 
     Theta = (put_matrix[1, 2] - put_matrix[0, 0]) / (2 * t)
@@ -556,10 +556,10 @@ def theta_AmerPut(S, K, sigma, r, T, N):
 
 '''Vega'''
 # 1. 定义欧式期权Vega计算函数
-def vega_EurOpt(S, K, sigma, r, T):
+def vega_eur_opt(spot_price, strike_price, volatility, interest_rate, time_to_maturity):
     '''计算欧式期权Vega的函数'''
-    d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-    vega = S * sqrt(T) * exp(-power(d1, 2) / 2) / sqrt(2 * pi)
+    d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    vega = spot_price * sqrt(time_to_maturity) * exp(-power(d1, 2) / 2) / sqrt(2 * pi)
     return vega
 
 
@@ -617,59 +617,59 @@ def vega_EurOpt(S, K, sigma, r, T):
 
 
 # 5. 定义美式看涨期权Vega计算函数（N步二叉树）
-def vega_AmerCall(S, K, sigma, r, T, N):
-    def American_call(S, K, sigma, r, T, N):
-        t = T / N
-        u = np.exp(sigma * np.sqrt(t))
+def vega_amer_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+    def american_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+        t = time_to_maturity / steps
+        u = np.exp(volatility * np.sqrt(t))
         d = 1 / u
-        p = (np.exp(r * t) - d) / (u - d)
-        call_matrix = np.zeros((N + 1, N + 1))
-        N_list = np.arange(0, N + 1)
-        S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-        call_matrix[:, -1] = np.maximum(S_end - K, 0)
+        p = (np.exp(interest_rate * t) - d) / (u - d)
+        call_matrix = np.zeros((steps + 1, steps + 1))
+        N_list = np.arange(0, steps + 1)
+        S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+        call_matrix[:, -1] = np.maximum(S_end - strike_price, 0)
 
-        i_list = list(range(0, N))
+        i_list = list(range(0, steps))
         i_list.reverse()
         for i in i_list:
             j_list = np.arange(i + 1)
             for j in j_list:
-                Si = S * np.power(u, i - j) * np.power(d, j)
-                call_strike = np.maximum(Si - K, 0)
-                call_nostrike = np.exp(-r * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
+                Si = spot_price * np.power(u, i - j) * np.power(d, j)
+                call_strike = np.maximum(Si - strike_price, 0)
+                call_nostrike = np.exp(-interest_rate * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
                 call_matrix[i, j] = np.maximum(call_strike, call_nostrike)
         return call_matrix[0, 0]
 
-    Value1 = American_call(S, K, sigma, r, T, N)
-    Value2 = American_call(S, K, sigma + 0.0001, r, T, N)
+    Value1 = american_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps)
+    Value2 = american_call(spot_price, strike_price, volatility + 0.0001, interest_rate, time_to_maturity, steps)
     vega = (Value2 - Value1) / 0.0001
     return vega
 
 
 # 6. 定义美式看跌期权Vega计算函数（N步二叉树）
-def vega_AmerPut(S, K, sigma, r, T, N):
-    def American_put(S, K, sigma, r, T, N):
-        t = T / N
-        u = np.exp(sigma * np.sqrt(t))
+def vega_amer_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+    def american_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+        t = time_to_maturity / steps
+        u = np.exp(volatility * np.sqrt(t))
         d = 1 / u
-        p = (np.exp(r * t) - d) / (u - d)
-        put_matrix = np.zeros((N + 1, N + 1))
-        N_list = np.arange(0, N + 1)
-        S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-        put_matrix[:, -1] = np.maximum(K - S_end, 0)
+        p = (np.exp(interest_rate * t) - d) / (u - d)
+        put_matrix = np.zeros((steps + 1, steps + 1))
+        N_list = np.arange(0, steps + 1)
+        S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+        put_matrix[:, -1] = np.maximum(strike_price - S_end, 0)
 
-        i_list = list(range(0, N))
+        i_list = list(range(0, steps))
         i_list.reverse()
         for i in i_list:
             j_list = np.arange(i + 1)
             for j in j_list:
-                Si = S * np.power(u, i - j) * np.power(d, j)
-                put_strike = np.maximum(K - Si, 0)
-                put_nostrike = np.exp(-r * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
+                Si = spot_price * np.power(u, i - j) * np.power(d, j)
+                put_strike = np.maximum(strike_price - Si, 0)
+                put_nostrike = np.exp(-interest_rate * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
                 put_matrix[i, j] = np.maximum(put_strike, put_nostrike)
         return put_matrix[0, 0]
 
-    Value1 = American_put(S, K, sigma, r, T, N)
-    Value2 = American_put(S, K, sigma + 0.0001, r, T, N)
+    Value1 = american_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps)
+    Value2 = american_put(spot_price, strike_price, volatility + 0.0001, interest_rate, time_to_maturity, steps)
     vega = (Value2 - Value1) / 0.0001
     return vega
 
@@ -685,13 +685,13 @@ def vega_AmerPut(S, K, sigma, r, T, N):
 
 '''Rho'''
 # 1. 定义欧式期权Rho计算函数
-def rho_EurOpt(S, K, sigma, r, T, optype):
+def rho_eur_opt(spot_price, strike_price, volatility, interest_rate, time_to_maturity, option_type):
     '''计算欧式期权Rho的函数'''
-    d2 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-    if optype == 'call':
-        rho = K * T * exp(-r * T) * norm.cdf(d2)
+    d2 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    if option_type == 'call':
+        rho = strike_price * time_to_maturity * exp(-interest_rate * time_to_maturity) * norm.cdf(d2)
     else:
-        rho = -K * T * exp(-r * T) * norm.cdf(-d2)
+        rho = -strike_price * time_to_maturity * exp(-interest_rate * time_to_maturity) * norm.cdf(-d2)
     return rho
 
 
@@ -757,59 +757,59 @@ def rho_EurOpt(S, K, sigma, r, T, optype):
 
 
 # 5. 定义美式看涨期权Rho计算函数（N步二叉树）
-def rho_AmerCall(S, K, sigma, r, T, N):
-    def American_call(S, K, sigma, r, T, N):
-        t = T / N
-        u = np.exp(sigma * np.sqrt(t))
+def rho_amer_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+    def american_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+        t = time_to_maturity / steps
+        u = np.exp(volatility * np.sqrt(t))
         d = 1 / u
-        p = (np.exp(r * t) - d) / (u - d)
-        call_matrix = np.zeros((N + 1, N + 1))
-        N_list = np.arange(0, N + 1)
-        S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-        call_matrix[:, -1] = np.maximum(S_end - K, 0)
+        p = (np.exp(interest_rate * t) - d) / (u - d)
+        call_matrix = np.zeros((steps + 1, steps + 1))
+        N_list = np.arange(0, steps + 1)
+        S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+        call_matrix[:, -1] = np.maximum(S_end - strike_price, 0)
 
-        i_list = list(range(0, N))
+        i_list = list(range(0, steps))
         i_list.reverse()
         for i in i_list:
             j_list = np.arange(i + 1)
             for j in j_list:
-                Si = S * np.power(u, i - j) * np.power(d, j)
-                call_strike = np.maximum(Si - K, 0)
-                call_nostrike = np.exp(-r * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
+                Si = spot_price * np.power(u, i - j) * np.power(d, j)
+                call_strike = np.maximum(Si - strike_price, 0)
+                call_nostrike = np.exp(-interest_rate * t) * (p * call_matrix[i + 1, j + 1] + (1 - p) * call_matrix[i + 1, j])
                 call_matrix[i, j] = np.maximum(call_strike, call_nostrike)
         return call_matrix[0, 0]
 
-    Value1 = American_call(S, K, sigma, r, T, N)
-    Value2 = American_call(S, K, sigma, r + 0.0001, T, N)
+    Value1 = american_call(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps)
+    Value2 = american_call(spot_price, strike_price, volatility, interest_rate + 0.0001, time_to_maturity, steps)
     rho = (Value2 - Value1) / 0.0001
     return rho
 
 
 # 6. 定义美式看跌期权Rho计算函数（N步二叉树）
-def rho_AmerPut(S, K, sigma, r, T, N):
-    def American_put(S, K, sigma, r, T, N):
-        t = T / N
-        u = np.exp(sigma * np.sqrt(t))
+def rho_amer_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+    def american_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
+        t = time_to_maturity / steps
+        u = np.exp(volatility * np.sqrt(t))
         d = 1 / u
-        p = (np.exp(r * t) - d) / (u - d)
-        put_matrix = np.zeros((N + 1, N + 1))
-        N_list = np.arange(0, N + 1)
-        S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
-        put_matrix[:, -1] = np.maximum(K - S_end, 0)
+        p = (np.exp(interest_rate * t) - d) / (u - d)
+        put_matrix = np.zeros((steps + 1, steps + 1))
+        N_list = np.arange(0, steps + 1)
+        S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
+        put_matrix[:, -1] = np.maximum(strike_price - S_end, 0)
 
-        i_list = list(range(0, N))
+        i_list = list(range(0, steps))
         i_list.reverse()
         for i in i_list:
             j_list = np.arange(i + 1)
             for j in j_list:
-                Si = S * np.power(u, i - j) * np.power(d, j)
-                put_strike = np.maximum(K - Si, 0)
-                put_nostrike = np.exp(-r * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
+                Si = spot_price * np.power(u, i - j) * np.power(d, j)
+                put_strike = np.maximum(strike_price - Si, 0)
+                put_nostrike = np.exp(-interest_rate * t) * (p * put_matrix[i + 1, j + 1] + (1 - p) * put_matrix[i + 1, j])
                 put_matrix[i, j] = np.maximum(put_strike, put_nostrike)
         return put_matrix[0, 0]
 
-    Value1 = American_put(S, K, sigma, r, T, N)
-    Value2 = American_put(S, K, sigma, r + 0.0001, T, N)
+    Value1 = american_put(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps)
+    Value2 = american_put(spot_price, strike_price, volatility, interest_rate + 0.0001, time_to_maturity, steps)
     rho = (Value2 - Value1) / 0.0001
     return rho
 
@@ -825,18 +825,18 @@ def rho_AmerPut(S, K, sigma, r, T, N):
 
 '''implied volatility'''
 # 1. 牛顿迭代法计算欧式看涨期权隐含波动率
-def impvol_call_Newton(C, S, K, r, T):
-    def call_BSM(S, K, sigma, r, T):
-        d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-        d2 = d1 - sigma * sqrt(T)
-        call = S * norm.cdf(d1) - K * exp(-r * T) * norm.cdf(d2)
+def impvol_call_newton(call_price, spot_price, strike_price, interest_rate, time_to_maturity):
+    def call_bsm(spot_price, strike_price, volatility, interest_rate, time_to_maturity):
+        d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+        d2 = d1 - volatility * sqrt(time_to_maturity)
+        call = spot_price * norm.cdf(d1) - strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(d2)
         return call
 
     sigma0 = 0.2
-    diff = C - call_BSM(S, K, sigma0, r, T)
+    diff = call_price - call_bsm(spot_price, strike_price, sigma0, interest_rate, time_to_maturity)
     i = 0.0001
     while abs(diff) > 0.0001:
-        diff = C - call_BSM(S, K, sigma0, r, T)
+        diff = call_price - call_bsm(spot_price, strike_price, sigma0, interest_rate, time_to_maturity)
         if diff > 0:
             sigma0 += i
         else:
@@ -845,18 +845,18 @@ def impvol_call_Newton(C, S, K, r, T):
 
 
 # 2. 牛顿迭代法计算欧式看跌期权隐含波动率
-def impvol_put_Newton(P, S, K, r, T):
-    def put_BSM(S, K, sigma, r, T):
-        d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-        d2 = d1 - sigma * sqrt(T)
-        put = K * exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+def impvol_put_newton(put_price, spot_price, strike_price, interest_rate, time_to_maturity):
+    def put_bsm(spot_price, strike_price, volatility, interest_rate, time_to_maturity):
+        d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+        d2 = d1 - volatility * sqrt(time_to_maturity)
+        put = strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(-d2) - spot_price * norm.cdf(-d1)
         return put
 
     sigma0 = 0.2
-    diff = P - put_BSM(S, K, sigma0, r, T)
+    diff = put_price - put_bsm(spot_price, strike_price, sigma0, interest_rate, time_to_maturity)
     i = 0.0001
     while abs(diff) > 0.0001:
-        diff = P - put_BSM(S, K, sigma0, r, T)
+        diff = put_price - put_bsm(spot_price, strike_price, sigma0, interest_rate, time_to_maturity)
         if diff > 0:
             sigma0 += i
         else:
@@ -865,28 +865,28 @@ def impvol_put_Newton(P, S, K, r, T):
 
 
 # 3. 二分查找法计算欧式看涨期权隐含波动率
-def impvol_call_Binary(C, S, K, r, T):
-    def call_BSM(S, K, sigma, r, T):
-        d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-        d2 = d1 - sigma * sqrt(T)
-        call = S * norm.cdf(d1) - K * exp(-r * T) * norm.cdf(d2)
+def impvol_call_binary(call_price, spot_price, strike_price, interest_rate, time_to_maturity):
+    def call_bsm(spot_price, strike_price, volatility, interest_rate, time_to_maturity):
+        d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+        d2 = d1 - volatility * sqrt(time_to_maturity)
+        call = spot_price * norm.cdf(d1) - strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(d2)
         return call
 
     sigma_min = 0.001
     sigma_max = 1.000
     sigma_mid = (sigma_min + sigma_max) / 2
-    call_min = call_BSM(S, K, sigma_min, r, T)
-    call_max = call_BSM(S, K, sigma_max, r, T)
-    call_mid = call_BSM(S, K, sigma_mid, r, T)
-    diff = C - call_mid
+    call_min = call_bsm(spot_price, strike_price, sigma_min, interest_rate, time_to_maturity)
+    call_max = call_bsm(spot_price, strike_price, sigma_max, interest_rate, time_to_maturity)
+    call_mid = call_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
+    diff = call_price - call_mid
 
-    if C < call_min or C > call_max:
+    if call_price < call_min or call_price > call_max:
         print('Error')
     while abs(diff) > 1e-6:
-        diff = C - call_BSM(S, K, sigma_mid, r, T)
+        diff = call_price - call_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
         sigma_mid = (sigma_min + sigma_max) / 2
-        call_mid = call_BSM(S, K, sigma_mid, r, T)
-        if C > call_mid:
+        call_mid = call_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
+        if call_price > call_mid:
             sigma_min = sigma_mid
         else:
             sigma_max = sigma_mid
@@ -894,28 +894,28 @@ def impvol_call_Binary(C, S, K, r, T):
 
 
 # 4. 二分查找法计算欧式看跌期权隐含波动率
-def impvol_put_Binary(P, S, K, r, T):
-    def put_BSM(S, K, sigma, r, T):
-        d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-        d2 = d1 - sigma * sqrt(T)
-        put = K * exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+def impvol_put_binary(put_price, spot_price, strike_price, interest_rate, time_to_maturity):
+    def put_bsm(spot_price, strike_price, volatility, interest_rate, time_to_maturity):
+        d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+        d2 = d1 - volatility * sqrt(time_to_maturity)
+        put = strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(-d2) - spot_price * norm.cdf(-d1)
         return put
 
     sigma_min = 0.001
     sigma_max = 1.000
     sigma_mid = (sigma_min + sigma_max) / 2
-    put_min = put_BSM(S, K, sigma_min, r, T)
-    put_max = put_BSM(S, K, sigma_max, r, T)
-    put_mid = put_BSM(S, K, sigma_mid, r, T)
-    diff = P - put_mid
+    put_min = put_bsm(spot_price, strike_price, sigma_min, interest_rate, time_to_maturity)
+    put_max = put_bsm(spot_price, strike_price, sigma_max, interest_rate, time_to_maturity)
+    put_mid = put_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
+    diff = put_price - put_mid
 
-    if P < put_min or P > put_max:
+    if put_price < put_min or put_price > put_max:
         print('Error')
     while abs(diff) > 1e-6:
-        diff = P - put_BSM(S, K, sigma_mid, r, T)
+        diff = put_price - put_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
         sigma_mid = (sigma_min + sigma_max) / 2
-        put_mid = put_BSM(S, K, sigma_mid, r, T)
-        if P > put_mid:
+        put_mid = put_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
+        if put_price > put_mid:
             sigma_min = sigma_mid
         else:
             sigma_max = sigma_mid

@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for price_futures."""
 
 import numpy as np
 import pandas as pd
@@ -7,7 +7,7 @@ from numpy import *
 from scipy.stats import norm
 
 
-def price_futures(S, r, y, u, c, T):
+def price_futures(spot_price, interest_rate, yield_rate, up_factor, carry_cost, time_to_maturity):
     '''计算期货理论价格的函数
     S: 现货价格
     r: 无风险利率（连续复利）
@@ -17,5 +17,5 @@ def price_futures(S, r, y, u, c, T):
     T: 剩余期限（年）'''
     from numpy import exp
     # 期货理论价格公式：S * exp((r - y + u) * T) + c
-    price = S * exp((r - y + u) * T) + c
+    price = spot_price * exp((interest_rate - yield_rate + up_factor) * time_to_maturity) + carry_cost
     return price

@@ -1,7 +1,7 @@
 """VaR financial functions."""
 
-from .VaR_VCM import VaR_VCM
+from .value_at_risk_vcm import value_at_risk_vcm
 
 __all__ = [
-    "VaR_VCM",
+    'value_at_risk_vcm',
 ]

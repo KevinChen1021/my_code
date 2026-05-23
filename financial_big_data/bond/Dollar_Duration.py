@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for dollar_duration."""
 
 import numpy as np
 import pandas as pd
@@ -8,27 +8,21 @@ from scipy.stats import norm
 import scipy.optimize as so
 
 
-def Dollar_Duration(C,M,m1,m2,y,t):
-    '''定义一个计算债券美元久期的函数
-    C: 代表债券的票面利率。
-    M: 代表债券的面值。
-    m1: 代表债券票息每年支付的频次。
-    m2: 代表债券到期收益率每年复利频次，通常m2等于m1。
-    y: 代表每年复利m2次的债券到期收益率。
-    t: 代表定价日至后续每一期现金流支付日的期限长度，用数组格式输入；零息债券可直接输入数字'''
-    r=m2*np.log(1+y/m2)  # 计算等价的连续复利到期收益率
-    if C==0:
-        price=M*np.exp(-r*t)  # 计算零息债券的价格
-        Macaulay_D=t  # 计算零息债券的麦考利久期
+def dollar_duration(coupon_rate, par_value, coupon_frequency, compounding_frequency, yield_rate, cashflow_times):
+    """Compute dollar_duration."""
+    r = compounding_frequency * np.log(1 + yield_rate / compounding_frequency)
+    if coupon_rate == 0:
+        price = par_value * np.exp(-r * cashflow_times)
+        macaulay_duration = cashflow_times
     else:
-        coupon=np.ones_like(t)*M*C/m1  # 创建每一期票息金额的数组
-        NPV_coupon=np.sum(coupon*np.exp(-r*t))  # 计算每一期票息在定价日的现值之和
-        NPV_par=M*np.exp(-r*t[-1])  # 计算本金在定价日的现值
-        price=NPV_coupon+NPV_par  # 计算定价日的债券价格
-        cashflow=coupon  # 先将现金流设定等于票息
-        cashflow[-1]=M*(1+C/m1)  # 数组最后的元素等于票息与本金之和
-        weight=cashflow*np.exp(-r*t)/price  # 计算时间的权重
-        Macaulay_D=np.sum(t*weight)  # 计算带票息债券的麦考利久期
-    Modified_D=Macaulay_D/(1+y/m2)  # 计算债券的修正久期
-    Dollar_D=price*Modified_D  # 计算债券的美元久期
-    return Dollar_D
+        coupon = np.ones_like(cashflow_times) * par_value * coupon_rate / coupon_frequency
+        NPV_coupon = np.sum(coupon * np.exp(-r * cashflow_times))
+        NPV_par = par_value * np.exp(-r * cashflow_times[-1])
+        price = NPV_coupon + NPV_par
+        cashflow = coupon
+        cashflow[-1] = par_value * (1 + coupon_rate / coupon_frequency)
+        weight = cashflow * np.exp(-r * cashflow_times) / price
+        macaulay_duration = np.sum(cashflow_times * weight)
+    modified_duration_value = macaulay_duration / (1 + yield_rate / compounding_frequency)
+    dollar_duration_value = price * modified_duration_value
+    return dollar_duration_value

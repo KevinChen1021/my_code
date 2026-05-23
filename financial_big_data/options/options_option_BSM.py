@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for black_scholes_option_price."""
 
 import numpy as np
 import pandas as pd
@@ -9,12 +9,13 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def option_BSM(S, K, sigma, r, T, opt):
+def black_scholes_option_price(spot_price, strike_price, volatility, interest_rate, time_to_maturity, option_type):
+    """Compute black_scholes_option_price."""
     from numpy import log, exp, sqrt
-    d1 = (log(S / K) + (r + pow(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-    d2 = d1 - sigma * sqrt(T)
-    if opt == 'call':
-        value = S * norm.cdf(d1) - K * exp(-r * T) * norm.cdf(d2)
+    d1 = (log(spot_price / strike_price) + (interest_rate + pow(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+    d2 = d1 - volatility * sqrt(time_to_maturity)
+    if option_type == 'call':
+        value = spot_price * norm.cdf(d1) - strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(d2)
     else:
-        value = K * exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+        value = strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(-d2) - spot_price * norm.cdf(-d1)
     return value

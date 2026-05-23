@@ -9,15 +9,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from financial_big_data import set_plot_style
-from financial_big_data.options import option_BSM
+from financial_big_data.options import black_scholes_option_price
 
 set_plot_style()
 
 spots = np.linspace(80, 120, 41)
 try:
-    values = [option_BSM(S=s, K=100, sigma=0.2, r=0.03, T=1, opt="call") for s in spots]
+    values = [black_scholes_option_price(S=s, K=100, sigma=0.2, r=0.03, T=1, opt="call") for s in spots]
 except TypeError:
-    values = [option_BSM(s, 100, 0.2, 0.03, 1, "call") for s in spots]
+    values = [black_scholes_option_price(s, 100, 0.2, 0.03, 1, "call") for s in spots]
 
 print("Sample option value:", round(values[20], 4))
 plt.plot(spots, values)

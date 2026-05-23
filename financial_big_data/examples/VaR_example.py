@@ -9,13 +9,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from financial_big_data import set_plot_style
-from financial_big_data.VaR import VaR_VCM
+from financial_big_data.VaR import value_at_risk_vcm
 
 set_plot_style()
 
 confidence = np.linspace(0.90, 0.99, 20)
-var_values = [VaR_VCM(Value=1_000_000, Rp=0.0002, Vp=0.015, X=x, N=1) for x in confidence]
-print("95% one-day VaR:", round(VaR_VCM(1_000_000, 0.0002, 0.015, 0.95, 1), 2))
+var_values = [value_at_risk_vcm(Value=1_000_000, Rp=0.0002, Vp=0.015, X=x, N=1) for x in confidence]
+print("95% one-day VaR:", round(value_at_risk_vcm(1_000_000, 0.0002, 0.015, 0.95, 1), 2))
 
 plt.plot(confidence, var_values)
 plt.xlabel("Confidence level")

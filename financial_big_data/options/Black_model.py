@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for black_model."""
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def Black_model(F, K, sigma, r, T, typ):
+def black_model(forward_price, strike_price, volatility, interest_rate, time_to_maturity, typ):
     """
     布莱克模型计算欧式期货期权价格
     F: 期货合约当前价格
@@ -19,10 +19,10 @@ def Black_model(F, K, sigma, r, T, typ):
     T: 期权期限（年）
     typ: 期权类型，'call'为看涨，其他为看跌
     """
-    d1 = (np.log(F/K) + np.power(sigma, 2)*T/2) / (sigma * np.sqrt(T))
-    d2 = d1 - sigma * np.sqrt(T)
+    d1 = (np.log(forward_price/strike_price) + np.power(volatility, 2)*time_to_maturity/2) / (volatility * np.sqrt(time_to_maturity))
+    d2 = d1 - volatility * np.sqrt(time_to_maturity)
     if typ == 'call':
-        price = np.exp(-r*T) * (F*norm.cdf(d1) - K*norm.cdf(d2))
+        price = np.exp(-interest_rate*time_to_maturity) * (forward_price*norm.cdf(d1) - strike_price*norm.cdf(d2))
     else:
-        price = np.exp(-r*T) * (K*norm.cdf(-d2) - F*norm.cdf(-d1))
+        price = np.exp(-interest_rate*time_to_maturity) * (strike_price*norm.cdf(-d2) - forward_price*norm.cdf(-d1))
     return price

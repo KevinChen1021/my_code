@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for cheapest_to_deliver_cost."""
 
 import numpy as np
 import pandas as pd
@@ -7,8 +7,9 @@ from numpy import *
 from scipy.stats import norm
 
 
-def CTD_cost(price1, price2, CF, name):
-    cost = price1 - price2 * CF
+def cheapest_to_deliver_cost(price1, price2, cash_flow, name):
+    """Compute cheapest_to_deliver_cost."""
+    cost = price1 - price2 * cash_flow
     cost = pd.DataFrame(cost, index=name, columns=["交割成本"])
     CTD_bond = cost.idxmin()
     CTD_bond = CTD_bond.rename(index={'交割成本': '最廉价交割债券'})

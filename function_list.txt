@@ -1,0 +1,310 @@
+financial_big_data\__init__.py
+  set_plot_style []
+
+financial_big_data\bond\Bondprice_diftdiscount.py
+  bond_price_different_discounts ['coupon_rate', 'par_value', 'coupon_frequency', 'discount_rates', 'cashflow_times']
+
+financial_big_data\bond\Bondprice_onediscount.py
+  bond_price_single_discount ['coupon_rate', 'par_value', 'coupon_frequency', 'discount_rate', 'cashflow_times']
+
+financial_big_data\bond\Convexity.py
+  bond_convexity ['coupon_rate', 'par_value', 'coupon_frequency', 'yield_rate', 'cashflow_times']
+
+financial_big_data\bond\Dollar_Duration.py
+  dollar_duration ['coupon_rate', 'par_value', 'coupon_frequency', 'compounding_frequency', 'yield_rate', 'cashflow_times']
+
+financial_big_data\bond\Mac_Duration.py
+  macaulay_duration ['coupon_rate', 'par_value', 'coupon_frequency', 'yield_rate', 'cashflow_times']
+
+financial_big_data\bond\Mod_Duration.py
+  modified_duration ['coupon_rate', 'par_value', 'coupon_frequency', 'compounding_frequency', 'yield_rate', 'cashflow_times']
+
+financial_big_data\bond\YTM.py
+  yield_to_maturity ['price', 'coupon_rate', 'par_value', 'coupon_frequency', 'cashflow_times']
+
+financial_big_data\bond\prob.py
+  default_probability ['risk_free_rate', 'risky_yield', 'recovery_rate', 'maturity_years']
+
+financial_big_data\futures\Bondprice_onediscount.py
+  Bondprice_onediscount ['C', 'M', 'm', 'y', 't']
+
+financial_big_data\futures\CTD_cost.py
+  CTD_cost ['price1', 'price2', 'CF', 'name']
+
+financial_big_data\futures\Mac_Duration.py
+  Mac_Duration ['C', 'M', 'm', 'y', 't']
+
+financial_big_data\futures\N_TBF.py
+  N_TBF ['PF', 'par', 'value', 'Df', 'Dp']
+
+financial_big_data\futures\N_future.py
+  N_future ['h', 'Q_A', 'Q_F']
+
+financial_big_data\futures\accrued_interest.py
+  accrued_interest ['par', 'c', 'm', 't1', 't2', 't3', 't4', 'rule']
+
+financial_big_data\futures\futures_CTD_cost.py
+  CTD_cost ['price1', 'price2', 'CF', 'name']
+
+financial_big_data\futures\price_futures.py
+  price_futures ['S', 'r', 'y', 'u', 'c', 'T']
+
+financial_big_data\futures\stack_roll.py
+  stack_roll ['F_open', 'F_close', 'M', 'N', 'position']
+
+financial_big_data\options\American_call.py
+  American_call ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\American_put.py
+  American_put ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\BTM_1step.py
+  BTM_1step ['S', 'K', 'u', 'd', 'r', 'T', 'types']
+
+financial_big_data\options\BTM_2step.py
+  BTM_2step ['S', 'K', 'u', 'd', 'r', 'T', 'types']
+
+financial_big_data\options\BTM_Nstep.py
+  BTM_Nstep ['S', 'K', 'sigma', 'r', 'T', 'N', 'types']
+
+financial_big_data\options\Black_model.py
+  Black_model ['F', 'K', 'sigma', 'r', 'T', 'typ']
+
+financial_big_data\options\FutOption_call_Amer.py
+  FutOption_call_Amer ['F', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\FutOption_put_Amer.py
+  FutOption_put_Amer ['F', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\PD_Merton.py
+  PD_Merton ['E', 'D', 'V', 'sigma', 'r', 'T']
+
+financial_big_data\options\Rc.py
+  Rc ['Rm', 'm']
+
+financial_big_data\options\Rf.py
+  Rf ['R1', 'R2', 'T1', 'T2']
+
+financial_big_data\options\caplet.py
+  caplet ['L', 'R', 'F', 'Rk', 'sigma', 't1', 't2']
+
+financial_big_data\options\delta_AmerCall.py
+  delta_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N', 'positype']
+
+financial_big_data\options\delta_AmerPut.py
+  delta_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N', 'positype']
+
+financial_big_data\options\delta_EurOpt.py
+  delta_EurOpt ['S', 'K', 'sigma', 'r', 'T', 'optype', 'positype']
+
+financial_big_data\options\f.py
+  f ['x']
+
+financial_big_data\options\floorlet.py
+  floorlet ['L', 'R', 'F', 'Rk', 'sigma', 't1', 't2']
+
+financial_big_data\options\forward_swaprate.py
+  forward_swaprate ['S_list', 't', 'n', 'm']
+
+financial_big_data\options\g.py
+  g ['x']
+
+financial_big_data\options\gamma_AmerCall.py
+  gamma_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\gamma_AmerPut.py
+  gamma_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\gamma_EurOpt.py
+  gamma_EurOpt ['S', 'K', 'sigma', 'r', 'T']
+
+financial_big_data\options\impvol_call_Binary.py
+  impvol_call_Binary ['C', 'S', 'K', 'r', 'T']
+
+financial_big_data\options\impvol_call_Newton.py
+  impvol_call_Newton ['C', 'S', 'K', 'r', 'T']
+
+financial_big_data\options\impvol_put_Binary.py
+  impvol_put_Binary ['P', 'S', 'K', 'r', 'T']
+
+financial_big_data\options\impvol_put_Newton.py
+  impvol_put_Newton ['P', 'S', 'K', 'r', 'T']
+
+financial_big_data\options\option_BSM.py
+  option_BSM ['S', 'K', 'sigma', 'r', 'T', 'opt']
+
+financial_big_data\options\option_parity.py
+  option_parity ['opt', 'c', 'p', 'S', 'K', 'r', 'T']
+
+financial_big_data\options\options_BTM_Nstep.py
+  BTM_Nstep ['S', 'K', 'sigma', 'r', 'T', 'N', 'types']
+
+financial_big_data\options\options_extensive_applications.py
+  f ['x']
+  PD_Merton ['E', 'D', 'V', 'sigma', 'r', 'T']
+  g ['x']
+  value_CB ['S', 'sigma', 'par', 'X', 'Lambda', 'r', 'R', 'Q2', 'T', 'N']
+  Black_model ['F', 'K', 'sigma', 'r', 'T', 'typ']
+  FutOption_call_Amer ['F', 'K', 'sigma', 'r', 'T', 'N']
+  FutOption_put_Amer ['F', 'K', 'sigma', 'r', 'T', 'N']
+  caplet ['L', 'R', 'F', 'Rk', 'sigma', 't1', 't2']
+  Rf ['R1', 'R2', 'T1', 'T2']
+  floorlet ['L', 'R', 'F', 'Rk', 'sigma', 't1', 't2']
+  swaption ['L', 'Sf', 'Sk', 'm', 'sigma', 't', 'n', 'R_list', 'direction']
+  forward_swaprate ['S_list', 't', 'n', 'm']
+  Rc ['Rm', 'm']
+
+financial_big_data\options\options_option_BSM.py
+  option_BSM ['S', 'K', 'sigma', 'r', 'T', 'opt']
+
+financial_big_data\options\options_parameters.py
+  delta_EurOpt ['S', 'K', 'sigma', 'r', 'T', 'optype', 'positype']
+  option_BSM ['S', 'K', 'sigma', 'r', 'T', 'opt']
+  delta_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N', 'positype']
+  delta_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N', 'positype']
+  delta_EurOpt ['S', 'K', 'sigma', 'r', 'T', 'optype', 'positype']
+  option_BSM ['S', 'K', 'sigma', 'r', 'T', 'opt']
+  gamma_EurOpt ['S', 'K', 'sigma', 'r', 'T']
+  gamma_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N']
+  gamma_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N']
+  theta_EurOpt ['S', 'K', 'sigma', 'r', 'T', 'optype']
+  theta_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N']
+  theta_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N']
+  vega_EurOpt ['S', 'K', 'sigma', 'r', 'T']
+  vega_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N']
+  vega_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N']
+  rho_EurOpt ['S', 'K', 'sigma', 'r', 'T', 'optype']
+  rho_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N']
+  rho_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N']
+  impvol_call_Newton ['C', 'S', 'K', 'r', 'T']
+  impvol_put_Newton ['P', 'S', 'K', 'r', 'T']
+  impvol_call_Binary ['C', 'S', 'K', 'r', 'T']
+  impvol_put_Binary ['P', 'S', 'K', 'r', 'T']
+
+financial_big_data\options\options_parameters_delta_EurOpt.py
+  delta_EurOpt ['S', 'K', 'sigma', 'r', 'T', 'optype', 'positype']
+
+financial_big_data\options\options_parameters_option_BSM.py
+  option_BSM ['S', 'K', 'sigma', 'r', 'T', 'opt']
+
+financial_big_data\options\options_trading_strategy.py
+  BTM_Nstep ['S', 'K', 'sigma', 'r', 'T', 'N', 'types']
+  BTM_Nstep ['S', 'K', 'sigma', 'r', 'T', 'N', 'types']
+
+financial_big_data\options\options_trading_strategy_BTM_Nstep.py
+  BTM_Nstep ['S', 'K', 'sigma', 'r', 'T', 'N', 'types']
+
+financial_big_data\options\rho_AmerCall.py
+  rho_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\rho_AmerPut.py
+  rho_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\rho_EurOpt.py
+  rho_EurOpt ['S', 'K', 'sigma', 'r', 'T', 'optype']
+
+financial_big_data\options\swaption.py
+  swaption ['L', 'Sf', 'Sk', 'm', 'sigma', 't', 'n', 'R_list', 'direction']
+
+financial_big_data\options\theta_AmerCall.py
+  theta_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\theta_AmerPut.py
+  theta_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\theta_EurOpt.py
+  theta_EurOpt ['S', 'K', 'sigma', 'r', 'T', 'optype']
+
+financial_big_data\options\value_CB.py
+  value_CB ['S', 'sigma', 'par', 'X', 'Lambda', 'r', 'R', 'Q2', 'T', 'N']
+
+financial_big_data\options\vega_AmerCall.py
+  vega_AmerCall ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\vega_AmerPut.py
+  vega_AmerPut ['S', 'K', 'sigma', 'r', 'T', 'N']
+
+financial_big_data\options\vega_EurOpt.py
+  vega_EurOpt ['S', 'K', 'sigma', 'r', 'T']
+
+financial_big_data\rate\FRA_cashflow.py
+  FRA_cashflow ['L', 'Rk', 'Rm', 'T1', 'T2', 'position']
+
+financial_big_data\rate\FX_forward.py
+  FX_forward ['Ea', 'Eb', 'r_A', 'r_B', 'T0', 'T1', 'types']
+
+financial_big_data\rate\Forward_rate.py
+  Forward_rate ['R1', 'R2', 'T1', 'T2']
+
+financial_big_data\rate\Value_FRA.py
+  Value_FRA ['L', 'Rk', 'Rf', 'R', 'T0', 'T1', 'T2', 'position']
+
+financial_big_data\rate\Value_FXforward.py
+  Value_FXforward ['F0', 'F1', 'E', 'L_A', 'L_B', 'R_A', 'R_B', 'T_price', 'T_end', 'vc', 'position']
+
+financial_big_data\rate\cov_arbitrage.py
+  cov_arbitrage ['Ea', 'Eb', 'Fa', 'Fb', 'L_A', 'L_B', 'R_A', 'R_B', 'T', 'A', 'B']
+
+financial_big_data\rate\exchange.py
+  exchange ['M', 'N', 'Ea', 'Eb', 'curr_A', 'curr_B', 'direction']
+
+financial_big_data\rate\rate_and_exchange_rate_Forward_rate.py
+  Forward_rate ['R1', 'R2', 'T1', 'T2']
+
+financial_big_data\rate\tri_arbitrage.py
+  tri_arbitrage ['L', 'E1a', 'E1b', 'E2a', 'E2b', 'E3a', 'E3b', 'A', 'B', 'C']
+
+financial_big_data\stock\CR.py
+  CR ['Rp', 'MDD']
+
+financial_big_data\stock\IR.py
+  IR ['Rp', 'Rb', 'TE']
+
+financial_big_data\stock\MDD.py
+  MDD ['data']
+
+financial_big_data\stock\SOR.py
+  SOR ['Rp', 'Rf', 'Vd']
+
+financial_big_data\stock\SR.py
+  SR ['Rp', 'Rf', 'Vp']
+
+financial_big_data\stock\TR.py
+  TR ['Rp', 'Rf', 'beta']
+
+financial_big_data\stock\value_2SGM.py
+  value_2SGM ['D', 'g1', 'g2', 'T', 'r']
+
+financial_big_data\stock\value_3SGM.py
+  value_3SGM ['D', 'ga', 'gb', 'Tb', 'Tr', 'r']
+
+financial_big_data\stock\value_CGM.py
+  value_CGM ['D', 'g', 'r']
+
+financial_big_data\stock\value_ZGM.py
+  value_ZGM ['D', 'r']
+
+financial_big_data\swap\CCS_fixed_cashflow.py
+  CCS_fixed_cashflow ['La', 'Lb', 'Ra_fix', 'Rb_fix', 'm', 'T', 'trader', 'par']
+
+financial_big_data\swap\CCS_fixflt_cashflow.py
+  CCS_fixflt_cashflow ['La', 'Lb', 'Ra_fix', 'Rb_flt', 'm', 'T', 'trader', 'par']
+
+financial_big_data\swap\CCS_float_cashflow.py
+  CCS_float_cashflow ['La', 'Lb', 'Ra_flt', 'Rb_flt', 'm', 'T', 'trader', 'par']
+
+financial_big_data\swap\CCS_value.py
+  CCS_value ['types', 'La', 'Lb', 'Ra', 'Rb', 'ya', 'yb', 'E', 'm', 't', 'trader']
+
+financial_big_data\swap\CDS_cashflow.py
+  CDS_cashflow ['S', 'm', 't1', 't2', 'L', 'recovery', 'trader', 'event']
+
+financial_big_data\swap\IRS_cashflow.py
+  IRS_cashflow ['R_flt', 'R_fix', 'L', 'm', 'position']
+
+financial_big_data\swap\swap_value.py
+  swap_value ['R_fix', 'R_flt', 't', 'y', 'm', 'L', 'position']
+
+financial_big_data\VaR\VaR_VCM.py
+  VaR_VCM ['Value', 'Rp', 'Vp', 'X', 'N']
+

@@ -47,10 +47,10 @@ def f(x):
 #
 
 # 3. 计算违约概率（Merton模型）
-def PD_Merton(E, D, V, sigma, r, T):
+def merton_default_probability(exchange_rate, debt_value, asset_value, volatility, interest_rate, time_to_maturity):
     """运用默顿模型计算企业违约概率"""
-    d1 = (np.log(V/D) + (r + np.power(sigma, 2)/2)*T) / (sigma * np.sqrt(T))
-    d2 = d1 - sigma * np.sqrt(T)
+    d1 = (np.log(asset_value/debt_value) + (interest_rate + np.power(volatility, 2)/2)*time_to_maturity) / (volatility * np.sqrt(time_to_maturity))
+    d2 = d1 - volatility * np.sqrt(time_to_maturity)
     PD = norm.cdf(-d2)
     return PD
 
@@ -102,7 +102,7 @@ def g(x):
 
 
 # 2. 二又树模型计算可转换债券价值
-def value_CB(S, sigma, par, X, Lambda, r, R, Q2, T, N):
+def value_cb(spot_price, volatility, par_value, confidence_level, lambda_value, interest_rate, rate, quantity_two, time_to_maturity, steps):
     """
     N步二又树模型计算可转换债券价值
     S: 股票初始价格
@@ -117,35 +117,35 @@ def value_CB(S, sigma, par, X, Lambda, r, R, Q2, T, N):
     N: 二又树步数
     """
     # 步骤1：计算参数
-    t = T / N  # 每步期限（年）
-    u = np.exp(np.sqrt((np.power(sigma, 2) - Lambda) * t))  # 股价上涨比例
+    t = time_to_maturity / steps  # 每步期限（年）
+    u = np.exp(np.sqrt((np.power(volatility, 2) - lambda_value) * t))  # 股价上涨比例
     d = 1 / u  # 股价下跌比例
-    Pu = (np.exp(r * t) - d * np.exp(-Lambda * t)) / (u - d)  # 股价上涨概率
-    Pd = (u * np.exp(-Lambda * t) - np.exp(r * t)) / (u - d)  # 股价下跌概率
-    P_default = 1 - np.exp(-Lambda * t)  # 违约概率
-    D_value = par * R  # 违约回收价值
-    CB_matrix = np.zeros((N + 1, N + 1))  # 存储各节点可转债价值的矩阵
+    Pu = (np.exp(interest_rate * t) - d * np.exp(-lambda_value * t)) / (u - d)  # 股价上涨概率
+    Pd = (u * np.exp(-lambda_value * t) - np.exp(interest_rate * t)) / (u - d)  # 股价下跌概率
+    P_default = 1 - np.exp(-lambda_value * t)  # 违约概率
+    D_value = par_value * rate  # 违约回收价值
+    CB_matrix = np.zeros((steps + 1, steps + 1))  # 存储各节点可转债价值的矩阵
 
     # 步骤2：计算到期节点的可转债价值
-    N_list = np.arange(0, N + 1)
-    S_end = S * np.power(u, N - N_list) * np.power(d, N_list)  # 到期节点股价
-    Q1 = par  # 到期不转股/不赎回的本金
-    Q3 = X * S_end  # 到期转股价值
+    N_list = np.arange(0, steps + 1)
+    S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)  # 到期节点股价
+    Q1 = par_value  # 到期不转股/不赎回的本金
+    Q3 = confidence_level * S_end  # 到期转股价值
     # 到期价值：取（min(本金,赎回价)、转股价值）的最大值
-    CB_matrix[:, -1] = np.maximum(np.minimum(Q1, Q2), Q3)
+    CB_matrix[:, -1] = np.maximum(np.minimum(Q1, quantity_two), Q3)
 
     # 步骤3：倒推计算非到期节点的可转债价值
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()  # 从N-1到0倒推
     for i in i_list:
         j_list = np.arange(i + 1)
         for j in j_list:
-            Si = S * np.power(u, i - j) * np.power(d, j)  # 当前节点股价
+            Si = spot_price * np.power(u, i - j) * np.power(d, j)  # 当前节点股价
             # 非违约时的价值（折现后）
-            Q1 = np.exp(-r * t) * (Pu * CB_matrix[i + 1, j + 1] + Pd * CB_matrix[i + 1, j] + P_default * D_value)
-            Q3 = X * Si  # 当前节点转股价值
+            Q1 = np.exp(-interest_rate * t) * (Pu * CB_matrix[i + 1, j + 1] + Pd * CB_matrix[i + 1, j] + P_default * D_value)
+            Q3 = confidence_level * Si  # 当前节点转股价值
             # 当前节点价值：取（min(本金,赎回价)、转股价值）的最大值
-            CB_matrix[i, j] = np.maximum(np.minimum(Q1, Q2), Q3)
+            CB_matrix[i, j] = np.maximum(np.minimum(Q1, quantity_two), Q3)
 
     V0 = CB_matrix[0, 0]  # 初始价值
     return V0
@@ -184,7 +184,7 @@ def value_CB(S, sigma, par, X, Lambda, r, R, Q2, T, N):
 
 '''futures options'''
 # 1. 布莱克模型计算欧式期货期权价格
-def Black_model(F, K, sigma, r, T, typ):
+def black_model(forward_price, strike_price, volatility, interest_rate, time_to_maturity, typ):
     """
     布莱克模型计算欧式期货期权价格
     F: 期货合约当前价格
@@ -194,12 +194,12 @@ def Black_model(F, K, sigma, r, T, typ):
     T: 期权期限（年）
     typ: 期权类型，'call'为看涨，其他为看跌
     """
-    d1 = (np.log(F/K) + np.power(sigma, 2)*T/2) / (sigma * np.sqrt(T))
-    d2 = d1 - sigma * np.sqrt(T)
+    d1 = (np.log(forward_price/strike_price) + np.power(volatility, 2)*time_to_maturity/2) / (volatility * np.sqrt(time_to_maturity))
+    d2 = d1 - volatility * np.sqrt(time_to_maturity)
     if typ == 'call':
-        price = np.exp(-r*T) * (F*norm.cdf(d1) - K*norm.cdf(d2))
+        price = np.exp(-interest_rate*time_to_maturity) * (forward_price*norm.cdf(d1) - strike_price*norm.cdf(d2))
     else:
-        price = np.exp(-r*T) * (K*norm.cdf(-d2) - F*norm.cdf(-d1))
+        price = np.exp(-interest_rate*time_to_maturity) * (strike_price*norm.cdf(-d2) - forward_price*norm.cdf(-d1))
     return price
 
 
@@ -231,7 +231,7 @@ def Black_model(F, K, sigma, r, T, typ):
 #
 
 # 3. N步二叉树模型计算美式看涨期货期权价格
-def FutOption_call_Amer(F, K, sigma, r, T, N):
+def american_futures_call_option(forward_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
     """
     N步二叉树计算美式看涨期货期权价格
     F: 期货合约当前价格
@@ -241,57 +241,57 @@ def FutOption_call_Amer(F, K, sigma, r, T, N):
     T: 期权期限（年）
     N: 二叉树步数
     """
-    t = T / N  # 每步期限（年）
-    u = np.exp(sigma * np.sqrt(t))  # 期货价格上涨比例
+    t = time_to_maturity / steps  # 每步期限（年）
+    u = np.exp(volatility * np.sqrt(t))  # 期货价格上涨比例
     d = 1 / u  # 期货价格下跌比例
     p = (1 - d) / (u - d)  # 上涨概率
-    call_matrix = np.zeros((N+1, N+1))  # 存储期权价值的矩阵
+    call_matrix = np.zeros((steps+1, steps+1))  # 存储期权价值的矩阵
 
     # 到期节点价值
-    N_list = np.arange(0, N+1)
-    F_end = F * np.power(u, N - N_list) * np.power(d, N_list)
-    call_matrix[:, -1] = np.maximum(F_end - K, 0)
+    N_list = np.arange(0, steps+1)
+    F_end = forward_price * np.power(u, steps - N_list) * np.power(d, N_list)
+    call_matrix[:, -1] = np.maximum(F_end - strike_price, 0)
 
     # 倒推计算非到期节点价值
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i+1)
         for j in j_list:
-            Fi = F * np.power(u, i - j) * np.power(d, j)
-            call_strike = np.maximum(Fi - K, 0)  # 提前行权收益
+            Fi = forward_price * np.power(u, i - j) * np.power(d, j)
+            call_strike = np.maximum(Fi - strike_price, 0)  # 提前行权收益
             # 不提前行权的价值（折现）
-            call_nostrike = np.exp(-r*t) * (p*call_matrix[i+1, j+1] + (1-p)*call_matrix[i+1, j])
+            call_nostrike = np.exp(-interest_rate*t) * (p*call_matrix[i+1, j+1] + (1-p)*call_matrix[i+1, j])
             call_matrix[i, j] = np.maximum(call_strike, call_nostrike)
     return call_matrix[0, 0]
 
 
 # 4. N步二叉树模型计算美式看跌期货期权价格
-def FutOption_put_Amer(F, K, sigma, r, T, N):
+def american_futures_put_amer(forward_price, strike_price, volatility, interest_rate, time_to_maturity, steps):
     """
     N步二叉树计算美式看跌期货期权价格
     参数同FutOption_call_Amer
     """
-    t = T / N
-    u = np.exp(sigma * np.sqrt(t))
+    t = time_to_maturity / steps
+    u = np.exp(volatility * np.sqrt(t))
     d = 1 / u
     p = (1 - d) / (u - d)
-    put_matrix = np.zeros((N+1, N+1))
+    put_matrix = np.zeros((steps+1, steps+1))
 
     # 到期节点价值
-    N_list = np.arange(0, N+1)
-    F_end = F * np.power(u, N - N_list) * np.power(d, N_list)
-    put_matrix[:, -1] = np.maximum(K - F_end, 0)
+    N_list = np.arange(0, steps+1)
+    F_end = forward_price * np.power(u, steps - N_list) * np.power(d, N_list)
+    put_matrix[:, -1] = np.maximum(strike_price - F_end, 0)
 
     # 倒推计算非到期节点价值
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i+1)
         for j in j_list:
-            Fi = F * np.power(u, i - j) * np.power(d, j)
-            put_strike = np.maximum(K - Fi, 0)
-            put_nostrike = np.exp(-r*t) * (p*put_matrix[i+1, j+1] + (1-p)*put_matrix[i+1, j])
+            Fi = forward_price * np.power(u, i - j) * np.power(d, j)
+            put_strike = np.maximum(strike_price - Fi, 0)
+            put_nostrike = np.exp(-interest_rate*t) * (p*put_matrix[i+1, j+1] + (1-p)*put_matrix[i+1, j])
             put_matrix[i, j] = np.maximum(put_strike, put_nostrike)
     return put_matrix[0, 0]
 
@@ -322,7 +322,7 @@ def FutOption_put_Amer(F, K, sigma, r, T, N):
 
 '''interest rate options'''
 # 1. 计算利率上限单元价值
-def caplet(L, R, F, Rk, sigma, t1, t2):
+def caplet(notional_amount, rate, forward_price, strike_rate, volatility, start_time, end_time):
     """
     计算利率上限单元价值
     L: 本金
@@ -333,15 +333,15 @@ def caplet(L, R, F, Rk, sigma, t1, t2):
     t1: 重置日时间（年）
     t2: 支付日时间（年）
     """
-    d1 = (np.log(F/Rk) + 0.5 * np.power(sigma, 2) * t1) / (sigma * np.sqrt(t1))
-    d2 = d1 - sigma * np.sqrt(t1)
-    tau = t2 - t1  # 期限长度
-    value = L * tau * np.exp(-R * t2) * (F * norm.cdf(d1) - Rk * norm.cdf(d2))
+    d1 = (np.log(forward_price/strike_rate) + 0.5 * np.power(volatility, 2) * start_time) / (volatility * np.sqrt(start_time))
+    d2 = d1 - volatility * np.sqrt(start_time)
+    tau = end_time - start_time  # 期限长度
+    value = notional_amount * tau * np.exp(-rate * end_time) * (forward_price * norm.cdf(d1) - strike_rate * norm.cdf(d2))
     return value
 
 
 # 2. 计算远期利率
-def Rf(R1, R2, T1, T2):
+def forward_rate(R1, R2, end_time, T2):
     """
     计算远期利率
     R1: 对应期限T1的零息利率
@@ -349,7 +349,7 @@ def Rf(R1, R2, T1, T2):
     T1: R1的期限（年）
     T2: R2的期限（年）
     """
-    forward_rate = R2 + (R2 - R1) * T1 / (T2 - T1)
+    forward_rate = R2 + (R2 - R1) * end_time / (T2 - end_time)
     return forward_rate
 
 
@@ -409,15 +409,15 @@ def Rf(R1, R2, T1, T2):
 #
 
 # 6. 计算利率下限单元价值
-def floorlet(L, R, F, Rk, sigma, t1, t2):
+def floorlet(notional_amount, rate, forward_price, strike_rate, volatility, start_time, end_time):
     """
     计算利率下限单元价值
     参数同caplet
     """
-    d1 = (np.log(F/Rk) + np.power(sigma, 2) * t1/2) / (sigma * np.sqrt(t1))
-    d2 = d1 - sigma * np.sqrt(t1)
-    tau = t2 - t1
-    value = L * tau * np.exp(-R * t2) * (Rk * norm.cdf(-d2) - F * norm.cdf(-d1))
+    d1 = (np.log(forward_price/strike_rate) + np.power(volatility, 2) * start_time/2) / (volatility * np.sqrt(start_time))
+    d2 = d1 - volatility * np.sqrt(start_time)
+    tau = end_time - start_time
+    value = notional_amount * tau * np.exp(-rate * end_time) * (strike_rate * norm.cdf(-d2) - forward_price * norm.cdf(-d1))
     return value
 
 
@@ -465,7 +465,7 @@ def floorlet(L, R, F, Rk, sigma, t1, t2):
 #
 
 # 2. 利率互换期权价值计算
-def swaption(L, Sf, Sk, m, sigma, t, n, R_list, direction):
+def swaption_price(notional_amount, forward_swap_rate, strike_swap_rate, coupon_frequency, volatility, time_points, n, rate_list, direction):
     """
     计算利率互换期权价值
     L: 本金
@@ -478,18 +478,18 @@ def swaption(L, Sf, Sk, m, sigma, t, n, R_list, direction):
     R_list: 无风险收益率（连续复利）数组
     direction: 'pay'=支付固定利息，其他=收取固定利息
     """
-    d1 = (np.log(Sf/Sk) + np.power(sigma, 2)*t/2) / (sigma * np.sqrt(t))
-    d2 = d1 - sigma * np.sqrt(t)
+    d1 = (np.log(forward_swap_rate/strike_swap_rate) + np.power(volatility, 2)*time_points/2) / (volatility * np.sqrt(time_points))
+    d2 = d1 - volatility * np.sqrt(time_points)
     # 构建支付日期限数组
-    T_list = m*t + np.arange(1, m*n+1) / m
+    T_list = coupon_frequency*time_points + np.arange(1, coupon_frequency*n+1) / coupon_frequency
     if direction == 'pay':
-        value = np.sum(np.exp(-R_list * T_list) * L * (Sf*norm.cdf(d1) - Sk*norm.cdf(d2)) / m)
+        value = np.sum(np.exp(-rate_list * T_list) * notional_amount * (forward_swap_rate*norm.cdf(d1) - strike_swap_rate*norm.cdf(d2)) / coupon_frequency)
     else:
-        value = np.sum(np.exp(-R_list * T_list) * L * (Sk*norm.cdf(-d2) - Sf*norm.cdf(-d1)) / m)
+        value = np.sum(np.exp(-rate_list * T_list) * notional_amount * (strike_swap_rate*norm.cdf(-d2) - forward_swap_rate*norm.cdf(-d1)) / coupon_frequency)
     return value
 
 
-def forward_swaprate(S_list, t, n, m):
+def forward_swaprate(spot_price_list, time_points, n, coupon_frequency):
     """
     计算远期互换利率
     S_list: 不同期限的互换利率数组
@@ -497,11 +497,11 @@ def forward_swaprate(S_list, t, n, m):
     n: 互换合约期限（年）
     m: 每年支付次数
     """
-    t_list = m*t + np.arange(1, m*n+1) / m
+    t_list = coupon_frequency*time_points + np.arange(1, coupon_frequency*n+1) / coupon_frequency
     # 计算分子
-    A = (pow(1+S_list[0]/m, -m*t) - pow(1+S_list[-1]/m, -m*(t+n)))
+    A = (pow(1+spot_price_list[0]/coupon_frequency, -coupon_frequency*time_points) - pow(1+spot_price_list[-1]/coupon_frequency, -coupon_frequency*(time_points+n)))
     # 计算分母
-    B = (1/m) * np.sum(pow(1+S_list[1:]/m, -t_list))
+    B = (1/coupon_frequency) * np.sum(pow(1+spot_price_list[1:]/coupon_frequency, -t_list))
     value = A / B
     return value
 
@@ -539,9 +539,9 @@ def forward_swaprate(S_list, t, n, m):
 #
 
 # 复利转连续复利
-def Rc(Rm, m):
+def conversion_rate(market_rate, coupon_frequency):
     """复利利率转连续复利利率"""
-    r = m * np.log(1+Rm/m)
+    r = coupon_frequency * np.log(1+market_rate/coupon_frequency)
     return r
 
 

@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for f."""
 
 import numpy as np
 import pandas as pd
@@ -10,6 +10,7 @@ import scipy.stats as st
 
 
 def f(x):
+    """Compute f."""
     V, sigma_V = x
     # 公式(14-2)：股权价值方程
     d1 = (np.log(V/debt) + (rate + np.power(sigma_V, 2)/2)*tenor) / (sigma_V * np.sqrt(tenor))

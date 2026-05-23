@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for impvol_put_newton."""
 
 import numpy as np
 import pandas as pd
@@ -9,18 +9,19 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def impvol_put_Newton(P, S, K, r, T):
-    def put_BSM(S, K, sigma, r, T):
-        d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-        d2 = d1 - sigma * sqrt(T)
-        put = K * exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+def impvol_put_newton(put_price, spot_price, strike_price, interest_rate, time_to_maturity):
+    """Compute impvol_put_newton."""
+    def put_bsm(spot_price, strike_price, volatility, interest_rate, time_to_maturity):
+        d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+        d2 = d1 - volatility * sqrt(time_to_maturity)
+        put = strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(-d2) - spot_price * norm.cdf(-d1)
         return put
 
     sigma0 = 0.2
-    diff = P - put_BSM(S, K, sigma0, r, T)
+    diff = put_price - put_bsm(spot_price, strike_price, sigma0, interest_rate, time_to_maturity)
     i = 0.0001
     while abs(diff) > 0.0001:
-        diff = P - put_BSM(S, K, sigma0, r, T)
+        diff = put_price - put_bsm(spot_price, strike_price, sigma0, interest_rate, time_to_maturity)
         if diff > 0:
             sigma0 += i
         else:

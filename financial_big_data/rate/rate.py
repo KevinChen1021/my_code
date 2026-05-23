@@ -1,21 +1,21 @@
 """rate financial functions."""
 
-from .FRA_cashflow import FRA_cashflow
-from .rate_and_exchange_rate_Forward_rate import Forward_rate
-from .Value_FRA import Value_FRA
+from .fra_cashflow import fra_cashflow
+from .rate_and_exchange_rate_Forward_rate import forward_rate
+from .value_fra import value_fra
 from .exchange import exchange
 from .tri_arbitrage import tri_arbitrage
-from .FX_forward import FX_forward
+from .fx_forward import fx_forward
 from .cov_arbitrage import cov_arbitrage
-from .Value_FXforward import Value_FXforward
+from .value_fx_forward import value_fx_forward
 
 __all__ = [
-    "FRA_cashflow",
-    "Forward_rate",
-    "Value_FRA",
-    "exchange",
-    "tri_arbitrage",
-    "FX_forward",
-    "cov_arbitrage",
-    "Value_FXforward",
+    'fra_cashflow',
+    'forward_rate',
+    'value_fra',
+    'exchange',
+    'tri_arbitrage',
+    'fx_forward',
+    'cov_arbitrage',
+    'value_fx_forward',
 ]

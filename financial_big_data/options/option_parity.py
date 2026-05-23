@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for option_parity."""
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def option_parity(opt, c, p, S, K, r, T):
+def option_parity(option_type, call_price, put_price, spot_price, strike_price, interest_rate, time_to_maturity):
     '''通过看跌-看涨平价关系式计算欧式看涨、看跌期权价格
     opt: 期权类型（'call'=看涨，其他=看跌）
     c: 看涨期权价格（计算看涨时输入'Na'）
@@ -19,8 +19,8 @@ def option_parity(opt, c, p, S, K, r, T):
     r: 连续复利无风险收益率
     T: 期权期限（年）'''
     from numpy import exp
-    if opt == 'call':
-        value = p + S - K * exp(-r * T)  # 计算看涨期权价格
+    if option_type == 'call':
+        value = put_price + spot_price - strike_price * exp(-interest_rate * time_to_maturity)  # 计算看涨期权价格
     else:
-        value = c + K * exp(-r * T) - S  # 计算看跌期权价格
+        value = call_price + strike_price * exp(-interest_rate * time_to_maturity) - spot_price  # 计算看跌期权价格
     return value

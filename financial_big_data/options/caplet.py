@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for caplet."""
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def caplet(L, R, F, Rk, sigma, t1, t2):
+def caplet(notional_amount, rate, forward_price, strike_rate, volatility, start_time, end_time):
     """
     计算利率上限单元价值
     L: 本金
@@ -20,8 +20,8 @@ def caplet(L, R, F, Rk, sigma, t1, t2):
     t1: 重置日时间（年）
     t2: 支付日时间（年）
     """
-    d1 = (np.log(F/Rk) + 0.5 * np.power(sigma, 2) * t1) / (sigma * np.sqrt(t1))
-    d2 = d1 - sigma * np.sqrt(t1)
-    tau = t2 - t1  # 期限长度
-    value = L * tau * np.exp(-R * t2) * (F * norm.cdf(d1) - Rk * norm.cdf(d2))
+    d1 = (np.log(forward_price/strike_rate) + 0.5 * np.power(volatility, 2) * start_time) / (volatility * np.sqrt(start_time))
+    d2 = d1 - volatility * np.sqrt(start_time)
+    tau = end_time - start_time  # 期限长度
+    value = notional_amount * tau * np.exp(-rate * end_time) * (forward_price * norm.cdf(d1) - strike_rate * norm.cdf(d2))
     return value

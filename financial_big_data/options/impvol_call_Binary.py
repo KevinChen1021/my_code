@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for impvol_call_binary."""
 
 import numpy as np
 import pandas as pd
@@ -9,28 +9,29 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def impvol_call_Binary(C, S, K, r, T):
-    def call_BSM(S, K, sigma, r, T):
-        d1 = (log(S / K) + (r + power(sigma, 2) / 2) * T) / (sigma * sqrt(T))
-        d2 = d1 - sigma * sqrt(T)
-        call = S * norm.cdf(d1) - K * exp(-r * T) * norm.cdf(d2)
+def impvol_call_binary(call_price, spot_price, strike_price, interest_rate, time_to_maturity):
+    """Compute impvol_call_binary."""
+    def call_bsm(spot_price, strike_price, volatility, interest_rate, time_to_maturity):
+        d1 = (log(spot_price / strike_price) + (interest_rate + power(volatility, 2) / 2) * time_to_maturity) / (volatility * sqrt(time_to_maturity))
+        d2 = d1 - volatility * sqrt(time_to_maturity)
+        call = spot_price * norm.cdf(d1) - strike_price * exp(-interest_rate * time_to_maturity) * norm.cdf(d2)
         return call
 
     sigma_min = 0.001
     sigma_max = 1.000
     sigma_mid = (sigma_min + sigma_max) / 2
-    call_min = call_BSM(S, K, sigma_min, r, T)
-    call_max = call_BSM(S, K, sigma_max, r, T)
-    call_mid = call_BSM(S, K, sigma_mid, r, T)
-    diff = C - call_mid
+    call_min = call_bsm(spot_price, strike_price, sigma_min, interest_rate, time_to_maturity)
+    call_max = call_bsm(spot_price, strike_price, sigma_max, interest_rate, time_to_maturity)
+    call_mid = call_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
+    diff = call_price - call_mid
 
-    if C < call_min or C > call_max:
+    if call_price < call_min or call_price > call_max:
         print('Error')
     while abs(diff) > 1e-6:
-        diff = C - call_BSM(S, K, sigma_mid, r, T)
+        diff = call_price - call_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
         sigma_mid = (sigma_min + sigma_max) / 2
-        call_mid = call_BSM(S, K, sigma_mid, r, T)
-        if C > call_mid:
+        call_mid = call_bsm(spot_price, strike_price, sigma_mid, interest_rate, time_to_maturity)
+        if call_price > call_mid:
             sigma_min = sigma_mid
         else:
             sigma_max = sigma_mid

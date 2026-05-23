@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for forward_swaprate."""
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def forward_swaprate(S_list, t, n, m):
+def forward_swaprate(spot_price_list, time_points, n, coupon_frequency):
     """
     计算远期互换利率
     S_list: 不同期限的互换利率数组
@@ -17,10 +17,10 @@ def forward_swaprate(S_list, t, n, m):
     n: 互换合约期限（年）
     m: 每年支付次数
     """
-    t_list = m*t + np.arange(1, m*n+1) / m
+    t_list = coupon_frequency*time_points + np.arange(1, coupon_frequency*n+1) / coupon_frequency
     # 计算分子
-    A = (pow(1+S_list[0]/m, -m*t) - pow(1+S_list[-1]/m, -m*(t+n)))
+    A = (pow(1+spot_price_list[0]/coupon_frequency, -coupon_frequency*time_points) - pow(1+spot_price_list[-1]/coupon_frequency, -coupon_frequency*(time_points+n)))
     # 计算分母
-    B = (1/m) * np.sum(pow(1+S_list[1:]/m, -t_list))
+    B = (1/coupon_frequency) * np.sum(pow(1+spot_price_list[1:]/coupon_frequency, -t_list))
     value = A / B
     return value

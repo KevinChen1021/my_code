@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for floorlet."""
 
 import numpy as np
 import pandas as pd
@@ -9,13 +9,13 @@ import scipy.optimize as so
 import scipy.stats as st
 
 
-def floorlet(L, R, F, Rk, sigma, t1, t2):
+def floorlet(notional_amount, rate, forward_price, strike_rate, volatility, start_time, end_time):
     """
     计算利率下限单元价值
     参数同caplet
     """
-    d1 = (np.log(F/Rk) + np.power(sigma, 2) * t1/2) / (sigma * np.sqrt(t1))
-    d2 = d1 - sigma * np.sqrt(t1)
-    tau = t2 - t1
-    value = L * tau * np.exp(-R * t2) * (Rk * norm.cdf(-d2) - F * norm.cdf(-d1))
+    d1 = (np.log(forward_price/strike_rate) + np.power(volatility, 2) * start_time/2) / (volatility * np.sqrt(start_time))
+    d2 = d1 - volatility * np.sqrt(start_time)
+    tau = end_time - start_time
+    value = notional_amount * tau * np.exp(-rate * end_time) * (strike_rate * norm.cdf(-d2) - forward_price * norm.cdf(-d1))
     return value

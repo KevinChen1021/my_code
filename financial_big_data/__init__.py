@@ -20,7 +20,7 @@ __all__ = [
     "np",
     "pd",
     "plt",
-    "set_plot_style",
+    'set_plot_style',
     "bond",
     "futures",
     "options",

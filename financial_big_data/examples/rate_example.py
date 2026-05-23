@@ -9,14 +9,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from financial_big_data import set_plot_style
-from financial_big_data.rate import Forward_rate
+from financial_big_data.rate import forward_rate
 
 set_plot_style()
 
 terms = np.array([1, 2, 3, 4, 5])
 zero_rates = np.array([0.02, 0.024, 0.027, 0.03, 0.032])
 try:
-    forwards = Forward_rate(zero_rates[:-1], zero_rates[1:], terms[:-1], terms[1:])
+    forwards = forward_rate(zero_rates[:-1], zero_rates[1:], terms[:-1], terms[1:])
 except TypeError:
     forwards = np.diff(zero_rates * terms) / np.diff(terms)
 

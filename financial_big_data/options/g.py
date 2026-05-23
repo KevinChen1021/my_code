@@ -1,4 +1,4 @@
-"""Function-level module generated from the original financial_big_data sources."""
+"""Function module for g."""
 
 import numpy as np
 import pandas as pd
@@ -10,6 +10,7 @@ import scipy.stats as st
 
 
 def g(x):
+    """Compute g."""
     V, sigma_V = x
     d1 = (np.log(V/debt_new) + (rate_new + np.power(sigma_V, 2)/2)*tenor) / (sigma_V * np.sqrt(tenor))
     d2 = d1 - sigma_V * np.sqrt(tenor)

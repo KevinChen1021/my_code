@@ -487,27 +487,27 @@ register_matplotlib_converters()
 
 
 # 8. 日历价差策略（看涨期权组合）
-def BTM_Nstep(S, K, sigma, r, T, N, types):
+def binomial_tree_model_n_step(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps, option_type):
     '''N步二叉树模型计算欧式期权价值'''
-    t = T / N
-    u = exp(sigma * sqrt(t))
+    t = time_to_maturity / steps
+    u = exp(volatility * sqrt(t))
     d = 1 / u
-    p = (exp(r * t) - d) / (u - d)
-    option_matrix = np.zeros((N + 1, N + 1))
-    N_list = np.arange(0, N + 1)
-    S_end = S * np.power(u, N - N_list) * np.power(d, N_list)
+    p = (exp(interest_rate * t) - d) / (u - d)
+    option_matrix = np.zeros((steps + 1, steps + 1))
+    N_list = np.arange(0, steps + 1)
+    S_end = spot_price * np.power(u, steps - N_list) * np.power(d, N_list)
 
-    if types == 'call':
-        option_matrix[:, -1] = maximum(S_end - K, 0)
+    if option_type == 'call':
+        option_matrix[:, -1] = maximum(S_end - strike_price, 0)
     else:
-        option_matrix[:, -1] = maximum(K - S_end, 0)
+        option_matrix[:, -1] = maximum(strike_price - S_end, 0)
 
-    i_list = list(range(0, N))
+    i_list = list(range(0, steps))
     i_list.reverse()
     for i in i_list:
         j_list = np.arange(i + 1)
         for j in j_list:
-            option_matrix[i, j] = exp(-r * t) * (p * option_matrix[i + 1, j + 1] + (1 - p) * option_matrix[i + 1, j])
+            option_matrix[i, j] = exp(-interest_rate * t) * (p * option_matrix[i + 1, j + 1] + (1 - p) * option_matrix[i + 1, j])
     return option_matrix[0, 0]
 
 
@@ -547,25 +547,25 @@ def BTM_Nstep(S, K, sigma, r, T, N, types):
 
 
 # 1. 定义N步二叉树模型计算欧式期权价值的函数
-def BTM_Nstep(S, K, sigma, r, T, N, types):
-    t = T / N  # 每一步长时期限（年）
-    u = exp(sigma * sqrt(t))  # 基础资产价格上涨比例
+def binomial_tree_model_n_step(spot_price, strike_price, volatility, interest_rate, time_to_maturity, steps, option_type):
+    t = time_to_maturity / steps  # 每一步长时期限（年）
+    u = exp(volatility * sqrt(t))  # 基础资产价格上涨比例
     d = 1 / u  # 基础资产价格下跌比例
-    p = (exp(r * t) - d) / (u - d)  # 基础资产价格上涨概率
-    N_list = range(0, N + 1)  # 从0到N的自然数序列
+    p = (exp(interest_rate * t) - d) / (u - d)  # 基础资产价格上涨概率
+    N_list = range(0, steps + 1)  # 从0到N的自然数序列
     A = []  # 空列表
 
     for j in N_list:
         # 期权到期日某节点的期权价值
-        C_Nj = maximum(S * power(u, j) * power(d, N - j) - K, 0)
+        C_Nj = maximum(spot_price * power(u, j) * power(d, steps - j) - strike_price, 0)
         # 到达该节点的实现路径数量
-        Num = factorial(N) / (factorial(j) * factorial(N - j))
-        A.append(Num * power(p, j) * power(1 - p, N - j) * C_Nj)  # 列表尾部添加新元素
+        Num = factorial(steps) / (factorial(j) * factorial(steps - j))
+        A.append(Num * power(p, j) * power(1 - p, steps - j) * C_Nj)  # 列表尾部添加新元素
 
-    call = exp(-r * T) * sum(A)  # 看涨期权期初价值
-    put = call + K * np.exp(-r * T) - S  # 看跌期权期初价值
+    call = exp(-interest_rate * time_to_maturity) * sum(A)  # 看涨期权期初价值
+    put = call + strike_price * np.exp(-interest_rate * time_to_maturity) - spot_price  # 看跌期权期初价值
 
-    if types == 'call':
+    if option_type == 'call':
         value = call
     else:
         value = put
