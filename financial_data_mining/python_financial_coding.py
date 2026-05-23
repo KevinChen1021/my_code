@@ -1,17 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
-# import subprocess
-# import sys
-# # 替换成你要安装的库名，比如 pandas、requests
-# subprocess.check_call([sys.executable, "-m", "pip", "install", "yfinance"])
-
-# import sys
-# print(sys.executable)  # 输出 Spyder 当前使用的 Python 解释器路径
-
 import os
 os.chdir("C:\\Users\\KevinChen\\Desktop\\my_python")
 
@@ -29,15 +15,6 @@ from scipy.optimize import minimize
 # from scipy.optimize import fmax
 import datetime
 import sqlite3
-
-
-'''
-#我的A4纸要怎么准备
-#每个库用到的函数集合
-#知识梳理；提示自己，考试的时候遇到了要怎么办
-#例如：碰到时间价值就画时间轴自己算
-'''
-
 
 '''showing the functions of a package'''
 # print(dir(npf))
@@ -1135,5 +1112,3 @@ df.to_csv("results.csv", index=False)
 
 # do not forget to close the connection
 conn.close()
-
-
