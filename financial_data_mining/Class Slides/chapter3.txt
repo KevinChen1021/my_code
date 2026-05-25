@@ -1,0 +1,294 @@
+--- PAGE 1 ---
+Financial Data Mining 
+and Analysis
+Chapter 3:  Time value of money 
+--- PAGE 2 ---
+Agenda: Chapter 3: Time value of money
+• Review for several formula
+• Future value function 
+• Present value function 
+• Present value of perpetuity
+• Present value of a growing perpetuity
+• Present value of annuity
+• Future value of annuity
+• Excel sign conversion
+• Excel corresponding functions
+• Introduction to the numpy_financial module
+• Decision Rules
+• NPV and its rule
+• IRR and its rule
+• Payback period and its rule
+--- PAGE 3 ---
+Timeline
+Assume that we borrow $100 for two years
+  the annual interest rate is 10%. 
+  
+  Below is a timeline with cash flows. 
+   100         10          10+100
+   |-----------|-----------|
+   0           1           2
+  We receive $100 at time zero and pay $10 
+  for the next two years, plus $100 at the end of
+  year two. 
+--- PAGE 4 ---
+Future value function
+The present value for a given future value is 
+  fv= pv*(1+R)^n
+   where FV is the future value
+               R  is the period rate
+               n is the number of periods
+              Note: R and n should be consistent, i.e., with the same 
+frequencies. 
+   For example, what is the future value if we deposit $100 today with an    
+                           annual rate of 1.23% for 5 years?
+Calculations?
+𝐹𝑉 =  100 × 1 +  0.0123 5
+𝐹𝑉 ≈ 106.30
+--- PAGE 5 ---
+Present value function
+The present value for a given future value is 
+ where FV is the future value
+                R  is the period rate
+                 n is the number of periods
+                Note: R and n should be consistent, i.e., with the same freq. 
+   For example, what is the present value of $100 received
+    at the end of year 5 with an annual discount of 5%?
+
+--- PAGE 6 ---
+Present value of perpetuity
+Definition of a perpetuity: same cash flows at the same intervals forever
+ The present value for a given future value is 
+   where C is the cash flow
+                            R  is the period rate
+ Note: the first cash flow happens at the end of the first period. 
+For example, what is the present value of $100 received every year forever with 
+a discount rate of 10% ? Assume that the first $100 received at the end of the 
+first year. 
+
+--- PAGE 7 ---
+Present value of annuity
+Definition of annuity: same cash flows at the same intervals for n periods
+ The present value for a given future value is 
+where C is the cash flow
+              R  is the period rate
+              n is the number of periods
+             Note: R and n should be consistent, i.e., with the same frequencies. 
+                        The first cash flows happens at the end of the first period. 
+ For example, what is the present value of $100 received at the end of year for the next 10 
+  years with an annual discount of 5%?
+
+--- PAGE 8 ---
+Future value of annuity
+Definition of annuity: same cash flows at the same intervals for n periods
+ The present value for a given future value is 
+  where C is the cash flow
+              R  is the period rate
+              n is the number of periods
+             Note: R and n should be consistent, i.e., with the same 
+frequencies. 
+                        The first cash flow happens at the end of the first period. 
+ For example, what is the  future value of $100 received at the end of the 
+year for the next 10 years with an annual rate of 5%?
+
+--- PAGE 9 ---
+perpetuity due and annuity due
+For normal perpetuity or annuity, each cash flow would happen at 
+the end of each period. 
+For perpetuity due or annuity due, each cash flow would happen at 
+the beginning of each period. 
+There are two ways to calculate present (future) value of annuity 
+due. 
+--- PAGE 10 ---
+Cash flows of a growing annuity
+c          c(1+g)     c(1+g)^2    c(1+g)^(n -1)    0 
+   |-----------|-----------|------   ---|------------|
+   0           1           2           n -1           n
+The following pattern is for our formula
+               c          c(1+g)     c(1+g)^2     c(1+g)^(n -1)
+   |-----------|-----------|------   ---|------------|
+   0           1           2           n -1           n
+--- PAGE 11 ---
+In-class exercise #1: Excel pv() function 
+• What is the present value of a given future value
+• Write a Python function to mimic the Excel function 
+--- PAGE 12 ---
+Excel sign convention 
+There are two ways to explain the Excel sign convention. 
+1) Accounting approach:  using cash inflow and cash output. 
+ Example #1: we deposit $100 for 1 year. If the interest 
+             rate is 10%, how much is the value 1 year later?
+When deposit $100, it is a cash output
+             =fv(0.1,1,0,-100)   => 110   (a positive value)
+--- PAGE 13 ---
+Excel sign convention (2)
+2) Excel is designed this way
+  positive future value  -- > negative present value 
+  negative future value  -- > positive present value 
+  positive present value -- > negative future value 
+  negative present value -- > positive future value 
+--- PAGE 14 ---
+A general formula
+Present value  is the sum of the present value of a 
+future value plus the present value of annuity
+
+--- PAGE 15 ---
+Given 4 values, we can calculate number 5
+In the following formula, we have five values: pv, fv, R, c, and n. 
+For a set of 4 values, we can calculate the fifth unknow. 
+For Excel, we have the pv(), fv(), pmt(), nper() and rate() functions. 
+--- PAGE 16 ---
+For Python, we use the numpy_financial
+For a set of 4 values, we can calculate the fifth unknow. 
+--- PAGE 17 ---
+In-class exercise #2: install numpy_financial
+• Task #1: install numpy_financial
+• Task #2: how many functions inside the package
+• Task #3: find the usage of one function such as rate
+• Task #4: test this function
+• Task #5: compare it with the corresponding Excel function 
+--- PAGE 18 ---
+numpy_financial Python module
+import numpy_financial as npf
+a=dir(npf)
+print(a)
+['__builtins__', '__cached__', '__doc__', 
+'__file__', '__loader__', '__name__', 
+'__package__', '__path__', '__spec__', 
+'__version__', '_financial', 'fv', 'ipmt', 
+'irr', 'mirr', 'nper', 'npv', 'pmt', 'ppmt', 
+'pv', 'rate']
+--- PAGE 19 ---
+The numpy_financial.pv() function
+Note: numpy_financial.pv() functions mimics  Excel pv() function
+import numpy_financial as npf
+help(npf.pv)
+Help on function pv in module 
+numpy_financial._financial:
+pv(rate, nper, pmt, fv=0, when='end')
+    Compute the present value.
+npf.pv(0.1,1,0,110)
+Out[52]: -99.99999999999999
+--- PAGE 20 ---
+In-class exercise #3: compare pv() functions for 
+Excel and numpy_financial
+• For Excel : =pv(
+# For Python 
+import numpy_financial as npf
+--- PAGE 21 ---
+Present value of a growing annuity
+Definition of annuity: same cash flows at the same intervals for n periods
+ The present value for a given future value is 
+where C is the cash flow
+               R  is the period rate
+               g is the growth rate
+              n is the number of periods
+             Note: R and n should be consistent, i.e., with the same frequencies. 
+                        The first cash flows happens at the end of the first period. 
+For example, what is the present value of a growing 10-year annuity with the 
+first cash flow of $100 received at the end of the first year?  The cash flows will 
+grow at a constant 2% per year with an annual discount of 15%.
+
+--- PAGE 22 ---
+In-class exercise #4: Python program for the 
+present value of a growing annuity
+• Function name could be pv_growing_annuity
+• Add comments or help
+• Add several examples
+• Add at least two ways to input parameters
+--- PAGE 23 ---
+Future value of a growing annuity
+Definition of annuity: same cash flows at the same intervals for n periods
+ The present value for a given future value is 
+where C is the cash flow
+               R  is the period rate
+               g is the growth rate
+              n is the number of periods
+             Note: R and n should be consistent, i.e., with the same frequencies. 
+                        The first cash flow happens at the end of the first period. 
+For example, what is the future value of a growing 10-year annuity with the first 
+cash flow of $100 received at the end of the first year?  The cash flows will grow 
+at a constant 2% per year with an annual discount of 15%.
+
+--- PAGE 24 ---
+In-class exercise #5: NPV using both Excel npv() 
+and numpy_financial.npv() functions
+• Test a few sets of values
+--- PAGE 25 ---
+In-class exercise: pv(perpetuity with the first 
+cash flow happens at the end of kth period
+The formula is given below. 
+--- PAGE 26 ---
+NPV’s definition
+If defining cash inflows as positive and cash outflows 
+as negative, then we have the following simple formula. 
+NPV stands for Net Present Value
+--- PAGE 27 ---
+NPV Rule
+•For given project, we calculate its NPV first, 
+then apply the following rule. 
+If NPV >0, we accept the project
+              <0,  we reject the project
+--- PAGE 28 ---
+Calculate IRR of the following cash flows
+• cashflows=[-100,50,60,70]
+• R (cost of capital) =0.12
+--- PAGE 29 ---
+One NPV example
+Here is an example. The initial investment is $100. The cash inflows 
+in the next five years are $50, $60, $70, $100, and $20, starting from 
+year one. If the discount rate is 11.2%, what is the project's NPV 
+value? Since only six cash flows are involved, we
+ 1)  do the calculation manually
+ 2) using Excel npv() function 
+ 3) use the numpy_financial.npv() function
+--- PAGE 30 ---
+Calculate the NPV of the following cash flows
+• cashflows=[-100,50,60,70]
+--- PAGE 31 ---
+IRR’s definition 
+• IRR stands for Internal Rate of Return. 
+• The discount rate makes its corresponding NPV 
+zero. 
+• NPV(when R is IRR) = 0
+--- PAGE 32 ---
+IRR Rule
+•For a project, we calculate its IRR first, then 
+we apply the following rule. 
+If IRR > R, we accept the project
+             < R, we reject the project
+              where R is the cost of capital of the firm.
+--- PAGE 33 ---
+Payback period
+•The definition of Payback is the number of 
+years need to recover the initial investment. 
+• Two ways:
+• The first method does not consider the Time 
+value of Money
+• The second method considers the Time value of 
+money
+--- PAGE 34 ---
+Decision rule based on the payback period
+• We calculate the payback of our project first. Then, we apply the 
+following rule. 
+If    T <  Tc, we accept the project
+       T > Tc, we reject the project
+  where T is the payback of our project and Tc is the   
+           maximum payback period your company allows. 
+--- PAGE 35 ---
+Without considering the time value of money
+• Assume that our initial investment is 100
+• Our next five years cash flows are 50, 30, 30, 20, and 25. 
+• Our payback period is 2 + 20/30 = 2.67 years
+--- PAGE 36 ---
+Considering the time value of money
+• Assume that our initial investment is 100
+• Our next five years cash flows are 50, 30, 30, 20, and 25. 
+• In addition, the required rate of return is 12% per year . 
+• What is the payback period of this project?
+--- PAGE 37 ---
+graphical presentation of NPV
+profile with two IRRs
+import numpy as np
+import matplotlib.pyplot as plt
+Cashflows=[504,-432,-432,-432,832]
+[see the textbook on page 131]

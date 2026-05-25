@@ -1,0 +1,220 @@
+--- PAGE 1 ---
+Financial Data Mining 
+and Analysis
+Course: FICO3002
+Semester: Spring 2026
+Instructor: Dr. Liqun (Lee) Zhuge
+--- PAGE 2 ---
+Agenda
+•Chapter 2: Introduction to Python modules 
+•  What are the Python modules/packages?
+•  import math and import math as m,from math import  *
+• Several ways to install Python modules
+• pip install numpy
+•  our p4f Python module 
+•  install a specific module
+•  find dependencies of a module
+•  sys.path, find the location of numpy, add your path 
+•  numpy.array([])
+•  outputHelp2file()
+--- PAGE 3 ---
+What are Python modules?
+A module could be viewed as a set of 
+programs organized by one specific topic. 
+ A module is also called a package or 
+toolbox. 
+--- PAGE 4 ---
+One simple example
+•Assume that we want to calculate the square 
+root of 3
+sqrt(3)
+Traceback (most recent call last):
+  Cell In[1], line 1
+    sqrt(3)
+NameError: name 'sqrt' is not defined
+
+--- PAGE 5 ---
+Using the sqrt() function inside the math 
+module
+import math
+math.sqrt(3)
+Out[3]: 1.7320508075688772
+--- PAGE 6 ---
+Several ways to import a module
+Method I:                                                    Method II: with a short name
+-------------------------------                      ------------------------------------------
+import math                                              import math as m
+math.sqrt(3)                                              m.sqrt(4)
+Method III: a few functions             Method IV: all functions available
+-------------------------------                    ---------------------------------------
+from math import sqrt                      from math import *
+sqrt(3)                                                        sqrt(3)
+--- PAGE 7 ---
+pip install numpy
+•Step 1: go to Anaconda prompt
+•Step 2: run the following code
+pip install numpy 
+•   
+
+--- PAGE 8 ---
+Several ways to install a Python module
+For Windows users (assume that we plan to install a Python module called 'pandas'
+--------------------------------------------
+  Click 'Anaconda3'
+        --> 'Anaconda Prompt (Anaconda3)' 
+        --> [type the following command]
+            pip install pandas 
+Windows: Method II 
+  Click 'Anaconda3'
+        --> 'Anaconda Prompt (Anaconda3)' 
+        --> [type the following command]
+            conda install yfinance 
+--- PAGE 9 ---
+For Windows users
+•Search for Anaconda prompt, shown below. 
+For Mac users, use terminal
+--- PAGE 10 ---
+Several ways to install a Python module
+Windows: Others 
+         python -m pip install --upgrade pip
+         pip install milk
+         pip install 'SomeProject'
+         pip install 'SomeProject==1.4'
+         pip install 'SomeProject>=1,<2'
+         pip install 'SomeProject~=1.4.2'
+•Windows: to upgrade pip 
+•         python -m pip install --upgrade pip
+--- PAGE 11 ---
+For Mac Users
+For Mac Users
+        [launch Terminal ] 
+        pip install pandas 
+       .mac(13)
+       .mac(14)
+--- PAGE 12 ---
+pip help
+
+--- PAGE 13 ---
+pip help  (second part)
+
+--- PAGE 14 ---
+In-class exercise #1: install numpy
+•Task #1: install numpy 
+•Task #2: what is the version of the package
+•Task #3: how many functions (objects) in side the package
+•Task #4: find the usage of one function and offer one or two 
+examples
+--- PAGE 15 ---
+pip upgrade 
+Step 1: click 'Anaconda Prompt (Anaconda3)
+Step 2: issue the following command
+[only the top part is shown below]
+(base) C:\Users\pyan>pip list
+   Package                            Version
+  ---------------------------------- -------------------
+  alabaster                          0.7.12
+  anaconda-client                    1.7.2
+  anaconda-navigator                 2.0.3
+  anaconda-project                   0.9.1
+  anyio                              2.2.0
+  appdirs                            1.4.4
+  argh                               0.26.2
+  argon2-cffi                        20.1.0
+  asn1crypto                         1.4.0
+  astroid                            2.5
+--- PAGE 16 ---
+Finding packages around a topic 
+• Step 1: go to the following website
+•           https://pypi.python.org/pypi
+• Step 2: type keyword
+•           For example for "prediction"
+--- PAGE 17 ---
+Python module index: https://pypi.org
+Note: you can click the run (arrow) to run the code
+           Alternatively, you can use the combination of shift-enter keys
+
+--- PAGE 18 ---
+The keyword is prediction
+
+--- PAGE 19 ---
+built-in functions
+print(dir(__builtins__))
+
+--- PAGE 20 ---
+import pandas as pd
+
+--- PAGE 21 ---
+help(pd.read_csv)
+[ only the top part is shown below]
+Help on function read_csv in module pandas.io.parsers.readers:
+read_csv(filepath_or_buffer: 'FilePath | ReadCsvBuffer[bytes] | ReadCsvBuffer[str]', *, 
+sep: 'str | None | lib.NoDefault' = <no_default>, delimiter: 'str | None | lib.NoDefault' 
+= None, header: "int | Sequence[int] | None | Literal['infer']" = 'infer', names: 
+'Sequence[Hashable] | None | lib.NoDefault' = <no_default>, index_col: 'IndexLabel | 
+Literal[False] | None' = None, usecols=None, dtype: 'DtypeArg | None' = None, engine: 
+'CSVEngine | None' = None, converters=None, true_values=None, false_values=None, 
+skipinitialspace: 'bool' = False, skiprows=None, skipfooter: 'int' = 0, nrows: 'int | 
+None' = None, na_values=None, keep_default_na: 'bool' = True, na_filter: 'bool' = True, 
+verbose: 'bool' = False, skip_blank_lines: 'bool' = True, parse_dates: 'bool | 
+Sequence[Hashable] | None' = None, infer_datetime_format: 'bool | lib.NoDefault' = 
+<no_default>, keep_date_col: 'bool' = False, date_parser=<no_default>, date_format: 'str | 
+None' = None, dayfirst: 'bool' = False, cache_dates: 'bool' = True, iterator: 'bool' = 
+False, chunksize: 'int | None' = None, compression: 'CompressionOptions' = 'infer', 
+thousands: 'str | None' = None, decimal: 'str' = '.', lineterminator: 'str | None' = None, 
+quotechar: 'str' = '"', quoting: 'int' = 0, doublequote: 'bool' = True, escapechar: 'str | 
+None' = None, comment: 'str | None' = None, encoding: 'str | None' = None, 
+encoding_errors: 'str | None' = 'strict', dialect: 'str | csv.Dialect | None' = None, 
+on_bad_lines: 'str' = 'error', delim_whitespace: 'bool' = False, low_memory=True, 
+memory_map: 'bool' = False, float_precision: "Literal['high', 'legacy'] | None" = None, 
+storage_options: 'StorageOptions' = None, dtype_backend: 'DtypeBackend | lib.NoDefault' = 
+<no_default>) -> 'DataFrame | TextFileReader'
+    Read a comma-separated values (csv) file into DataFrame.
+--- PAGE 22 ---
+conventional short-cuts
+When using a short-cut name, users can use any name. 
+ However, for several of the most frequently used packages, 
+ we should use the common short-cut names. 
+ A few examples are given below. 
+import math as m
+import numpy as np
+import scipy as sp
+import pandas as pd
+import yfinance as yf
+import matplotlib.pyplot as plt
+--- PAGE 23 ---
+# pip install yfinance
+import yfinance as yf
+df=yf.download("ibm")
+
+--- PAGE 24 ---
+In-class exercise #2: install yfinance
+•Task #1: install yfinance
+•Task #2: download WalMart historical data set (ticker 
+symbol:WMT)
+•Task #3: how many rows, columns
+•Task #4: show the top and bottom several observations
+--- PAGE 25 ---
+Black-Scholes Call Option model
+def bsCall(S,X,T,r,sigma):
+    from numpy import log, exp, sqrt
+    from scipy import stats
+    d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T))
+    d2 = d1-sigma*sqrt(T)
+    call=S*stats.norm.cdf(d1)-X*exp(-r*T)*stats.norm.cdf(d2)
+    return(call) 
+
+--- PAGE 26 ---
+import numpy as np
+x=np.array(dir(np))
+len(x)  # Out[45]: 607
+
+--- PAGE 27 ---
+In-class exercise #3: Black-Scholes Model
+•Task #1: copy the code
+•Task #2: show a few examples
+•Task #3: show several ways to input values
+•Task #4: add comments or help
+--- PAGE 28 ---
+import numpy as np
+help(np.std)
+

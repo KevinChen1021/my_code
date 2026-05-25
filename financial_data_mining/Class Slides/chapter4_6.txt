@@ -1,0 +1,1189 @@
+--- PAGE 1 ---
+Financial Data Mining 
+and Analysis
+Chapter 4: Source of data (Open data)
+--- PAGE 2 ---
+• Step 1: Open your Command Line
+• You can use either the Command Prompt or PowerShell.
+1.Press the Windows Key.
+2.Type cmd (for Command Prompt) or PowerShell.
+3.Press Enter to open the terminal.
+• Step 2: Run the Install Command
+• Type the following command into the terminal and press Enter:
+• pip install numpy-financial 
+• Step 3: Verify the Installation
+• To make sure it installed correctly, you can run a quick check 
+directly in the terminal:
+• python -c "import numpy_financial as npf; print('Success! 
+Version:' , npf.__version__)" 
+--- PAGE 3 ---
+Chapter 4: Source of data (open data)
+One of the key components of OSF (Open-Source Finance)
+is open data, i.e., publicly available economics/finance 
+data
+Agenda
+• Manually access the data
+• Using Python to access some data sets 
+• Process the downloaded data
+• Save a text, Python data sets
+• Convert daily returns to monthly/annual ones
+--- PAGE 4 ---
+Several ways to get data 
+• Method #1: download data from Yahoo! finance manually 
+• Method #2: download data from database (e.g., through 
+SQL)
+• Method #3: Using the yfinance package
+• Method #5: Using Quandl etc
+   
+--- PAGE 5 ---
+
+--- PAGE 6 ---
+Python program to access the downloaded 
+data
+• Assume the path is c://temp/ibmDaily.csv
+import pandas as pd
+infile="c://temp/ibmDaily.csv"
+df=pd.read_csv(infile)
+--- PAGE 7 ---
+A few lines are shown below
+
+--- PAGE 8 ---
+Retrieve and save 
+import pandas as pd
+path="http://datayyy.com/data_csv/"
+file="ibmMonthly.csv"
+infile=path+file
+df=pd.read_csv(infile)
+--- PAGE 9 ---
+Getting daily data
+import yfinance as yf
+df = yf.download("IBM", "2015-1-1", "2015-12-31")
+print(df[0:5])
+
+--- PAGE 10 ---
+http://datayyy.com/data_csv/list.txt
+aaplDaily.csv
+cDaily.csv
+fDaily.csv
+GSPCdaily.csv
+ibmDaily.csv
+jnjDaily.csv
+msftDaily.csv
+sp500daily.csv
+wmtDaily.csv
+^gspcDaily.csv
+
+--- PAGE 11 ---
+Estimate daily returns
+import yfinance as yf
+df=yf.download("ibm")
+df["ret"]=df["Adj Close"].pct_change()
+Verify just one return 1.555188/1.541710-1
+
+--- PAGE 12 ---
+Add a variable called “ticker”
+df["ticker"]="ibm"
+
+--- PAGE 13 ---
+Save to a csv file 
+import yfinance as yf
+df=yf.download("ibm")
+df["ret"]=df["Adj Close"].pct_change()
+df["ticker"]="ibm"
+df.to_csv("ibmDaily2.csv")
+--- PAGE 14 ---
+Save a pickle data set
+import yfinance as yf
+import numpy as np
+df=yf.download("ibm")
+df.to_pickle(‘ibm.pickled’)
+In Python, "pickling" is the process of converting an object into 
+a byte stream, which allows you to store the data on your disk 
+and reload it later in its exact original state.
+Why use to_pickle instead of to_csv?
+While CSV files are common, to_pickle offers several advantages for data analysis:
+•Preserves Data Types: If you have specific column types (like datetime, category, or int64), a pickle file 
+remembers them. When you reload a CSV , Pandas often has to "guess" the data types again.
+•Speed: Pickling is generally much faster for both reading and writing compared to text-based formats like 
+CSV or Excel.
+•Compression Support: It easily supports compression (like .gzip or .zip) to save disk space.
+--- PAGE 15 ---
+Retrieving market index data from Yahoo 
+Finance
+The ticker symbol for S&P500 is ^GSPC
+--- PAGE 16 ---
+Test whether mean return 
+import scipy.stats as stats
+import yfinance as yf
+#
+ticker="IBM"
+begdate="2011-1-1"
+enddate="2015-12-31"
+df =yf.download(ticker,begdate,enddate)
+ret=df["Adj Close"].pct_change().dropna()
+mean=ret.mean()
+print(f"For {ticker}, its daily returns mean={round(mean,5)}")
+print(' T-test result: T-value and P-value' )
+print(stats.ttest_1samp(ret,0))
+it is testing whether the mean of your returns (ret) is statistically different from zero.
+--- PAGE 17 ---
+Daily returns to annual ones
+import pandas as pd
+import yfinance as yf
+from math import exp,log
+#
+ticker='IBM'
+begdate="1980-1-1"
+enddate="2012-12-31"
+df = yf.download(ticker, begdate, enddate)
+#
+aa=pd.DataFrame(df["Adj Close"].pct_change().dropna()+1)
+aa["yyyy"]=aa.index.year
+aa.columns=["retPlus1","yyyy"]
+retAnnual=aa.retPlus1.groupby(aa.yyyy).prod()-1
+print(aa.head())
+print(retAnnual.head())
+
+--- PAGE 18 ---
+Several market indices
+
+--- PAGE 19 ---
+Daily returns to monthly ones
+import pandas as pd
+import yfinance as yf
+from math import exp,log
+#
+ticker='IBM'
+begdate="2015-1-1"
+enddate="2015-12-31"
+df = yf.download(ticker, begdate, enddate)
+#
+aa=pd.DataFrame(df["Adj Close"].pct_change().dropna()+1)
+aa["yyyymm"]=aa.index.year*100+aa.index.month
+aa.columns=["retPlus1","yyyymm"]
+retMonthly=aa.retPlus1.groupby(aa.yyyymm).prod()-1
+retMonthly.head()
+
+--- PAGE 20 ---
+Downloading monthly data from Yahoo 
+finance
+• Step 1: go to finance.yahoo.com
+• Step 2: enter a ticker
+• Step 3: click “Historical Prices”
+• Step 4: choose beginning and ending dates
+• Step 5: choose monthly 
+• Step 6: click “Download Data”
+--- PAGE 21 ---
+Convert daily returns to monthly ones
+• Assume that we have n daily returns within one 
+month
+• The monthly return is estimate based on the 
+following formula. 
+
+--- PAGE 22 ---
+Daily returns to monthly ones
+import yfinance as yf
+import numpy as np
+df=yf.download("ibm")
+df['logRet']=np.log(df["Adj Close"].pct_change()+1)
+df['YYYYMM']=df.index.year*100+df.index.month
+monthlyRet=np.exp(df["logRet"].groupby(df['YYYYMM’]).sum())-1
+--- PAGE 23 ---
+The top several observations
+• Let’s verify the first monthly 
+return, se the right image
+
+--- PAGE 24 ---
+Daily returns to annual ones
+import yfinance as yf
+import numpy as np
+df=yf.download("ibm")
+df['logRet']=np.log(df["Adj Close"].pct_change()+1)
+df['year']=df.index.year
+annualRet=np.exp(df["logRet"].groupby(df['year']).sum())-1
+annualRet.head()
+--- PAGE 25 ---
+The top several observations
+pd.set_option('display.max_columns' ,None)
+
+--- PAGE 26 ---
+Mean and std of annual returns
+import yfinance as yf
+import numpy as np
+df=yf.download("ibm")
+df['logRet']=np.log(df["Adj Close"].pct_change()+1)
+df['year']=df.index.year
+annualRet=np.exp(df["logRet"].groupby(df['year']).sum())-1
+annualRet.mean()
+annualRet.std()
+--- PAGE 27 ---
+Mean and std of annual returns
+
+--- PAGE 28 ---
+Fama-French 3-factor time series
+import pandas as pd
+infile="http://datayyy.com/data_pickle/ff3Daily.pickle"
+ff =pd.read_pickle(infile)
+print(ff.head())
+
+--- PAGE 29 ---
+Fama–French three-factor model
+Here r is the portfolio's expected rate of return, Rf is the risk-free return rate, and Rm is the 
+return of the market portfolio. The "three factor" β is analogous to the classical β but not equal 
+to it, since there are now two additional factors to do some of the work. SMB stands for "Small 
+[market capitalization] Minus Big" and HML for "High [book-to-market ratio] Minus Low"; they 
+measure the historic excess returns of small caps over big caps and of value stocks over 
+growth stocks, alpha is the error term.
+
+--- PAGE 30 ---
+T-test equal mean returns
+One sample
+Two samples
+--- PAGE 31 ---
+T-test equal mean returns
+import yfinance as yf
+import scipy.stats as stats
+begdate="2013-1-1"
+enddate="2016-12-9"
+def ret_f(ticker,begdate,enddate):
+     df= yf.download(ticker,begdate, enddate)
+     ret=df["Adj Close"].pct_change().dropna()
+     return(ret)
+     
+a=ret_f('IBM',begdate,enddate)
+b=ret_f('MSFT',begdate,enddate)
+print(stats.ttest_ind(a,b))
+
+--- PAGE 32 ---
+Download and show an image
+from PIL import Image                                                                                
+from download import download
+#
+infile="http://datayyy.com/images/fun.png"
+outfile="c://temp/fun.png"
+download(infile,outfile)
+img = Image.open(outfile)
+img.show() 
+
+--- PAGE 33 ---
+Fed fund rate
+import numpy as np
+import pandas as pd
+infile="http://datayyy.com/data_csv/DFF.csv"
+df=pd.read_csv(infile)
+dd=rate=[]
+n=len(df)
+y=np.array(df)
+rate=[]
+for i in np.arange(n):
+    t=y[i][0]
+    dd.append(pd.to_datetime(t, format='%Y-%m-%d').date())
+    rate.append(y[i][1]/100.)
+fedFundRate=pd.DataFrame(rate,index=dd,columns=['FEDFUNDRATE'])
+fedFundRate.to_pickle("c:/temp/fedFundRate.pkl") 
+with econometrics and large datasets, np.array is essentially the high-performance version of a 
+Python list.
+--- PAGE 34 ---
+Histogram and distribution
+import numpy as np
+import yfinance as yf
+from scipy.stats import norm
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
+#
+ticker='IBM' 
+begdate="2015-1-1" 
+enddate="2015-11-9"
+df = yf.download(ticker, begdate, enddate)
+ret = df["Adj Close"].pct_change().dropna() 
+[n,bins,patches] = plt.hist(ret, 100)
+mu = ret.mean() 
+sigma = ret.std()
+x=norm.pdf(bins,mu,sigma)
+plt.plot(bins, x, color='red', lw=2) 
+plt.title("IBM return distribution") 
+plt.xlabel("Returns") 
+plt.ylabel("Frequency")
+plt.show()
+
+--- PAGE 35 ---
+Appendix C – Python program for the price movement
+import datetime
+import yfinance as yf
+import matplotlib.pyplot as plt
+from matplotlib.dates import MonthLocator,DateFormatter
+ticker='AAPL'
+begdate="2012-1-2"
+enddate ="2013-12-4"
+months= MonthLocator(range(1,13),bymonthday=1,interval=3)# 3rd 
+month
+monthsFmt = DateFormatter("%b '%Y")
+df = yf.download(ticker, begdate, enddate) 
+dates =df.index 
+closes =df.Close
+fig, ax = plt.subplots()
+ax.plot_date(dates, closes, '-') 
+ax.xaxis.set_major_locator(months) 
+ax.xaxis.set_major_formatter(monthsFmt)
+#ax.xaxis.set_minor_locator(mondays) 
+ax.autoscale_view()
+ax.grid(True) 
+fig.autofmt_xdate()
+plt.show()
+
+--- PAGE 36 ---
+Financial Data Mining 
+and Analysis
+Chapter 5: Bond and Stock Valuations
+--- PAGE 37 ---
+Agenda
+• Chapter 5: Introduction to Python modules 
+• What are the Python modules/packages?
+• import math and import math as m,from math import  *
+• Several ways to install Python modules
+• pip install numpy
+• danl100 Python module 
+• install a specific module
+• find dependencies of a module
+• sys.path, find location of numpy, add your path 
+• numpy .array([])
+• outputHelp2file()
+• https://pypi.org
+--- PAGE 38 ---
+Concept of an effective rate 
+The rate in pv(), fv(), pmt(), nper() functions are all 
+effective period rate. 
+To estimate the future value of one given present 
+value,     we have the following formula
+FV = PV *(1+R)^n
+FV is the future value      PV is the present value 
+R  is an effective rate      n  is the number of periods
+R and n should be consistent:
+if means that R is the effective annual rate then n is 
+the number of years
+--- PAGE 39 ---
+Effective rates
+• This is true for other formula:
+• R is an effective period rate.
+
+--- PAGE 40 ---
+APR and a compounding frequency
+• APR stands for the Annual Percentage Rate. 
+• Note that APR is not an effective rate except when compounded annually . 
+• Assume we deposit $100. 
+a) APR is 10% compounded annually => effective annual rate is 10%. 
+[we will receive $10 at the end of the year]
+b) APR is 10% compounded semi-annually => effective semi-annual rate is 5%. 
+[We will receive $5 every half-year and $10 in one year.]
+c) APR is 10% compounded quarterly => effective quarterly rate is 2.5. 
+[For each quarter, we will receive $2.5, and $10 in one year .]
+--- PAGE 41 ---
+A timeline for different APRs 
+We borrow $100 today for one year. The cost of borrowing is quoted as APR is 10% compounded 
+semi-annually. What are our cash flows?
+100          -5                -5
+-100
+|-------------|-----------------| 
+We borrow $100 today for one year. The cost of borrowing is quoted as APR is 8% compounded 
+quarterly. What are our cash flows?
+100   -2.5   -2.5      -2.5    -2.5
+-100
+|------|-------|--------|--------| 
+--- PAGE 42 ---
+Definition of EAR
+• During a period, we have only two cash flows (values): at the beginning 
+and the end. The effective rate is calculated by (V2-V1)/V1 or V2/V1-1. 
+Case #1: 10% APR compounded annually. This 10% is an effective rate
+Case #2: 10% APR compounded semi-annually. This 10% is not an 
+effective rate since we have three cash flows. 
+• For example, we borrow $100 and pay 5 and 105 at different times. 
+100          -5             -5+(-100)
+|-------------|-----------------| 
+--- PAGE 43 ---
+Calculating EAR manually
+APR is 10% compounded semi -annually. 
+100          -5                -5 and-100
+|-------------|-----------------| 
+What is the equivalent interest rate when we pay once at the end of the year?
+100                             ?
+|-------------|-----------------| 
+Since the effective semi-annual rate 5%, we have the following cash flows. 
+100          (-5)  ===========> -5*0.05=0.25
+-5 + (-5) + (-100)
+|-------------|-----------------| 
+100                            -10.25
+-100
+|----------------|---------------------|  
+--- PAGE 44 ---
+Excel effect() function 
+• =effect(0.1,2) ==>    0.1025
+• Note: the effect() has two input
+• nominal_rate: should be an APR
+• npery : compounding frequency per year
+
+--- PAGE 45 ---
+Python effect() function 
+
+--- PAGE 46 ---
+In-class exercise #1: add comments
+Objective:
+1)  add comments/help to the following Python program
+2)   add a few examples
+3)   show different ways input parameters
+--- PAGE 47 ---
+Calculate the second effective rate
+Assume that we are given APR1 (the first Annual Percentage 
+Rate) and m1 (the first frequency). We want to calculate the 
+second effective rate with a different frequency (m2). 
+The formula is given below. 
+--- PAGE 48 ---
+Calculate the second effective rate
+
+--- PAGE 49 ---
+Python code
+def effectiveRate(APR1,freq1,freq2):
+EAR2=(1+APR1/freq1)**(freq1/freq2)-1
+return(EAR2)
+For the effective annual rate:
+For the effective quarterly rate:
+
+--- PAGE 50 ---
+Calculate APR2
+Assume that we are given APR1 (the first Annual Percentage 
+Rate) and m1 (the first frequency). We want to calculate the 
+second APR with a different frequency (m2). 
+The formula is given below. 
+
+--- PAGE 51 ---
+Python code
+def  APR2(APR1,freq1,freq2):
+EAR2=(1+APR1/freq1)**(freq1/freq2)-1
+APR2=EAR2*freq2
+return(APR2)
+For the effective quarterly 
+Rate and APR compounded
+quarterly:
+
+--- PAGE 52 ---
+numpy_financial_irr() function
+import numpy_financial as npf
+a=[-100, 39, 59, 55, 20]
+irr=round(npf.irr(a), 5)   #     0.28095
+# verify 
+round(npf.npv(irr,a), 5)
+round(npf.irr([-100, 0, 0, 74]), 5)
+-0.0955
+round(npf.irr([-100, 100, 0, -7]), 5)
+-0.0833
+round(npf.irr([-100, 100, 0, 7]), 5)
+0.06206
+round(npf.irr([-5, 10.5, 1, -8, 1]), 5)
+0.0886
+--- PAGE 53 ---
+Rc: continuously compounded rate
+We know that for annual rate, compounded annually, we receive 
+cash flow just once, i.e., at the end of the year. 
+When compounded semi-annually, we receive two cash flows, i.e., 
+every 6 months. 
+When compounded  monthly, we receive 12 cash flows, i.e., every 
+month. 
+Continue with the same logic:
+A continuously compounded rate can be viewed that we receive 
+cash flow every second. 
+--- PAGE 54 ---
+Formula for FV and PV formulae
+
+--- PAGE 55 ---
+From Rm to Rc
+• The formula is given: 
+def Rm2Rc(Rm,freq):
+from math import log
+Rc=freq*log(1+Rm)
+return(Rc)
+We have the following results for a given annual 
+percentage rate of 10% compounded annually. 
+Verify: what is the future value of $100 in 2 years given 
+those two rates?
+
+--- PAGE 56 ---
+Credit rating vs. spread
+import pandas as pd
+path="http://datayyy.com/data_pickle/"
+infile=path+"spreadBasedOnCreditRating.pkl"
+spread=pd.read_pickle(infile)
+print(spread)
+# see the next slide for the output
+--- PAGE 57 ---
+Credit rating vs. spread (2)
+Note: the unit is Basis Point, i.e., 1/100th of one percent. For example, for Aa2/AA and 5 
+years, the spread is 50 basis points, i.e.,  50/100/100 = 0.50%. 
+--- PAGE 58 ---
+What is a 'Bond'
+A bond is a debt investment in which an investor loans 
+money to an entity (typically corporate or governmental) 
+which borrows the funds for a defined period of time at 
+a variable or fixed interest rate. Bonds are used by 
+companies, municipalities, states and sovereign governments 
+to raise money and finance a variety of projects and activities. 
+Owners of bonds are debtholders, or creditors, of the issuer.
+• http://www.investopedia.com/terms/b/bond.asp
+--- PAGE 59 ---
+Graph of a term structure of interest rate
+import matplotlib.pyplot as plt
+time=[3/12,6/12,2,3,5,10,30]
+rate=[0.47,0.6,1.18,1.53,2,2.53,3.12]
+plt.title("Term Structure of Interest Rate ")
+plt.xlabel("Time ")
+plt.ylabel("Risk-free rate (%)")
+plt.plot(time,rate)
+plt.show()
+
+--- PAGE 60 ---
+bond's notations and cash flows
+Notations for a bond:   face value,    maturity,  coupon rate, and 
+frequency of coupon payment per year
+Assume that face value is 100, the bond would mature in 3 years.  
+Coupon rate is 4% and coupons will be paid twice per year. 
+2      2      2       2      2    100+2
+|------|------|------|-------|-------|-------|
+0   0.5year   1     1.5      2     2.5       3
+--- PAGE 61 ---
+Bond price formula 
+General formula  pv() = pv(all cash flows)
+Price of a bond = pv( all coupon payments) + pv(face value)
+
+--- PAGE 62 ---
+What is a 'Zero-Coupon Bond’?
+A zero-coupon bond, also known as an "accrual bond, "    is a debt 
+security that doesn't pay interest (a coupon)    but is traded at a 
+deep discount, rendering profit at maturity when the bond is 
+redeemed for its full face value.
+Some zero-coupon bonds are issued as such, while others  are 
+bonds that have been stripped of their coupons by a  financial 
+institution and then repackaged as zero-coupon bonds. Because 
+they offer the entire payment at maturity,   zero-coupon bonds tend 
+to fluctuate in price much more than coupon bonds.
+• http://www.investopedia.com/terms/z/zero-couponbond.asp
+--- PAGE 63 ---
+Pricing of a zero-coupon bond
+fv is the face value
+R is an effective rate 
+n is the number of periods
+--- PAGE 64 ---
+numpy_financial.pv()
+help(npf.pv)
+Help on function pv in module numpy_financial._financial:
+pv(rate, nper, pmt, fv=0, when='end’)
+--- PAGE 65 ---
+pv(rate, nper, pmt, fv=0, when='end’)
+What is the present value (e.g., the initial investment)
+of an investment that needs to total $15692.93   after 10 years of 
+saving $100 every month?  Assume the   interest rate is 5% 
+(annually) compounded monthly.
+npf.pv(0.05/12, 10*12, -100, 15692.93)
+-100.00067131625819
+--- PAGE 66 ---
+pv(rate, nper, pmt, fv=0, when='end’)
+What is the price of a 10-year zero-coupon bond with a face value 
+of $1,000 with an annual (effective) rate of 5%?
+import numpy_financial as npf
+npf.pv(0.05, 10, 0, 1000)
+
+--- PAGE 67 ---
+pv(rate, nper, pmt, fv=0, when='end’)
+What is the price of a 10-year zero-coupon bond with a face value 
+of $1,000 with an annual rate of 5% compounded semi-annually?
+Import numpy_financial as npf
+npf.pv(0.05/2, 10*2, 0, 1000)
+Compared with previous one:
+
+--- PAGE 68 ---
+pv(rate, nper, pmt, fv=0, when='end’)
+What is the price of a 10-year zero-coupon bond with a face value 
+of $1,000 with an annual rate of 5% compounded semi-annually?
+Import numpy_financial as npf
+npf.pv(0.05/2, 10*2, 0, 1000)
+Second way to calculate price
+Why?
+
+--- PAGE 69 ---
+Price of a coupon bond
+Example #1: Face value is 1,000, coupon rate is 5%, paid every year . 
+The discount rate is 0.1 and bond would mature in 5 years. 
+Example #2: Face value is 100, coupon rate is 3.5%, paid twice per 
+year.   APR is 4%, compounded semiannually and bond would 
+mature in 10 years. 
+
+--- PAGE 70 ---
+YTM: yield to maturity
+Yield to maturity (YTM) is the total return anticipated on a 
+bond if the bond is held until the end of its lifetime. 
+Yield to maturity is considered a long-term bond yield, 
+but is expressed as an annual rate. In other words, it is 
+the internal rate of return of an investment in a bond if 
+the investor holds the bond until maturity and if all payments 
+are made as scheduled.
+http://www.investopedia.com/terms/y/yieldtomaturity.asp
+--- PAGE 71 ---
+Estimating a YTM
+We just bought a bond at $600. The bond will mature in 10 years with a 
+coupon rate of 4%. The coupon will be paid twice per year. The face value 
+is $1000. What is its YTM?
+import numpy_financial as npf
+pv=-600
+fv=1000
+nYear=10
+freq=2
+couponRate=0.04
+npf.rate(nYear*freq,fv*couponRate/freq,pv,fv)*freq
+
+--- PAGE 72 ---
+Relationships between bond price, coupon 
+rate, face value, and YTM
+
+--- PAGE 73 ---
+Relation between bond price and YTM
+The bond price is negatively correlated with its YTM.
+It is difficult to tell from the following formula. 
+However, it is easy to tell from the general formal. 
+
+--- PAGE 74 ---
+One example
+Assume a bond’s maturity is 10 years, with a 6% coupon rate and coupon 
+payments twice yearly. The face value is $1,000. What is the selling price 
+today?
+import numpy_financial as npf
+fv=1000
+YTM=0.06
+couponRate=0.08
+n=10
+freq=2
+price=npf.pv(YTM/freq,n*freq,fv*couponRate/freq,fv)
+Print(price)
+
+--- PAGE 75 ---
+Assume that the YTM jumps to 0.07
+import numpy_financial as npf
+fv=1000
+YTM=0.07
+couponRate=0.08
+n=10
+freq=2
+price=npf.pv(YTM/freq,n*freq,fv*couponRate/freq,fv)
+Print(price)
+
+--- PAGE 76 ---
+Definition of duration
+A simple definition:
+Duration is a weighted time, i.e., when you recover your initial 
+investment. 
+--- PAGE 77 ---
+Definition of Duration (2)
+Duration is a measure of the sensitivity of the price -- the value of 
+principal -- of a fixed-income investment to a change in interest 
+rates. Duration is expressed as a number of years. Bond prices are 
+said to have an inverse relationship with interest rates. 
+Therefore, rising interest rates indicate bond prices are likely to fall, 
+while declining interest rates indicate bond prices are likely to rise.
+• http://www.investopedia.com/terms/d/duration.asp
+--- PAGE 78 ---
+Duration of a zero-coupon bond
+For a zero-coupon bond, we only have one future cash inflow when 
+the bond matures, and the duration of a zero-coupon bond equals 
+its maturity. 
+D(zero-coupon bond)= T
+where T is the maturity (in years)
+--- PAGE 79 ---
+Duration of a coupon bond
+• Assume that we have the following cash flows. 
+c1       c2       c3                          cn
+|-------|--------|-------|--------|   ...... |--------|
+T1       T2      T3                           Tn
+weights:
+
+--- PAGE 80 ---
+The simplest example
+• This example is not related to a bond. Assume we have two cash 
+flows at the ends of years 1 and 2. What is the duration if the 
+discount rate is 10%?
+100      100
+|----------|--------|
+0                             1                        2   
+• Without any calculation, our guess is around 1.5 years. 
+--- PAGE 81 ---
+The simplest example (2)
+import numpy_financial as npf
+cf=100
+r=0.10
+n1=1
+n2=2
+pv1=-npf.pv(r,n1,0,cf)
+pv2=-npf.pv(r,n2,0,cf)
+w1=pv1/(pv1+pv2)
+d=w1*n1+(1-w1)*n2
+print(d)
+
+--- PAGE 82 ---
+Duration function in Python (1)
+def bondPrice(year,fv,rate,couponRate,freq):
+import numpy_financial as npf
+bondPrice=npf.pv(rate/freq,year*freq,fv*couponRate/freq,fv)
+return(bondPrice)
+--- PAGE 83 ---
+def Duration (year,fv,rate,couponRate,freq):
+import numpy_financial as npf
+n=year*freq
+coupon=fv*couponRate/freq
+B=bondPrice(year,fv,rate,couponRate,freq)
+D=0 
+for i in range(1,n+1):
+t=i/freq
+w=npf.pv(rate/freq,i,0,coupon)/B
+D+=w*t
+if i==n:
+w=npf.pv(rate/freq,i,0,fv)/B
+D+=w*t
+return round(D,2),round(B,2)
+
+--- PAGE 84 ---
+Duration is a measure of risk
+• For stocks, we can use standard deviation of return to measure 
+their total risk, 
+• For bonds, we use duration to measure their risk. 
+• A large duration value indicates a higher risk. 
+--- PAGE 85 ---
+Modified Duration
+
+--- PAGE 86 ---
+Estimation a modified duration
+• d=Duration(15,100,0.15,0.1,2)
+• print(d)                         #  (6.82, -70.47)     price is 70.47
+• d2=d[0]/(1+0.15/2) #  6.344186046511629
+--- PAGE 87 ---
+Usage of a modified duration
+• d=Duration(15,100,0.15,0.1,2)
+• print(d)                         #  (6.82, -70.47)     price is 70.47
+• d2=d[0]/(1+0.15/2) #  6.344186046511629
+• Assume that YTM changes from 0.15 to 0.152
+• Duration(15,100,0.152,0.1,2) #  (6.77, -69.59)
+Price percentage = 69.59/70.47-1 =-0.012487583368809396
+Duration *difference(YTM)=6.82*(0.152-0.15)=0.013640
+--- PAGE 88 ---
+Stock valuation: one-period model
+
+--- PAGE 89 ---
+Stock valuation: two-period model
+
+--- PAGE 90 ---
+Total returns: two components
+
+--- PAGE 91 ---
+Stock valuation: n-period model
+For an n-period model, we have n+1 future cash 
+flows: n dividends plus one selling price. 
+
+--- PAGE 92 ---
+N-period model: one example
+3
+--- PAGE 93 ---
+import numpy_financial as npf
+dividends=[1.80,2.07,2.277,2.48193,2.680,2.7877]
+R=0.182
+g=0.03
+p1=npf.npv(R,dividends[:-1])*(1+R)
+p2=-npf.pv(R,5,0,2.7877/(R-g)) # negative sign
+#
+print(p1)
+print(p2)
+print(p1+p2)
+3
+--- PAGE 94 ---
+Financial Data Mining 
+and Analysis
+Chapter 6: Capital Asset Pricing Model
+--- PAGE 95 ---
+CAPM (Capital Asset Pricing Model)
+Agenda
+• A simple example (linear regression)
+• Formula for CAPM
+• Retrieve stock price data
+• Retrieve a market index, such as S&P500
+• Retrieve a risk-free rate
+• Single factor vs. multi-factor models
+--- PAGE 96 ---
+The one-factor linear model
+We try to use x to explain y
+One-factor: since we have just one independent variable
+linear: a) If drawing a graph based on y and x, it is a straight line
+b) the power of the independent variable, i.e., x has a power of one.
+
+--- PAGE 97 ---
+One example: linear regression
+from scipy import stats 
+stock_ret = [0.065, 0.0265, -0.0593, -0.001,0.0346] 
+mkt_ret = [0.055, -0.09, -0.041,0.045,0.022] 
+(beta, alpha, r_value, p_value, std_err) = stats.linregress(stock_ret,mkt_ret) 
+#result=stats.linregress(stock_ret, mkt_ret) 
+print(beta, alpha) 
+print("R-squared=" , r_value**2)
+print("p-value =" , p_value)
+
+--- PAGE 98 ---
+Linear model graph
+import numpy as np
+from scipy import stats 
+import matplotlib.pyplot as plt
+np.random.seed(12456)
+alpha=1.0
+beta=0.8
+n=20
+x=np.arange(n)
+y=alpha+beta*x+np.random.rand(n)
+plt.plot(y,x)
+plt.show()
+
+--- PAGE 99 ---
+Linear model graph
+import numpy as np
+from scipy import stats 
+np.random.seed(12456)
+alpha=1.0
+beta=0.8
+n=120
+x=np.arange(n)
+y=alpha+beta*x+np.random.rand(n)
+(beta, alpha, r_value, p_value, std_err) = stats.linregress(y,x) 
+print(alpha,beta) 
+print("R-squared=" , r_value**2)
+print("p-value =" , p_value)
+
+--- PAGE 100 ---
+Formula for CAPM
+Rf is for risk-free rate, Rm is the market return 
+--- PAGE 101 ---
+Beta is the slop as well
+
+--- PAGE 102 ---
+Retrieve stock price 
+• Go to finance.yahoo.com
+• Enter a ticker
+• Go to “Historical Prices”
+• Choose beginning and ending dates
+• Choose monthly or daily 
+• Click “Get Prices”
+• Go to the end of window to download to your 
+spreadsheet
+--- PAGE 103 ---
+Closing vs. adjusted closing price 
+To estimate our returns, we have to use the adjusted close.  Here is an 
+example. 
+Assume that there is no information or no trading.  John bought one 
+share at $10. At the end of his investing horizon, he sold it at $10. 
+$10                                 $10
+|------------------------------------|
+0                                    1
+His return is zero since (10-10)/10 = 0
+Assume that the company announced a 2-for-1 split
+$10                                 $5
+|------------------------------------|
+0                                    1
+--- PAGE 104 ---
+Return calculation
+import yfinance as yf
+ticker="ibm"
+df=yf.download(ticker)
+df["ret"]=df["Adj Close"].pct_change()
+Verify one value:
+
+--- PAGE 105 ---
+Remove NA
+df=df.dropna()
+--- PAGE 106 ---
+The pd.merge() function 
+help(pd.merge)
+Help on function merge in module pandas.core.reshape.merge:
+merge(left: 'DataFrame | Series' , right: 'DataFrame | Series' , 
+how: 'MergeHow' = 'inner' , on: 'IndexLabel | None' = None, 
+left_on: 'IndexLabel | None' = None, right_on: 'IndexLabel | 
+None' = None, left_index: 'bool' = False, right_index: 'bool' = 
+False, sort: 'bool' = False, suffixes: 'Suffixes' = ('_x' , '_y'), copy: 
+'bool | None' = None, indicator: 'str | bool' = False, validate: 'str | 
+None' = None) -> 'DataFrame'
+Merge DataFrame or named Series objects with a database-
+style join.
+--- PAGE 107 ---
+Dataset Join
+
+--- PAGE 108 ---
+Example 
+
+--- PAGE 109 ---
+
+--- PAGE 110 ---
+
+--- PAGE 111 ---
+
+--- PAGE 112 ---
+Inner Join
+--- PAGE 113 ---
+Practice
+1 2
+--- PAGE 114 ---
+Merging: example #1
+import pandas as pd
+df1 = pd.DataFrame({'a': ['foo' , 'bar'], 'b': [1, 2]})
+df2 = pd.DataFrame({'a': ['foo' , 'baz'], 'c': [3, 4]})
+df3=df1.merge(df2, how='inner' , on='a')
+
+--- PAGE 115 ---
+Merging: example #2
+import pandas as pd
+df1 = pd.DataFrame({'lkey': ['foo' , 'bar' , 'baz' , 'foo'],
+value': [1, 2, 3, 5]})
+df2 = pd.DataFrame({'rkey': ['foo' , 'bar' , 'baz' , 'foo'],
+'value': [5, 6, 7, 8]})
+df1.merge(df2, left_on='lkey' , right_on='rkey')
+
+--- PAGE 116 ---
+Merging two data sets
+import pandas as pd
+import yfinance as yf
+ibm=yf.download("IBM")
+sp500=yf.download("^GSPC")
+ibm["ret"]=ibm["Close"].pct_change()
+sp500["mktRet"]=sp500["Adj Close"].pct_change()
+df=pd.merge(ibm,sp500,left_on=ibm.index,right_on=sp500.index)
+pd.set_option('display.max_columns' ,None) 
+--- PAGE 117 ---
+
+--- PAGE 118 ---
+Confidence interval vs. significance level
+• Usually, we use α for significance level  
+• The relationship between the confidence 
+interval and alpha is given below. 
+
+--- PAGE 119 ---
+Three common values for α
+• The significant level of α takes three values: 
+1%, 5%, and 10%.
+• α =1%      Confidence interval =99%
+• α =5%      Confidence interval =95%
+• α =10%    Confidence interval =90%
+--- PAGE 120 ---
+Is our estimate statistically different from 
+zero
+• Three decision rules:
+• Range Rule
+• Distance Rule
+• Shaded area Rule
+• Assume that we want to test 
+whether our beta is zero or 
+not, see the null hypothesis 
+and an alternative 
+hypothesis
+
+--- PAGE 121 ---
+Decision Rule #1: Range Rule
+• Range Rule:
+• Step 1: Constructing a confidence interval.
+For example, if alpha is 5%, we construct a 95%  
+confidence  around our beta 
+• Step 2: if zero is inside the range, we accept H0. If zero is               
+outside the range, we reject H0.     
+--- PAGE 122 ---
+Decision Rule #2: Distance Rule
+• Distance Rule:
+if zero is inside the range, we accept H0. If zero is               
+outside the range, we reject H0.     
+
+--- PAGE 123 ---
+T-density distribution
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+a=range(-30,30)
+df=30         # degree of freedom
+x=[]
+y=[]
+for i in a:
+b=i/10
+x.append(b)
+y.append(stats.t.pdf(b,df))
+plt.plot(x,y)
+plt.title("T- Density probability distribution")
+plt.xlabel("Our X-values")
+plt.ylabel("Density function")
+plot.show()
+
+--- PAGE 124 ---
+T-cumulative density distribution
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+a=range(-30,30)
+x=[]; y=[];  df=30         # degree of freedom
+for i in a:
+b=i/10
+x.append(b)
+y.append(stats.t.cdf(b,df))  # cumulative density function
+plt.plot(x,y)
+plt.title("T- Cumulative Density Function")
+plt.xlabel("Our X-values")
+plt.ylabel("Cumulative Density function")
+plot.show()
+
+--- PAGE 125 ---
+T-distribution: cumulative density function 
+and its inverse
+• import scipy.statsas stats
+• x=0
+• p=stats.t.cdf(x,df=34)  # T cumulative density function 
+• print(p)   # 0.5
+• x=-2
+• p=stats.t.cdf(x,df=34)  
+• print(p) # 0.026769917735225204
+• # Percent point function (inverse of ‘cdf’) at q of the given RV .
+• stats.t.ppf(p,df=34)  # To find the T critical value
+• #  -2.0000000000000004
+--- PAGE 126 ---
+Decision Rule #3: Shaded Area Rule
+• Decision Rule:
+
+--- PAGE 127 ---
+Using the statsmodels
+import numpy as np
+import statsmodels.api as sm
+y=[1,2,3,4,2,3,4]
+x=range(1,len(y)+1)
+x=sm.add_constant(x)
+results=sm.OLS(y,x).fit()
+print(results.params)
+
+--- PAGE 128 ---
+Using the statsmodels (2)
+import numpy as np
+import statsmodels.api as sm
+y=[1,2,3,4,2,3,4]
+x=range(1,len(y)+1)
+x=sm.add_constant(x)
+results=sm.OLS(y,x).fit()
+print(results.summary())
+
+--- PAGE 129 ---
+Interpretation of the results
+Y=alpha + beta*x
+alpha=1.2857
+beta=0.3571
+Is beta statistically different from 
+zero?
+Rule #1: range
+Rule #2: T-vale 
+Rule #3: p-value vs. our ‘alpha’
+
+--- PAGE 130 ---
+Interpretation of the results
+
+--- PAGE 131 ---
+Calculating IBM’s market risk (no rf)
+import yfinance as yf
+import statsmodels.api as sm
+ibm=yf.download("IBM")
+sp500=yf.download("^GSPC")
+ibm["ret"]=ibm["Close"].pct_change()
+sp500["mktRet"]=sp500["Adj Close"].pct_change()
+df=pd.merge(ibm,sp500,left_on=ibm.index,right_on=sp50
+0.index)
+df=df.dropna()
+y=df["ret"]
+x=df["mktRet"]
+x=sm.add_constant(x)
+results=sm.OLS(y,x).fit()
+print(results.summary())
+--- PAGE 132 ---
+Making date as an index
+import pandas as pd
+import datetime
+df=pd.read_csv("c://temp/ibmDaily.csv")
+dd=[]
+for a in df["Date"]:
+d=pd.to_datetime(a,format="%Y-%m-%d").date()
+#print(d)
+dd.append(d)
+df.index=dd
+del df["Date"]
+df.to_pickle("c://temp/ibmDaily.pkl")
+--- PAGE 133 ---
+Percentage vs. log returns
+• where 𝑃𝑡 is the price at time 𝑡 and 𝐷𝑡 is the dividend 
+distributed between 𝑡 − 1 and 𝑡, and 𝑃𝑡
+𝑎𝑑𝑗 is the 
+adjusted prices (adjusted for stock splits, dividends, 
+and other distributions) at time 𝑡. In the following 
+program, we generate a price vector and estimate 
+the returns. We assume that the timing of price is 
+sorted as 𝑡 − 4, 𝑡 − 3, 𝑡 − 2, 𝑡 − 1, and 𝑡 .
+
+--- PAGE 134 ---
+(natural) log return 
+Usually, we use ln() instead of log()
+The function ln() is based on natural log
+While log() is based on 10. 
+Log return is always based on natural log
+> exp(1)
+[1] 2.718282
+> exp(1)->x
+> log(x)
+[1] 1
+
+--- PAGE 135 ---
+𝛔𝐚𝐧𝐧𝐮𝐚𝐥, 𝛔𝐦𝐨𝐧𝐭𝐡𝐥𝐲 𝐚𝐧𝐝 𝛔𝐝𝐚𝐢𝐥𝐲
+• Conversion formulae
+
+--- PAGE 136 ---
+Moving (rolling) beta
+import numpy as np
+import yfinance as yf
+import statsmodels.apias sm
+ibm=yf.download("IBM")
+sp500=yf.download("^GSPC")
+ibm["ret"]=ibm["Close"].pct_change()
+ibm["year"]=ibm.index.year
+sp500["mktRet"]=sp500["Adj Close"].pct_change()
+df=ibm.merge(sp500,left_on=ibm.index,right_on=sp5
+00.index)
+df=df.dropna()
+#pd.set_option('display.max_columns' ,None)   
+years=np.unique(df.year)
+betas=[]
+for year in years:
+df2=df[df.year==year]
+y=df2["ret"]
+x=df2["mktRet"]
+x=sm.add_constant(x)
+results=sm.OLS(y,x).fit()
+beta=round(results.params[1],3)
+betas.append(beta)
+#
+annualBetas=pd.DataFrame([years,betas]).T
+annualBetas.columns=["year" ,"beta"]
+--- PAGE 137 ---
+Top and bottom 10 annual betas
+
+--- PAGE 138 ---
+adjusted β
+• Since beta has a mean-reversion tendency, the 
+adjusted beta is defined below. 
+Mean reversion is the financial theory that asset prices, returns, and volatility tend to return to 
+their long-term historical average over time. This concept acts as a contrarian trading strategy, 
+aiming to profit from extreme market moves—buying low when prices fall below average and 
+selling high when they rise above—assuming temporary imbalances will correct.
+--- PAGE 139 ---
+
+--- PAGE 140 ---
+Dimson (1979) adjustment for beta
+
+--- PAGE 141 ---
+Portfolio β
+• Beta of a portfolio is the weighted individual 
+stocks’ beta
+• The weight is its value invested over the value 
+of the portfolio
+

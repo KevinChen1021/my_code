@@ -1,0 +1,411 @@
+--- PAGE 1 ---
+Financial Data Mining 
+and Analysis
+Course: FICO3002
+Semester: Spring 2026
+Instructor: Dr. Liqun(Lee) Zhuge
+--- PAGE 2 ---
+Semester Schedule
+17 weeks
+“2-1” schedule: Every 2 theoretical classes + 1 coding class
+One Midterm
+One Group Coding Project
+--- PAGE 3 ---
+Semester ScheduleWeek
+1 Logistic + Lecturing
+2 Lecturing1
+3 Coding class 1
+4 Lecturing2
+5 Lecturing3
+6 Coding class 2 (project requirements release)
+7 Lecturing4
+8 Lecturing5
+9 Midterm exam
+10 Lecturing6
+11 Lecturing7
+12 Coding class 3
+13 Lecturing8
+14 Lecturing9
+15 Coding class 4
+16 Presentation
+17 Presentation
+--- PAGE 4 ---
+Grading
+Participation 10%
+Midterm exam 20%
+Coding project 20%
+Final exam 50%
+--- PAGE 5 ---
+Agenda
+A quick introduction
+•Why Python?
+•Comparisons between R, SAS, and Python
+•Textbook, errata, and code on GitHub
+•Chapter 1: Python basics
+--- PAGE 6 ---
+Open-Source-Finance
+•Three components
+•Open-software
+•Such as R, Python, Octave, and Julia
+•Open data
+•Yahoo! Finance, SEC filings, FRED
+•Open code
+•GitHub
+Kane (2019)
+https://papers.ssrn.com/sol3/papers.cfm?abstract_id=966354
+--- PAGE 7 ---
+Which language?
+SAS versus R debate
+http://insidebigdata.com/2014/03/01/sas-versus-r/
+SAS vs. R (vs. Python) -which tool should I learn?
+https://www.analyticsvidhya.com/blog/2014/03/sas-vs-vs-python-tool-learn/
+SAS vs. R (Part I)
+https://thomaswdinsmore.com/2014/12/01/sas-versus-r-part-1/
+SAS vs. R (Part II)
+https://thomaswdinsmore.com/2014/12/15/sas-versus-r-part-two/
+R or SAS: which one is the best statistical software used in medical field?
+https://www.researchgate.net/post/R_or_SAS_which_one_is_the_best_statistical_software_used_in_medical_field
+R vs SAS (Comparison and Opinion)
+http://www.learnanalytics.in/blog/?p=9
+R vs SAS, why is SAS preferred by private companies?
+http://stats.stackexchange.com/questions/33780/r-vs-sas-why-is-sas-preferred-by-private-companies
+--- PAGE 8 ---
+Objectives of this course
+•Appy Python to finance such as Ratio analysis 
+(Financial Statement Analysis), Portfolio Theory, 
+CAPM, Fama-French 3-, 4-, 5-factor Models, Monte 
+Carlo simulation, Options Theory, VaR, spread 
+estimation from daily data, from high-frequency data 
+(optional)  
+•Learn and apply Python to finance 
+•Focus on publicly available econ/fin data
+•Optional : Use CRSP/Compustat/TAQ databases 
+Note ): Can use CRSP or TAQ to finish their term projects. 
+--- PAGE 9 ---
+Why Python?
+
+--- PAGE 10 ---
+
+--- PAGE 11 ---
+A quick comparison (5 is the best)
+http://www.analyticsvidhya.com/blog/2014/03/sas-vs-vs-python-tool-learn/
+table - tool comparison
+
+--- PAGE 12 ---
+
+--- PAGE 13 ---
+http://visit.crowdflower .com/rs/416-ZBE-
+142/images/Crowdflower_Data_Scientist_Survey2015.pdf
+
+--- PAGE 14 ---
+https://duu86o6n09pv.cloudfront.net/reports/2015-data-science-salary-survey.pdf
+
+--- PAGE 15 ---
+Why Python?
+•Python has become a dominant language in finance, offering a 
+versatile and powerful toolset for various financial applications. 
+Renowned for its readability and extensive library support, Python 
+facilitates the development of sophisticated financial models, 
+quantitative analysis, and algorithmic trading strategies. 
+--- PAGE 16 ---
+Why Python (2)
+•Librariessuch as NumPy and Pandas enable efficient data 
+manipulation and analysis, while Matplotlib and Seaborn provide 
+robust visualization capabilities. 
+•Python's integration with Jupyternotebooks allows for interactive 
+and collaborative analysis, making it an ideal choice for financial 
+analysts, quants, and researchers. 
+--- PAGE 17 ---
+Why Python (3)
+•Furthermore, the adoption of Python in finance is underscored by 
+its compatibility with machine learning frameworks like 
+TensorFlow and scikit-learn, enabling the implementation of 
+predictive models and risk management solutions. 
+•With its accessibility, community support, and a rich ecosystem 
+of libraries, Python has emerged as a go-to language for 
+professionals in the finance industry seeking to streamline 
+quantitative analysis, financial modeling, and data-driven 
+decision-making.
+--- PAGE 18 ---
+Anaconda installation
+Method I: install Anaconda, which includes Python:  
+a) http://anaconda.org 
+https://www.anaconda.com/products/individual
+b)Choose appropriate software           
+Windows, Python 3.8
+64-Bit Graphical Installer (457 MB)
+32-Bit Graphical Installer (403 MB)
+MacOs,  Python 3.8
+64-Bit Graphical Installer (435 MB)
+64-Bit Command Line Installer (428 MB)
+--- PAGE 19 ---
+Anaconda installation
+
+--- PAGE 20 ---
+How to launch Python?
+•Method I: Spyder
+•Method II: JupyterNotebook
+•Method III: JupyterLab
+•Method IV: Colabof Google
+•Method V: launch Python
+•Searching for Anaconda,
+See the right image 
+
+--- PAGE 21 ---
+After Anaconda was installed
+•We can launch Spyder, JupyterNotebook, and JupyterLab via 
+Anaconda  Navigator
+•We launch Anaconda Navigator
+See the next slide.
+--- PAGE 22 ---
+
+--- PAGE 23 ---
+How to launch Spyder?
+It is a good idea to copy the 
+path to your desktop.
+--- PAGE 24 ---
+Spyder’s panels
+
+--- PAGE 25 ---
+Use the Python console
+
+--- PAGE 26 ---
+Could not launch Spyder via Anaconda
+•Download Spyder separately at
+• https://www.spyder-ide.org/
+--- PAGE 27 ---
+How do we launch JupyterNotebook?
+From Anaconda 
+Navigator
+--- PAGE 28 ---
+How to we launch JupyterNotebook
+Click “New”, then choose “Python 3” , shown 
+below. 
+--- PAGE 29 ---
+Now we can enter our code (shown below)
+
+--- PAGE 30 ---
+How to we launch JupyterLab
+From Anaconda 
+Navigator
+--- PAGE 31 ---
+Method 2 to launch JupyterLab
+Step 1: launch Anaconda Prompt
+Step 2: type
+jupyterlab
+--- PAGE 32 ---
+If your browser could not launch it directly, see 
+below. Then copy the link
+
+--- PAGE 33 ---
+Spyder vs. JupyterNotebook 
+Choosing the Right Tool for the Job
+•Spyder is a "Workbench"
+•Built for building.
+•Like a carpenter's bench: messy, full of tools, focused on the raw 
+construction of the product.
+•Best for:Writing logic, fixing bugs, and creating reusable code.
+--- PAGE 34 ---
+Spyder vs. JupyterNotebook 
+Choosing the Right Tool for the Job
+•Jupyteris a "Lab Journal"
+•Built for storytelling.
+•Like a scientist’s notebook: mixes data, observations, charts, and 
+conclusions in one place.
+•Best for:Explaining your thought process and showing results instantly.
+--- PAGE 35 ---
+When to use Spyder?
+•Use Spyder when you are "Engineering":
+•Heavy Coding:Writing long scripts (over 100 lines) or complex 
+functions.
+•Debugging:You need to pause code line-by-line to find an error.
+•Variable Inspection:You need to see the current state of all your 
+data variables at once.
+•Consistency:You want to run the exact same script multiple 
+times without manual input.
+--- PAGE 36 ---
+When to use Jupyter?
+•Use Jupyterwhen you are "Exploring":
+•Data Analysis (EDA):You need to tweak a graph and see the 
+change immediately.
+•Reporting:You need to write text (markdown) to explain what a 
+specific result means.
+•Documentation:You want to combine code, math equations, and 
+charts in a single shareable file.
+•Teaching/Sharing:You want to walk someone else through your 
+logic step-by-step.
+--- PAGE 37 ---
+We will have the following interface
+
+--- PAGE 38 ---
+After choosing Python 3 
+We can use the combination of shift-enter to 
+execute a code
+Python 2 is unsupportedanymore (Since Jan 2020)
+--- PAGE 39 ---
+Chapter 1: Python basics
+•Anaconda installation
+•Launching Python
+Spyder
+JupyterNotebook
+JupyterLab
+•Python basics
+--- PAGE 40 ---
+Python basics
+1) >>>    # '>>>' is the Python prompt
+2) Python is case-sensitive
+>>>x=10
+>>>X
+name 'X' is not defined 
+3) Alignment is critical for Python 
+4) Assign a value 
+>>>y=[1,2,5]
+5) count from 0
+>>>y=[1,2,5]
+y[0]
+1
+--- PAGE 41 ---
+[1,2,5] vs. (1,2,5)
+>>>x=[1,2,5]
+>>>type(x)
+Out[38]: list
+>>>x[0]=10        # you can change its value
+>>>y=(1,2,5)
+>>>type(y)
+Out[39]: tuple
+>>>y[0]=10   
+Traceback (most recent call last):
+File "<ipython-input-43-f39ee00d3d8d>", line 1, in <module>
+y[0]=10
+TypeError: 'tuple' object does not support item assignment
+The primary difference between a list and a tuple in Python is 
+mutability.
+•Lists are Mutable:You can change, add, or remove 
+items after the list is created.
+•Tuples are Immutable:Once created, they cannot be 
+changed. You cannot add, remove, or modify elements.
+--- PAGE 42 ---
+e, pi and log10
+import math
+math.e
+math.pi
+math.log10
+--- PAGE 43 ---
+String variables and .upper() and .lower() 
+x='Mary'
+x.upper()
+--- PAGE 44 ---
+Two types of comments
+•Type 1:  anything after #
+•Type 2: Two pair of triple double quotation marks
+"""
+This part is a multiple-line comment 
+"""
+--- PAGE 45 ---
+Assume that we want to calculate 
+the square root of 3. 
+>>>sqrt(3)
+Traceback (most recent call last):
+File "<ipython-input-1-2f71726bed4c>", line 1, in <module>
+sqrt(3)
+NameError: name 'sqrt' is not defined
+import math
+math.sqrt(3)
+Out[2]: 1.7320508075688772
+from math import sqrt  # Alternatively, we can use
+sqrt(3)
+Out[3]: 1.7320508075688772
+--- PAGE 46 ---
+import math module
+import math
+x=math.sqrt(3)
+print(x)
+--- PAGE 47 ---
+Print all columns 
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+# return to the original setting
+#----------------------------------
+pd.reset_option('max_columns')
+pd.reset_option('display.max_rows')
+pd.reset_option('display.width')
+In Python, pd.set_option() is a function from the Pandaslibrary 
+It is used to configure and customize the display behaviorof Pandas 
+data structures, such as DataFramesand Series. It helps you control 
+how your data looks when printed to the console or displayed in a 
+JupyterNotebook.
+--- PAGE 48 ---
+The simplest Python functions
+def dd(x):
+return(x*2)
+1) def is the keyword
+2) dd is the function name
+3) x is the input
+4) alignment is important
+5) return() returns the result
+6) x*2 will double an input value
+--- PAGE 49 ---
+Using Spyder’s editor
+
+--- PAGE 50 ---
+Future value function
+𝒇𝒗=pv(1+r)^n
+fvis the future value
+Pvis the present value
+r is the rate
+N is the number of periods
+def fv_f(pv,r,n):
+return pv*(1+r)**n
+fv=fv_f(100,0.1,2)
+print(fv)
+--- PAGE 51 ---
+Three ways to input values
+•Method I: the meanings of input variables depend on their order
+•Method II: the meanings of input variables depend on their        
+keywords
+•Method III: mixed ones
+--- PAGE 52 ---
+In-class exercise #3: write a pv_f() function
+𝒑𝒗=fv/(1+r)^n
+--- PAGE 53 ---
+Method I: input values depend on order i.e., their 
+positions 
+
+--- PAGE 54 ---
+Method II: input values depend on their 
+keywords
+
+--- PAGE 55 ---
+Keyboard short-cut 
+•run current line  --> F9
+•run selected several lines --> F9
+•Run cell   --> Ctrl+Return
+•Note that if you prefer to use Ctrl+Return, 
+• you can go to Tools -> Preferences -> 
+• Keyboard shortcuts. Search for 'run selection' , 
+• double click and set Ctrl+Returnas the 'New shortcut'
+--- PAGE 56 ---
+In-class exercise #4: add comments (helpt) to 
+your pv_f() function
+𝒑𝒗=fv/(1+r)^n
+--- PAGE 57 ---
+In an R-assisted learning environment
+•First, download and install R
+To install R, we have the following steps:
+Step 1: go to http://r-project.org
+Step 2: click "CRAN" on the left
+Step 3: choose a server nearby
+Step 4: choose appropriate type such as Windows, Mac
+Step 5: download "Base"
+--- PAGE 58 ---
+15 weeks’ extra teaching materials
+•source('http://datayyy.com/p4f.txt’)
+•Note that the above file contains the first line below. Each week 
+instructors can modify it for different week’s material. Thus, students 
+are given just one line of R code. 
+•source('http://datayyy.com/p4f/week1.txt')
+•source('http://datayyy.com/p4f/week2.txt')
+•source('http://datayyy.com/p4f/week3.txt’)
+•source('http://datayyy.com/p4f/week14.txt')
+•source('http://datayyy.com/p4f/week15.txt')
