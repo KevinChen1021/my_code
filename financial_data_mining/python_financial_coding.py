@@ -27,15 +27,15 @@ print(dir(npf))
 '''fixed or growing'''
 '''perpetuity or not'''
 '''due or not'''
-"""def pv_growing_annuity(c, r, g, n):"""
-"""    return (c/r * 1 - (1+g)**n/(1+r)**n)"""
-"""def fv_growing_annuity(c, r, g, n):"""
-"""    return (c/r)*((1+r)**n - (1+g)**n)"""
+def pv_growing_annuity(c, r, g, n):
+    return (c/r * 1 - (1+g)**n/(1+r)**n)
+def fv_growing_annuity(c, r, g, n):
+    return (c/r)*((1+r)**n - (1+g)**n)
 
 
 '''first annuity paid after k years'''
-"""def pv_perpetuity_delayed(c, r, k):"""
-"""    return(1/(1+r)**(k-1))*(c/r)"""
+def pv_perpetuity_delayed(c, r, k):
+   return(1/(1+r)**(k-1))*(c/r)
 
 
 '''NPV and IRR'''
@@ -86,10 +86,10 @@ print(ff.head())
 '''ttest_ind and ttest_1samp'''
 begdate = '2020-1-1'
 enddate = '2021-12-31'
-"""def ret_f(ticker, begdate, enddate):"""
-"""    df = yf.download(ticker, begdate, enddate)"""
-"""    ret = df["Close"].pct_change().dropna()"""
-"""    return ret"""
+def ret_f(ticker, begdate, enddate):
+    df = yf.download(ticker, begdate, enddate)
+    ret = df["Close"].pct_change().dropna()
+    return ret
 a = ret_f("IBM", begdate, enddate)
 b = ret_f("NVDA", begdate, enddate)
 print(stats.ttest_ind(a, b))
@@ -116,7 +116,7 @@ def effective_annual_rate(APR, n_period):
     EAR = (1 + APR/n_period)**n_period - 1
     return EAR
 
-print(round(effect(0.1, 2), 5))
+print(round(effective_annual_rate(0.1, 2), 5))
 
 '''this is to change APR to one that is different periodically compounded'''
 '''in order to compare bonds with different payment frequency'''
@@ -197,7 +197,6 @@ def Duration(year, fv, rate, coouponRate, freq):
             return round(D, 4), round(B, 4)
 '''modified duration:calculated from Marcauly duration'''
 '''Dmodified = D/(1 + YTM/freq)'''
-d1_modified = d1[0] / (1 + 0.1/2)
 
 
 '''pricing a stock: 2 periods'''
@@ -445,21 +444,21 @@ std2 = x.std()
 y = x[x-Rf < 0]
 '''selecting the x satisfying specific conditions into y'''
 total = 0.0
-"""for r in y:"""
-"""    total += (r - Rf)**2"""
+for r in y:
+    total += (r - Rf)**2
 LPSD = np.sqrt(total/(63))
 
 '''LPSD in general cases'''
-"""def LPSD_f(returns, Rm):"""
-"""    import numpy as np"""
-"""    y = returns[returns < Rm]"""
-"""    total = 0.0"""
-"""    m = len(y)"""
-"""    for r in y:"""
-"""        total += (r - Rm)**2"""
-"""    var = total/(m-1)"""
-"""    LPSD = np.sqrt(var)"""
-"""    return LPSD"""
+def LPSD_f(returns, Rm):
+    import numpy as np
+    y = returns[returns < Rm]
+    total = 0.0
+    m = len(y)
+    for r in y:
+        total += (r - Rm)**2
+    var = total/(m-1)
+    LPSD = np.sqrt(var)
+    return LPSD
 
 
 annualRiskFree = 0.01
@@ -744,9 +743,9 @@ fun(x)
 fun1 = lambda x: (x[0] - 1)**2 + (x[1]-2.5)**2
 
 bounds = ((0, None), (0, None))#规定两个参数的下界与上界
-"""cons = ({'type': 'ineq', 'fun': lambda x : x[0] - 2*x[1]**2}, """
-"""              {'type': 'ineq', 'fun': lambda x : -x[0] - 2*x[1] + 6},"""
-"""              {'type': 'ineq', 'fun': lambda x : x[0] - 2*x[1] + 2})"""
+cons = ({'type': 'ineq', 'fun': lambda x : x[0] - 2*x[1]**2}, 
+              {'type': 'ineq', 'fun': lambda x : -x[0] - 2*x[1] + 6},
+              {'type': 'ineq', 'fun': lambda x : x[0] - 2*x[1] + 2})
 # fun >= 0
 
 results = minimize(fun1, (2, 0), method = 'SLSQP',  bounds = bounds, constraints = cons)
@@ -757,8 +756,8 @@ results = minimize(fun1, (2, 0), method = 'SLSQP',  bounds = bounds, constraints
 a = 3.4
 b = 2
 c = 0.8
-"""def f(x):"""
-"""    return a - b * np.exp(-(x - c)**2)"""
+def f(x):
+    return a - b * np.exp(-(x - c)**2)
 
 x = np.arange(-3, 3, 0.1)
 y = f(x)
@@ -779,46 +778,46 @@ rf = 0.02
 n = len(tickers)
 
 """step1: annual return of the portfolio"""
-"""def ret_annual(ticker, begdate, enddate):"""
-"""    df = yf.download(ticker, begdate, enddate)"""
-"""    df['logret'] = np.log(1 + df['Close'].pct_change())"""
-"""    df['year'] = df.index.year"""
-"""    retAnnual = np.exp(df['logret'].groupby(df['year']).sum() - 1)"""
-"""    retAnnual = pd.DataFrame(retAnnual)"""
-"""    retAnnual.columns = ['ret_' + ticker]"""
-"""    return retAnnual    """
+def ret_annual(ticker, begdate, enddate):
+    df = yf.download(ticker, begdate, enddate)
+    df['logret'] = np.log(1 + df['Close'].pct_change())
+    df['year'] = df.index.year
+    retAnnual = np.exp(df['logret'].groupby(df['year']).sum() - 1)
+    retAnnual = pd.DataFrame(retAnnual)
+    retAnnual.columns = ['ret_' + ticker]
+    return retAnnual
     
 """step2: estimate portfolio variance"""
-"""def porfolio_var(R, w):"""
-"""    cor = np.corrcoef(R.T)"""
-"""    std_dev = np.std(R, axis=0)"""
-"""    var = 0"""
-"""    for i in np.arange(n):"""
-"""        for j in np.arange(n):"""
-"""            var += w[i]*w[j]*std_dev[i]*std_dev[j]*cor[i, j]"""
-"""    return var"""
+def porfolio_var(R, w):
+    cor = np.corrcoef(R.T)
+    std_dev = np.std(R, axis=0)
+    var = 0
+    for i in np.arange(n):
+        for j in np.arange(n):
+            var += w[i]*w[j]*std_dev[i]*std_dev[j]*cor[i, j]
+    return var
 
 """step3: construct a function to calculate sharpe ratio"""
-"""def sharperatio(R, w):"""
-"""    var = porfolio_var(R, w)"""
-"""    mean_return = np.mean(R, axis=0)"""
-"""    ret = np.array(mean_return)"""
-"""    return (np.dot(w,ret) - rf)/np.sqrt(var)"""
+def sharperatio(R, w):
+    var = porfolio_var(R, w)
+    mean_return = np.mean(R, axis=0)
+    ret = np.array(mean_return)
+    return (np.dot(w,ret) - rf)/np.sqrt(var)
 
 """step4: give n-1 weights which will return a sharpe ratio"""
 '''基于前n-1个权重自动算出第n个权重，然后据此计算完整的夏普比率'''
 '''因为所有权重和为1，自由度只有 n-1。优化器只需搜索 n-1 个权重，最后一个自动确定，自动满足和为1'''
-"""def sharperatio_n_minus_1_stocks(R, w):"""
-"""    w2 = np.append(w, 1-sum(w))"""
-"""    return sharperatio(R, w2)"""
+def sharperatio_n_minus_1_stocks(R, w):
+    w2 = np.append(w, 1-sum(w))
+    return sharperatio(R, w2)
 
 
 x2 = ret_annual(tickers[0], begdate, enddate)
-"""for ticker in tickers[1:]:"""
-"""    x_ = ret_annual(ticker, begdate, enddate)"""
-"""    x2 = x2.merge(x_, left_on=x2.index, right_on=x_.index)"""
-"""    x2.index = x2['key_0']"""
-"""    del x2['key_0']"""
+for ticker in tickers[1:]:
+    x_ = ret_annual(ticker, begdate, enddate)
+    x2 = x2.merge(x_, left_on=x2.index, right_on=x_.index)
+    x2.index = x2['key_0']
+    del x2['key_0']
 
 R = np.array(x2)
 print(f"efficient portfolio (mean-variance) :ticker used {tickers}")
@@ -835,7 +834,7 @@ print(f"sharpe ratio with equal weight = {sharpe_equal_weights}")
 
 w0 = np.ones(n-1, dtype=float)*1.0/n
 w1=fmax(sharperatio_n_minus_1_stocks, w0)
-'''以w0（等权重）为基准，对sharperatio_n_minus_1_stocks函数进行fmax优化'''
+'''以w0(等权重)为基准,对sharperatio_n_minus_1_stocks函数进行fmax优化'''
 optimal_w = np.append(w1, 1-sum(w1))
 
 optimal_sharpe_ratio = sharperatio(R, optimal_w)
