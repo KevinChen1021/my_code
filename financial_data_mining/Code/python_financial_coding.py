@@ -1111,3 +1111,258 @@ df.to_csv("results.csv", index=False)
 
 """do not forget to close the connection"""
 conn.close()
+
+
+
+'''VaR'''
+
+'''to get the value of 100 shares of IBM stock'''
+ticker = "IBM"
+df = yf.download(ticker)
+df = pd.read_pickle("ibm.pkl")
+
+nStocks = 100
+wealth = nStocks * df["Close"].iloc[-1]
+wealth = round(wealth, 2)
+
+print(f"the value of {nStocks} shares of IBM is {wealth}")
+
+'''to calculate VaR next day for 100 shares of IBM stock'''
+
+ticker = "IBM"
+n_shares = 100
+confidence_level = 0.99
+z = stats.norm.ppf(confidence_level)
+
+ret = df["Close"].pct_change().dropna()
+position = round(n_shares * df["Close"].iloc[-1], 2)
+std = ret.std()
+mean = ret.mean()
+
+VaR = round(position * (mean - z*std), 2)
+
+lastDay = df.index[-1].date()
+print(f"Holding = {n_shares} , VaR = {VaR} tomorrow")
+print(f"number of shares: {n_shares}, last day: {lastDay}")
+
+
+'''simplified VaR calculation'''
+VaR_simple = round(position * z * std, 2)
+print(f"Simplified VaR = {VaR_simple} tomorrow")
+
+
+
+'''modified VaR calculation'''
+'''not all the returns are normally distributed, we need to consider skewness and kurtosis'''
+ticker = "WMT"
+nDays = 10
+
+df = yf.download(ticker)
+df = pd.read_pickle("WMT.pkl")
+
+df['retPlus1'] = df['Close'].pct_change() + 1
+ddate = []
+for i in np.arange(0, df.shape[0]):
+    ddate.append(int(i/nDays))
+df['nDays'] = ddate
+
+ret2 = df['retPlus1'].groupby(df['nDays']).prod() - 1
+
+'''10days VaR'''
+confidence_level = 0.99
+n_shares = 50
+nDays = 10
+z = stats.norm.ppf(confidence_level)
+
+df = pd.read_pickle("WMT2.pkl")
+
+df['retPlus1'] = df['Close'].pct_change() + 1
+ddate = []
+for i in np.arange(0, df.shape[0]):
+    ddate.append(int(i/nDays)) 
+
+df['nDays'] = ddate
+
+ret2 = df['retPlus1'].groupby(df['nDays']).prod() - 1
+mean = ret2.mean()
+std = ret2.std()
+
+position = round(n_shares * df["Close"].iloc[-1], 2)
+VaR = round(position * (mean - z*std), 2)
+
+print(f"Holding = {n_shares} , VaR = {VaR} in {nDays} days")
+print(f"number of shares: {n_shares}")
+
+
+'''shapiro wilk test'''
+'''test if the data is normally distributed'''
+
+'''anderson darling test'''
+'''test if the data is from a specific distribution'''
+
+
+'''normality test for WMT's daily returns'''
+ret = df["Close"].pct_change().dropna()
+print(stats.shapiro(ret))
+print(stats.anderson(ret, dist='norm'))
+
+
+'''VaR for the next day by sorting'''
+n_shares = 500
+confidence_level = 0.99
+
+df['ret'] = df['Close'].pct_change().dropna()
+sorted_ret = df['ret'].sort_values()
+
+position = round(n_shares * df["Close"].iloc[-1], 2)
+n = len(sorted_ret)
+index = int((1 - confidence_level) * n)
+
+VaR_sort = round(position * sorted_ret[index], 2)
+print(f"VaR (sorted) = {VaR_sort}")
+
+
+'''10 day VaR by sorting'''
+ddate = []
+for i in np.arange(0, df.shape[0]):
+    ddate.append(int(i/nDays))
+
+df['nDays'] = ddate
+
+ret2 = df['retPlus1'].groupby(df['nDays']).prod() - 1
+sorted_ret2 = ret2.sort_values()
+n = len(sorted_ret2)
+left_tail = int((1 - confidence_level) * n)
+
+VaR_sort_10days = round(position * sorted_ret2[left_tail], 2)
+print(f"VaR (sorted) in {nDays} days = {VaR_sort_10days}")
+print(f"number of shares: {n_shares}, last day: {lastDay}")
+
+
+'''calculate skewness and kurtosis'''
+np.random.seed(123456)
+n = 5000000
+ret = np.random.normal(0, 1, n)
+mean = ret.mean()
+std = ret.std()
+
+skew = 0
+kurtosis = 0
+for r in ret:
+    skew += (r - mean)**3
+    kurtosis += (r - mean)**4
+
+skew = skew/(n-1)/std**3
+kurtosis = kurtosis/(n-1)/std**4
+
+print(f"skewness is {skew} and kurtosis is {kurtosis}")
+
+
+'''nVaR for one day'''
+confidence_level = 0.99
+z = stats.norm.ppf(confidence_level)
+
+ret = df["Close"].pct_change().dropna()
+position = round(n_shares * df["Close"].iloc[-1], 2)
+
+VaR1 = round(position * (mean - z*std), 2)
+
+'''modified VaR based on 4 moments'''
+s = stats.skew(ret)
+k = stats.kurtosis(ret)
+
+t = z + (s/6)*(z**2 - 1) + (k/24)*(z**3 - 3*z) - (s**2/36)*(2*z**3 - 5*z)
+
+VaR2 = round(position * (mean - t*std), 2)
+
+print(f"VaR based on 4 moments is {VaR2} tomorrow")
+
+
+'''expected shortfall'''
+ret2 = np.sort(df['ret'])
+position = round(n_shares * df["Close"].iloc[-1], 2)
+n = len(ret2)
+index = int((1 - confidence_level) * n)
+
+sum = 0.0
+for i in np.arange(0, index):
+    sum += ret2[i]
+
+ES = round(position * sum / index, 2)
+print(f"Expected Shortfall = {ES} tomorrow")
+
+
+'''volitility of 2-stock portfolio'''
+
+def var2stock(ret1, ret2, w1):
+    w2 = 1 - w1
+    std1 = ret1.std()
+    std2 = ret2.std()
+    cov12 = np.cov(ret1, ret2)
+    var_portfolio = w1**2*std1**2 + w2**2*std2**2 + 2*w1*w2*cov12[0, 1]
+    return var_portfolio
+
+
+'''to randomly generate two datasets to calculate the volatility of the portfolio'''
+
+np.random.seed(123456)
+n = 50000
+m1 = 0.02
+m2 = 0.05
+
+std1_0 = 0.2
+std2_0 = 0.12
+
+ret1 = np.random.normal(m1, std1_0, n)
+ret2 = np.random.normal(m2, std2_0, n)
+
+w1 = 0.4
+std1 = round(ret1.std(), 6)
+std2 = round(ret2.std(), 6)
+
+v = round(var2stock(ret1, ret2, w1), 6)
+
+print(f"volatility of the portfolio is {v}")
+print(f"volatility of stock 1 is {std1} and volatility of stock 2 is {std2}")
+
+
+'''a real-world example: calculate the volatility of a portfolio of IBM and WMT stocks'''
+df = pd.read_pickle("ibm.pkl")
+df = pd.DataFrame(df)
+retIBM = df["Close"].pct_change().dropna()
+retIBM.columns = ["retIBM"]
+
+df2 = pd.read_pickle("WMT.pkl")
+df2 = pd.DataFrame(df2)
+retWMT = df2["Close"].pct_change().dropna()
+retWMT.columns = ["retWMT"]
+
+w1 = 0.5
+final = retIBM.merge(retWMT, left_index=True, right_index=True)
+
+std1 = round(final.retIBM.std(), 6)
+std2 = round(final.retWMT.std(), 6)
+
+v = round(var2stock(final.retIBM, final.retWMT, w1), 6)
+
+print(f"volatility of the portfolio is {v}")
+
+
+'''VaR of a portfolio'''
+
+def Vol_portfolio(retMatrix, weights):
+    m = retMatrix.shape[1]
+    m2 = len(weights)
+    if m != m2:
+        print("the number of stocks and the number of weights do not match")
+        return None
+    else:
+        mean = retMatrix.mean()
+        std = retMatrix.std()
+        cov = np.cov(retMatrix.T)
+        vol_portfolio = 0.0
+        for i in np.arange(0, m):
+            for j in np.arange(0, m):
+                vol_portfolio += weights[i]*weights[j]*std[i]*std[j]*cov[i, j]
+        return np.sqrt(vol_portfolio)
+
