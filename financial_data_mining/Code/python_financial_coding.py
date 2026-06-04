@@ -1348,7 +1348,7 @@ v = round(var2stock(final.retIBM, final.retWMT, w1), 6)
 print(f"volatility of the portfolio is {v}")
 
 
-'''VaR of a portfolio'''
+'''volatility of a portfolio'''
 
 def Vol_portfolio(retMatrix, weights):
     m = retMatrix.shape[1]
@@ -1365,4 +1365,245 @@ def Vol_portfolio(retMatrix, weights):
             for j in np.arange(0, m):
                 vol_portfolio += weights[i]*weights[j]*std[i]*std[j]*cov[i, j]
         return np.sqrt(vol_portfolio)
+
+'''vol of n-stock portfolio (simulated returns)'''
+np.random.seed(123456)
+nReturns = 500
+nStocks = 10
+
+ret_matrix = np.random.uniform(-0.12, 0.05, (nReturns, nStocks))
+weights = np.ones(nStocks, dtype=float)*1.0/nStocks
+vol_portfolio = Vol_portfolio(ret_matrix, weights)
+print(f"volatility of the portfolio is {vol_portfolio}")
+
+
+
+'''monte carlo simulation'''
+
+np.random.seed(123456)
+x = np.random.standard_normal(size = 10)
+
+'''randomly select 10 stocks among NYSE stocks'''
+infile = 'http://datayyy.com/data_pickle/nyseList.pickle'
+df = pd.read_pickle(infile)
+
+nStock = 10
+
+np.random.seed(123456)
+a = np.random.choice(df.ticker, nStock)
+stock_chosen = df.loc[df.index[a]]
+
+'''roll a dice function'''
+def roll_dice(n):
+    return np.random.randint(1, 7, n)
+
+res = []
+for i in np.arange(0, 10):
+    res.append(roll_dice(10))
+print(res)
+
+
+'''the permutation steps in randomization'''
+x = np.arange(1, 11)
+
+for i in np.arange(1, 6):
+    y = np.random.permutation(x)
+    print(f"the {i}th permutation is {y}")
+
+'''simulation of stock terminal price movements'''
+S0 = 9.15 # stock price at time 0
+T = 1 # 1 year of obsevation
+n_steps = 100 # number of steps
+mu = 0.15 # annual return mean
+sigma = 0.2 # annual volatility
+
+np.random.seed(123456)
+n_simulations = 1000
+
+dt = T/n_steps
+S = np.zeros([n_simulations], dtype=float)
+x = np.arange(0, int(n_steps), 1)
+
+for j in np.arange(0, n_simulations):
+    tt = S0
+    for i in x:
+        e = np.random.normal()
+        tt += tt*(mu-0.5*pow(sigma, 2))*dt + tt*sigma*e*np.sqrt(dt)
+
+plt.xlabel("terminal price")
+plt.ylabel("number of frequencies")
+plt.hist(S)
+plt.show()
+
+
+'''call simulation'''
+S0 = 40
+X = 40
+T = 0.5
+r = 0.05
+sigma = 0.2
+n_steps = 100
+
+np.random.seed(123456)
+n_simulations = 5000
+dt = T/n_steps
+call = np.zeros([n_simulations], dtype=float)
+
+x = np.arange(0, int(n_steps), 1)
+
+for j in np.arange(0, n_simulations):
+    sT = S0
+    for i in x[:-1]:
+        e = np.random.normal()
+        a = sigma *e*np.sqrt(dt)
+        sT = sT * exp((r - 0.5*sigma*sigma)*dt + a)
+        call[j] = max(sT - X, 0)
+
+call_price = exp(-r*T)*call.mean()
+print(f"the price of the call option is {call_price}")
+
+
+'''path of stock price change'''
+S0 = 9.15
+
+T = 1
+n_steps = 100
+mu = 0.15
+sigma = 0.2
+
+np.random.seed(123456)
+n_simulation = 5
+
+dt = T/n_steps
+S = np.zeros([n_simulation], dtype=float)
+x = np.arange(0, int(n_steps), 1)
+
+for j in np.arange(0, n_simulation):
+    S[0] = S0
+    for i in x[:-1]:
+        e = np.random.normal()
+        aa = sigma * S[i]*sqrt(dt)*e
+        S[i+1] = S[i] + S[i]*(mu - 0.5*sigma*sigma)*dt + aa
+    plt.plot(x, S)
+
+plt.xlabel("time step")
+plt.ylabel("stock price")
+plt.show()
+
+
+'''correlated random series'''
+
+np.random.seed(123456)
+n = 1000
+rho = 0.3
+x1 = np.random.normal(size = n)
+x2 = np.random.normal(size = n)
+
+y1 = x1
+y2 = rho * x1 + np.sqrt(1-rho**2) * x2
+
+corMatrix = np.corrcoef(y1, y2)
+print(corMatrix)
+
+
+'''calculating mean and std then simulate'''
+ticker = "WMT"
+n_share = 500
+confidence_level = 0.99
+begdate = "2012-1-1"
+enddate = "2016-12-31"
+df = yf.download(ticker, begdate, enddate)
+df = np.read_pickle("WMT.pkl")
+
+ret = df["Close"].pct_change().dropna()
+position = round(n_share * df["Close"].iloc[-1], 2)
+
+std = ret.std()
+
+n_simulations = 5000
+np.random.seed(123456)
+ret2 = np.random.normal(ret.mean(), std, n_simulations)
+rer3 = np.sort(ret2)
+m = int(n_simulations * (1 - confidence_level))
+
+VaR_simulation = round(position * rer3[m], 2)
+print(f"VaR by simulation is {VaR_simulation} tomorrow")
+
+
+'''up and out call'''
+
+def bsCall (S, X, T, r, sigma):
+    d1 = (log(S/X) + (r + sigma*sigma/2)*T)/(sigma * sqrt(T))
+    d2 = d1 - sigma*sqrt(T)
+    return S*stats.norm.cdf(d1) - X*exp(-r*T)*stats.norm.cdf(d2)
+
+def up_and_out_call(S0, X, T, r, sigma, n_simulation, barrier):
+    n_steps = 100
+    dt = T/n_steps
+    total = 0
+    for i in np.arange(0, n_simulation):
+        sT = S0
+        knocked_out = False
+        for j in np.arange(0, int(n_steps)):
+            e = np.random.normal()
+            a = sigma *e*np.sqrt(dt)
+            sT = sT * exp((r - 0.5*sigma*sigma)*dt + a)
+            if sT >= barrier:
+                knocked_out = True
+                break
+        if knocked_out == False:
+            total += bsCall(sT, X, T - j*dt, r, sigma)
+    return total/n_simulation
+    
+
+
+'''linking two methods for VaR using simulation'''
+position = 1e6
+std = 0.2
+mean = 0.08
+confidence_level = 0.99
+
+n_simulation = 50000
+
+'''method 1: using the mean and std to calculate VaR'''
+z = stats.norm.ppf(1 - confidence_level)
+VaR1 = round(position * (mean - z*std), 2)
+
+'''method 2: monte carlo simulation'''
+np.random.seed(123456)
+ret = np.random.normal(mean, std, n_simulation)
+ret = np.sort(ret)
+m = int(n_simulation * (1 - confidence_level))
+VaR2 = round(position * ret[m], 2)
+print(f"VaR by method 1 is {VaR1} and VaR by method 2 is {VaR2}")
+
+
+
+'''long-term return comparison'''
+'''choose aristic return or geometric return?'''
+
+ticker = 'IBM'
+begdate = '2010-1-1'
+enddate = '2020-12-31'
+
+n_forecast = 25 # forecast horizon(years)
+df = yf.download(ticker, begdate, enddate)
+df = pd.read_pickle("ibm.pkl")
+
+df['retPlus1'] = df['Close'].pct_change() + 1
+df['year'] = df.index.year
+df = df.dropna()
+retAnnual = df['retPlus1'].groupby(df['year']).prod() - 1
+retAnnual.columns = ['retAnnual']
+
+n_history = retAnnual.count()
+a_mean = retAnnual.mean()
+
+retPlus1 = [x + 1 for x in retAnnual]
+g_mean = stats.gmean(retPlus1) - 1
+
+w = min(n_forecast / n_history, 1)
+
+future_ret = round(w*g_mean + (1-w)*a_mean, 4)
+print(f"the forecast return of {ticker} in {n_forecast} years is {future_ret}")
 
