@@ -1,0 +1,1457 @@
+--- PAGE 1 ---
+Financial Data Mining 
+and Analysis
+Chapter 7: Multivariate models and 
+performance measures
+--- PAGE 2 ---
+Chapter  7: Multiple-factor model, Sharpe ratio, 
+Treynorratio 
+Agenda
+•Simple example
+•Fama-French 3-factor model
+•Momentum factor
+•Fama-French-Carhart4-factor model
+•Fama-French 5-factor model
+•Sharpe ratio
+•Treynorratio
+--- PAGE 3 ---
+Several formulae
+•Single-factor model (CAPM)
+•Fama-French 3-factor model
+
+--- PAGE 4 ---
+Manually get ff3 factors
+Step 1: go to Prof. French's data library
+         http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
+ Step 3: find monthly or daily data
+ Step 4: download
+
+--- PAGE 5 ---
+Fama-French monthly data
+This file was created by CMPT_ME_BEME_RETS using the 
+201504 CRSP database.
+The 1-month TBill return is from Ibbotson and Associates, Inc.
+            Mkt-RF     SMB     HML      RF
+192607    2.96   -2.30   -2.87    0.22
+192608    2.64   -1.40    4.19    0.25
+192609    0.36   -1.32    0.01    0.23
+192610   -3.24    0.04    0.51    0.32
+192611    2.53   -0.20   -0.35    0.31
+192612    2.62   -0.04   -0.02    0.28
+192701   -0.06   -0.56    4.83    0.25
+192702    4.18   -0.10    3.17    0.26
+--- PAGE 6 ---
+Efficient way to get pickle data
+Daily: 
+    http://datayyy .com/data_csv/ff3dailyRaw.pickle
+    http://datayyy .com/data_csv/ff3daily .pickle
+    http://datayyy .com/data_csv/ff3daily .pkl
+Monthly:
+    http://datayyy .com/data_csv/ff3monthlyRaw.pickle
+    http://datayyy .com/data_csv/ff3monthly.pickle
+    http://datayyy .com/data_csv/ff3monthly.pkl
+Annually:
+    http://datayyy .com/data_csv/ff3annual.pickle
+--- PAGE 7 ---
+Definitions of SMB and HML
+•http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Li
+brary/f-f_factors.html
+
+--- PAGE 8 ---
+6 portfolios
+Step 1: based on size 
+        We cut all stocks into small group and big groups
+       small stocks     big stocks
+   |------------------|----------------|
+Step 2: for each above group, we cut them into 3
+        subgroup based on Book/market ratio 
+Note: that the market value of equity is its market capitalization which is defined 
+           as the number of shares outstanding times its price
+
+--- PAGE 9 ---
+6 portfolios (2)
+Now, we have the following 6 portfolios
+                         B/M
+           -------------------------------------
+                  L           M           H
+           ------------|-----------|------------|
+ stock  S        SL           SM          SH
+ size      ------------|-----------|------------|       
+        B        BL           BM          BH
+           ------------|-----------|------------|
+--- PAGE 10 ---
+Running a Fama-French 3-factor model
+import numpy as np
+import pandas as pd
+import yfinance as yf
+import statsmodels.api as sm
+Use yf.downloadfor "IBM")
+--- PAGE 11 ---
+Fama-French 3-factor model (2)
+
+--- PAGE 12 ---
+T-critical value
+# DF=    473
+import scipy.stats as stats
+df=473
+alpha=0.05
+tCritical=stats.t.ppf(alpha,alpha,df)
+print(tCritical)
+-1.1404359422183676e+19
+•zCritical=stats.norm.ppf(alpha)
+•print(zCritical)
+•-1.6448536269514729
+--- PAGE 13 ---
+Fama-French 3-factor model (3)
+•DF Residuals:                     473
+•α=-.0028
+•𝛽𝑀𝐾𝑇=0.0432
+•𝛽𝑆𝑀𝐵=0.0197
+•𝛽𝐻𝑀𝐿=0.0607
+H0:  𝛽𝑀𝐾𝑇 =0
+Assume that the significance level is 5%. 
+    Rule #1 :  zero is not in the range [0.009, 0.077]
+    Rule #2: |T| = 2.512> 1.14 reject H0
+    Rule #3 : p=0.012 < 0.05   reject H0
+--- PAGE 14 ---
+R2 vs. adjusted R2
+•R2 is the percentage of the variables of y 
+explained by your model.
+•Adjusted R2: factoring in the number of 
+independent variables 
+
+--- PAGE 15 ---
+Models with different numbers of 
+independent variables
+•When comparing the performance of models 
+with different independent variables, we 
+should adjust R2 instead of R2. 
+
+--- PAGE 16 ---
+Fama-French 3-factor model (4)
+R2= 0.022
+Adj R2=0.015
+Adj R2 = 1 – (1-0.022)*(477-1)/(477-3-1)
+
+--- PAGE 17 ---
+F- density distribution
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+#
+x=np.arange(0,4,0.1)
+df1=20
+df2=10
+y=stats.f.pdf(x,df1,df2)
+plt.title("F-distribution")
+plt.xlabel("X-values")
+plt.ylabel("F density ditribution")
+plt.plot(x,y)
+plt.show()
+
+--- PAGE 18 ---
+F- cumulative density distribution
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+#
+x=np.arange(0,4,0.1)
+df1=20
+df2=10
+y=stats.f.cdf(x,df1,df2)   # cumulative 
+plt.title("F-distribution")
+plt.xlabel("X-values")
+plt.ylabel("F cumulative density 
+ditribution")
+plt.plot(x, y)
+plt.show()
+
+--- PAGE 19 ---
+F-inverse of cumulative density function
+import scipy.stats as stats
+df1=20
+df2=10
+x=1
+prob=stats.f.cdf(x,df1,df2)
+print(prob) # 0.4755004684328913
+# inverse
+x2=stats.f.ppf(prob,df1,df2)
+print(x2) # 0.9999999999999989
+
+--- PAGE 20 ---
+F-critical values: left vs. right tails
+import scipy.stats as stats
+df1=20
+df2=10
+alpha=0.05
+#
+FcriticalValue_left=stats.f.ppf(alpha,df1,df2)
+print(f"FcriticalValue_left={FcriticalValue_left}")
+#
+FcriticalValue_right=stats.f.ppf(1-alpha,df1,df2)
+print(f"FcriticalValue_right={FcriticalValue_right}"
+)
+
+--- PAGE 21 ---
+F-test (F-value) in the output
+The null hypothesis is that all slops are zero. 
+Alternative hypothesis:
+ At least one of them is not zero. 
+
+--- PAGE 22 ---
+Fama-French 3-factor model (4)
+
+--- PAGE 23 ---
+Momentum trading strategy
+trading strategy for a short-term (from 3 months to 12 months). 
+The important assumption is that during such a short-term period, a winner 
+remains to be winner while a loser remains to be a loser. 
+How do we define winners and losers?
+First, let's assume that today is January 1990, and the evaluation and holding 
+periods are 6 months. 
+   Step 1: Calculate the past 6-month total returns for all stocks
+   Step 2: Sort all stocks from the highest to the lowest by 
+                   using those 6-month total returns
+   Step 3: Choose the top 10% as winners while the bottom 10% as losers
+   Step 4: Long winners and short lowers for the next 6 months
+   Step 5: repeat steps 1 to 4 for the next month
+--- PAGE 24 ---
+Fama-Frech-Carhart 4-factor model 
+R(i) = Rf + beta1*(Rm-Rf) + beta2*SMB + beta3*HML + beta4*MOM
+  where R(i)  is stock i's returns  
+        Rm-Rf is the market risk premium
+        SMB   is the portfolio returns of small stocks minus 
+                 the portfolio returns of big stocks
+        HML   is the portfolio returns of stocks with 
+              high book-to-market ratio minus the portfolio returns of with 
+              low  book-to-market ratio
+        HML   is the portfolio returns of stocks with 
+              high book-to-market ratio minus the portfolio returns of with 
+              low  book-to-market ratio
+        MOM   is the portfolio returns of winner stocks minus 
+                 the portfolio returns of losers
+--- PAGE 25 ---
+Momentum factor
+•http://mba.tuck.dartmouth.edu/pages/faculty/ken.fre
+nch/data_library.html
+
+--- PAGE 26 ---
+Top part of the data set (daily momentum)
+
+--- PAGE 27 ---
+Fama-French 5-factor model
+•Where 
+•RMWt is the difference between the returns on diversified   
+               portfolios of stocks with robust and weak profitability
+•CMAt is the difference between the returns on diversified 
+             portfolios of the stocks of low and high-investment  
+              firms, which we call conservative and aggressive.
+•http://papers.ssrn.com/sol3/papers.cfm?abstract_id=22
+87202
+
+--- PAGE 28 ---
+Download FF 5-factor data
+This file was created by CMPT_ME_BEME_OP_INV_RETS using 
+the 201504 CRSP database.
+The 1-month TBill return is from Ibbotson and Associates, Inc.
+                Mkt-RF   SMB    HML    RMW   CMA     RF
+196307   -0.39   -0.46   -0.82    0.72   -1.15    0.27
+196308    5.07   -0.85    1.63    0.42   -0.33    0.25
+196309   -1.57   -0.50    0.19   -0.80    0.27    0.27
+196310    2.53   -1.30   -0.11    2.75   -2.24    0.29
+196311   -0.85   -0.83    1.66   -0.34    2.22    0.27
+196312    1.83   -1.87   -0.11    0.18   -0.30    0.29
+--- PAGE 29 ---
+Rolling beta
+import numpy as np
+import pandas as pd
+import yfinance as yf
+import statsmodels.api as sm
+ibm=yf.download("IBM")
+sp500=yf.download("^GSPC")
+ibm["ret"]=ibm["Close"].pct_change()
+ibm["year"]=ibm.index.year
+sp500["mktRet"]=sp500["Adj Close"].pct_change()
+df=ibm.merge(sp500,left_on=ibm.index,right_on=sp500.index)
+df=df.dropna()
+#pd.set_option('display.max_columns',None)   
+years=np.unique(df.year)
+ 
+betas=[]
+for year in years:
+    df2=df[df.year==year]
+    y=df2["ret"]
+    x=df2["mktRet"]
+    x=sm.add_constant(x)
+    results=sm.OLS(y, x).fit()
+    beta=round(results.params[1],3)
+    betas.append(beta)
+#
+annualBetas=pd.DataFrame([years,betas]).T
+annualBetas.columns=["year" , "beta"]
+--- PAGE 30 ---
+Rolling betas (output)
+
+--- PAGE 31 ---
+Performance measures
+•Concept #1: A dominates B
+•Assume that we have two stocks (investment 
+opportunities);  
+•if the following condition is true, we claim A dominates B. 
+--- PAGE 32 ---
+Performance measures (2)
+•Concept #2: For a high-risk investment, investors demand a 
+high return
+•A general form
+
+--- PAGE 33 ---
+Performance measures (3): Sharpe Ratio
+Notations:
+          is the mean return of the underlying stock of a portfolio 
+            is the risk-free rate or mean risk-free rate
+            is the standard deviation of returns. This value represents 
+            the total risk of the underlying security or the portfolio. 
+https://www.investopedia.com/terms/s/sharperatio.asp
+--- PAGE 34 ---
+Sharpe ratio: example
+import pandas as pd
+import yfinance as yf
+ticker="wmt"
+df=yf.download(ticker)
+df["ret"]=df["Adj Close"].pct_change()
+infile="http://datayyy.com/data_pickle/ff3daily .pkl"
+ff3=pd.read_pickle(infile)
+df3=df2.merge(ff3,left_on=df2.index,right_on=ff3.index,how="inner")
+meanRet=round(df3.ret.mean(),5)
+std    =round(df3.ret.std(),5)
+meanRf =round(df3.RF .mean(),5)
+sharpe =round((meanRet-meanRf)/std,5)
+#
+print(f"ticker is {ticker}, mean={meanRet},std={std}, and 
+meanRf={meanRf}")
+print(f"Sharpe Ratio of {ticker}={sharpe}")
+
+--- PAGE 35 ---
+Sharpe ratio for IBM (last 5-year daily data)
+import pandas as pd
+import yfinance as yf
+ticker="ibm"
+df=yf.download(ticker)
+df["ret"]=df["Adj Close"].pct_change()
+df.shape # Out[53]: (15639, 7)
+df2=df.tail(1260)  # 262 *5
+df2.shape          # (1260, 7)
+#
+infile="http://datayyy.com/data_pickle/ff3daily.pkl"
+ff3=pd.read_pickle(infile)
+df3=df2.merge(ff3,left_on=df2.index,right_on=ff3.i
+ndex,how="inner")
+df3.shape # Out[61]: (1227, 12)
+meanRet=round(df3.ret.mean(),5)
+std    =round(df3.ret.std(),5)
+meanRf =round(df3.RF .mean(),5)
+sharpe =round((meanRet-meanRf)/std,5)
+#
+print(f"ticker is {ticker}, 
+mean={meanRet},std={std}, and 
+meanRf={meanRf}")
+print(f"Sharpe Ratio of {ticker}={sharpe}")
+--- PAGE 36 ---
+Sharpe ratio for IBM (output)
+
+--- PAGE 37 ---
+Sharpe ratio: annual 
+import numpy as np
+import pandas as pd
+import yfinance as yf
+ticker="ibm"
+df=yf.download(ticker)
+df['logRet']=np.log(df["Adj Close"].pct_change()+1)
+df['year']=df.index.year
+annualRet=np.exp(df["logRet"].groupby(df['year']).sum())-1
+annualRet2=pd.DataFrame(annualRet)
+annualRet2.columns=["annualRet"]  # change the column 
+name
+infile="http://datayyy.com/data_pickle/ff3annual.pkl"
+ff3=pd.read_pickle(infile)
+df2=annualRet2.merge(ff3,left_on=annualRet2.index,right_on
+=ff3.index,how="inner")
+meanRet=round(df2.annualRet.mean(),5)
+std    =round(df2.annualRet.std(),5)
+meanRf =round(df2.RF .mean(),5)
+sharpe =round((meanRet-meanRf)/std,5)
+#
+print(f"ticker is {ticker}, 
+mean={meanRet},std={std}, and 
+meanRf={meanRf}")
+print(f"Sharpe Ratio of {ticker}={sharpe}")
+--- PAGE 38 ---
+Sharpe ratio: annual  (output)
+
+--- PAGE 39 ---
+Performance measures (4): Treynor Ratio
+Notations:
+          is the mean return of the underlying stock of a portfolio 
+            is the risk-free rate or man risk-free rate
+            is the market risk of the underlying security or the portfolio. 
+https://www.investopedia.com/terms/t/treynorratio.asp
+--- PAGE 40 ---
+Python code (annual)
+import numpy as np
+import pandas as pd
+import yfinance as yf
+ticker="ibm"
+df=yf.download(ticker)
+df['logRet']=np.log(df["Adj Close"].pct_change()+1)
+df['year']=df.index.year
+annualRet=np.exp(df["logRet"].groupby(df['year']).sum())-1
+annualRet2=pd.DataFrame(annualRet)
+annualRet2.columns=["annualRet"]  # change the column name
+infile="http://datayyy.com/data_pickle/ff3annual.pkl"
+ff3=pd.read_pickle(infile)
+df2=annualRet2.merge(ff3,left_on=annualRet2.index,right_on=f
+f3.index,how="inner")
+X = np.stack((df2.annualRet,df2.MKT_RF), 
+axis=0)
+cov=np.cov(X)
+beta=cov[0,1]/cov[1,1]
+beta=round(beta,5)
+meanRet=round(df2.annualRet.mean(),5)
+treynor =round((meanRet-meanRf)/beta,5)
+#
+print(f"ticker is {ticker}, 
+mean={meanRet},beta={beta}, and 
+meanRf={meanRf}")
+print(f"Treynor Ratio of {ticker}={treynor}")
+--- PAGE 41 ---
+Treynor (using annual) 
+
+--- PAGE 42 ---
+Performance measures (5): LPSD
+•LPSD stands for Lower Partial Standard. 
+•It is a measure of downside risk that considers only the 
+negative deviations from the mean or a benchmark. It is 
+calculated as the square root of the average of the squared 
+deviations of the observations that are below the mean or the 
+benchmark. 
+--- PAGE 43 ---
+LPSD formula
+n is the number of observations (returns)
+                      is a benchmark return
+m is the number of observations (returns) satisfying  the condition, i.e., 
+returns are less than the benchmark returns
+If Rf is used as a benchmark:
+
+--- PAGE 44 ---
+LPSD: One example using random returns
+import numpy as np
+mean=0.10;
+Rf=0.02
+std=0.20
+n=100
+np.random.seed(12456)  # fix the set of random returns
+x=np.random.normal(loc=mean,scale=std,size=n)
+std2=round(x.std(),5)
+y=x[x-Rf<0] 
+total=0.0
+for r in y:
+    total+=(r-Rf)**2
+LPSD=round(np.sqrt(total/(n-1)),5)
+print(f"std2={std2}")
+print(f"LPSD={LPSD}")
+
+--- PAGE 45 ---
+LPSD_f() function
+def LPSD_f(returns,Rm):
+    # Rm: a benchmark return
+    import numpy as np
+    y=returns[returns<Rm] 
+    total=0.0
+    m=len(y)
+    for r in y:
+        total+=(r-Rm)**2
+    #
+    var=total/(m-1)
+    LPSD=round(np.sqrt(var),5)
+    return(LPSD)
+import pandas as pd
+annualRiskFree=0.01
+path="http://datayyy.com/data_pickle/"
+infile=path+"ibmMonthly.pkl"
+df=pd.read_pickle(infile)
+df["ret"]=df["Adj Close"].pct_change()
+rf=annualRiskFree/12
+LPSD=LPSD_f(df.ret,rf)
+print(f"LPAD={LPSD}")
+
+--- PAGE 46 ---
+Performance measures (6): Sortino Ratio
+Notations:
+          is the mean return of the underlying stock of a portfolio 
+            is the risk-free rate or man risk-free rate
+                is the Lower Partial Standard Deviation
+https://www.investopedia.com/terms/s/sortinoratio.asp
+--- PAGE 47 ---
+Jensen’s α
+•Jensen’s alpha is a performance measure
+•It is the difference between realized and predicted 
+(expected)
+
+--- PAGE 48 ---
+2nd way to run a linear regression
+import numpy as np
+import scipy.stats as stats
+rng = np.random.default_rng()
+x = rng.random(10)
+alpha=3
+beta=1.2
+y = alpha + beta*x + rng.random(10)
+#   
+target=0
+T_intercept=(results.intercept-target)/results.intercept_stderr
+T_slope=(results.slope-target)/results.stderr
+results=stats.linregress(x, y)
+print(f"intercept = {results.intercept} and its Tvalue={T_intercept}")
+print(f"slope = {results.slope} and its T_value={T_slope}")
+
+--- PAGE 49 ---
+3rd way to run a linear regression
+import numpy as np
+from sklearn import linear_model
+alpha=3                 # our initial value
+beta=1.2                # our initial value 
+np.random.seed(12345)   # fix our random values
+random1=np.random.normal(0,1,10) # for x
+random2=np.random.normal(0,1,10) # add to y
+x = random1
+y = alpha + beta*x + random2
+x=x.reshape(-1,1)
+model = linear_model.LinearRegression()  # object
+model.fit(x,y)
+print(f"estimated alpha  ={model.intercept_}")
+print(f"estimated beta   ={model.coef_}")
+
+--- PAGE 50 ---
+A good exercise
+It is a great exercise to generate various Fama-French 3-factor, 
+Fama-French-Carhart 4-factor, Fama-French 5-factor  data sets. 
+To be more specific, over the process,  we can learn 
+1) How do we read different data sets without a header and skip 
+     several lines? 
+2) How to generate a true date variable
+3) We use the monthly data sets' first day of the month. 
+4) How to generate an index for a data set
+5) How to generate an index with a date format
+6) How do we merge data set by date variable 
+--- PAGE 51 ---
+Daily data: ff3dailyRaw.pickle
+import pandas as pd
+import datetime
+infile="c://temp/ff3daily.csv"
+df=pd.read_csv(infile,skiprows=5,header=None)
+df.columns=["Date","MKT_RF","SMB","HML","RF"]
+df.to_pickle("c://temp/ff3dailyRaw.pickle")
+--- PAGE 52 ---
+ff3daily.pickle
+import pandas as pd
+import datetime
+infile="c://temp/ff3daily.csv"
+df=pd.read_csv(infile,skiprows=5,header=None)
+df.columns=["Date","MKT_RF","SMB","HML","RF"]
+df = df.set_index(df["Date"])
+df = df.drop(['Date'], axis=1)
+df=df/100
+df.to_pickle("c://temp/ff3daily.pickle")
+--- PAGE 53 ---
+Generating Fama-French data pickle
+It is a great exercise to generate various types of 
+  Fama-French 3-factor, Fama-French-Carhart 4-factor 
+  related data sets. To be more specific, over the process, 
+  we can learn 
+1) How do we read different types of data sets without
+    a header and skip several lines? 
+2) How to generate a true date variable
+3) We use the monthly data sets' first day of the month. 
+4) How to generate an index for a data set
+5) How to generate an index with a date format
+6) How do we merge data set by date
+--- PAGE 54 ---
+Three types of pickle data sets
+•We have the following 4 types of pickle data sets
+•1) raw data, i.e., without processing the data
+•2) Using date variable as our index
+•3) Using date, a true date variable, as our index. 
+--- PAGE 55 ---
+Three types of frequencies
+•Daily, for example,
+       ff3dailyRaw.pickle 
+ ff3daily.pickle
+             ff3daily.pkl
+•Monthly
+       ff3monthlyRaw.pickle 
+ ff3monthly.pickle
+             ff3monthly.pkl
+Annual
+  ff3annualRaw.pickle 
+ ff3annual.pickle
+--- PAGE 56 ---
+Advantages by using a true date as the index
+1) One column less, i.e., we will have 4 columns instead of 5. 
+  2) we retrieve date, year, month, and day easily
+     df.index.year
+  3) we can merge by the indices of two data sets according to 
+their dates
+  4) We can retrieve the 'year' variable and estimate our 
+parameters such as standard deviation based on the annual 
+frequency. The 
+--- PAGE 57 ---
+Code to generate ff3daily.pkl
+import datetime
+import pandas as pd
+df=pd.read_csv("c://temp/ff3daily.csv" ,skiprows=5,header=None)
+df.columns=["Date" , "MKT_RF" , "SMB" , "HML" , "RF"]
+df['Date2'] = pd.to_datetime(df['Date'],format="%Y%m%d")
+df = df.set_index(pd.DatetimeIndex(df["Date2"]))
+#
+df = df.drop(['Date' , 'Date2'], axis=1)
+df=df/100
+df.to_pickle("c://temp/ff3daily.pkl")
+--- PAGE 58 ---
+Scholes and William’s β
+Step 1: Convert percentage return to log return for stocks:        
+                log_ret=log(ret+1)
+   Do the same thing for the market : log_ret_m=log(ret+1) 
+Conditions : 
+    a) use one year daily returns (minimum trading  126)
+    b)  use TRADE only observations
+    c) use TRADE only value-weighted index of NYSE/AMEX 
+Step 2: get 3-day moving average for market return. 
+     ret3m(t)=[log_ret_m(t-)+log_ret_m(t)+log_ret_m(t+1)]
+Step 3: Use Instrumental variable Use INSTRUMENTAL Variable 
+            instead of formula on page 185 of CRSP manual
+--- PAGE 59 ---
+Generating momDailyRaw.pickle
+import pandas as pd
+infile='c://temp/momDaily.csv'
+df=pd.read_csv(infile,skiprows=13)
+df.columns=["DATE" , "MOM"]
+df.to_pickle('c://temp/momDailyRaw.pickle')
+--- PAGE 60 ---
+Generating momDaily.pickle
+import pandas as pd
+infile='c://temp/momDaily.csv'
+df=pd.read_csv(infile,skiprows=13)
+df.columns=["DATE" , "MOM"]
+df.MOM=df.MOM/100
+df.to_pickle('c://temp/mom.pickle')
+--- PAGE 61 ---
+Generating momDaily.pkl
+infile='c://temp/momDaily.csv'
+df=pd.read_csv(infile,skiprows=13)
+df.columns=["DATE0" , "MOM"]
+df['Date'] = pd.to_datetime(df['DATE0'],format="%Y%m%d")
+df = df.set_index(pd.DatetimeIndex(df["Date"]))
+#
+df = df.drop(['DATE0' , 'Date'], axis=1)
+df=df/100
+df.to_pickle("c://temp/mom.pkl")
+--- PAGE 62 ---
+Generating ffc4.pkl
+import pandas as pd
+path="http://datayyy.com/data_pickle/"
+infile1=path+"ff3daily.pkl"
+infile2=path+"momDaily.pkl"
+df1=pd.read_pickle(infile1)
+df2=pd.read_pickle(infile2)
+df=df1.merge(df2,left_on=df1.index,right_on=df2.index)
+df['Date'] = pd.to_datetime(df['key_0'],format="%Y-%m-%d")
+df = df.set_index(pd.DatetimeIndex(df["Date"]))
+df = df.drop(['key_0' , 'Date'], axis=1)
+df.to_pickle("c://temp/ffc4daily.pkl")
+--- PAGE 63 ---
+Financial Data Mining 
+and Analysis
+Chapter 8: Time Series Analysis
+--- PAGE 64 ---
+Main topics
+Time series: a simple example
+Several distributions: normal, student-T, F-, and Chisq
+Hypothesis tests 
+How to merge data sets
+How to merge data sets by date
+How to merge data sets with different frequencies
+Normality test
+Durbin-Watson auto-correlation 
+Granger causality test
+Event-study
+Extra: Benford Law
+--- PAGE 65 ---
+Hypothesis tests
+a) IBM daily mean return is 0.02%
+b) volatility of a portfolio is a constant
+c) mean IBM = mean Apple
+d) Monday’s  mean = other weekdays
+e) variance on Mondays (a 3-calendar day return) is   
+     3 times the variance of returns on other weekdays     
+      true one-day  return)
+To accept/reject a hypothesis, we need a test 
+--- PAGE 66 ---
+Time series: a simple example
+import pandas as pd
+path="http://datayyy.com/data_pickle/"
+infile=path+"usGDPquarterly.pkl"
+GDP=pd.read_pickle(infile)
+infile2=path+"ff3monthly.pkl"
+ff3=pd.read_pickle(infile2)
+print(GDP .head())
+print(ff3.head())
+
+--- PAGE 67 ---
+Normal: four key functions
+1) Density functions
+2) cumulative density function
+3) Inverse function of the cumulative function
+4) Random number generator (from a normal 
+destruction)
+Import numpy as np
+import scipy.stats as stats
+stats.norm.pdf()   # Density function 
+stats.norm.cdf()   # cumulative Density function 
+stats.norm.ppf()   # inverse of cumulative density function 
+stats.norm.pdf()   # Density function 
+np.random.normal(mean,std,n) # draw random numbers from a normal distribution 
+--- PAGE 68 ---
+Normal distributions
+A normal distribution is symmetric with two 
+parameters: mean and standard deviation. 
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+x=np.arange(-3,3,0.15)
+y=stats.norm.pdf(x)
+plt.plot(x,y)
+plt.title("Normal: probability density distribution")
+plt.xlabel("Our X-values")
+plt.ylabel("Density function")
+plot.show()
+
+--- PAGE 69 ---
+Normal: cumulative density distribution
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+x=np.arange(-3,3,0.15)
+y=stats.norm.cdf(x)
+plt.plot(x,y)
+plt.title("Normal: cumulative density distribution")
+plt.xlabel("Our X-values")
+plt.ylabel("Density function")
+plot.show()
+
+--- PAGE 70 ---
+Confidence interval vs. significance level
+• Usually, we use α for significance level  
+• The relationship between the confidence 
+interval and alpha is given below. 
+
+--- PAGE 71 ---
+Three common values for α
+• The significant level of α takes three values: 
+1%, 5%, and 10%.
+• α =1%      Confidence interval =99%
+• α =5%      Confidence interval =95%
+• α =10%    Confidence interval =90%
+--- PAGE 72 ---
+alpha=0.05, i.e., 95% confidence interval
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+alpha=0.05   # significance level 
+x=np.arange(-3,3,0.15)
+y=stats.norm.pdf(x)
+plt.plot(x,y)
+#
+z1=stats.norm.ppf(alpha)   
+z2=stats.norm.ppf(1-alpha)   
+plt.vlines(x=z1, ymin=-0., ymax=0.34, colors='green' , ls=':' , lw=2, 
+label='vline_single - partial height')
+plt.vlines(x=z2, ymin=-0., ymax=0.34, colors='green' , ls=':' , lw=2, 
+label='vline_single - partial height')
+plt.axhline(y = 0.25, xmin = 0.25, xmax = 0.75,linestyle="-" ,color="r") 
+plt.figtext(0.4, 0.50, "95% confidence interval")
+#
+plt.title("Normal: probability density distribution")
+plt.xlabel("Our X-values")
+plt.ylabel("Density function")
+plt.show()
+
+--- PAGE 73 ---
+One- vs. two-sided tests
+For the following hypothesis, it is a two-sided test. 
+For the following hypothesis, it is a one-sided test. 
+
+--- PAGE 74 ---
+Confidence interval 
+# using normal 
+StdErr = std/sqrt(n) # if std is given
+MarginOfError= z*stdErr
+# using student-T
+StdErr = std/sqrt(n) # if std is not given
+MarginOfError= t*stdErr
+lowerBound = mean – marginOfErr
+upperBound = mean + marginOfErr
+--- PAGE 75 ---
+One example for two-sided test
+mport numpy as np
+import scipy.stats as stats
+mean=0.15
+std=0.03
+n=300
+x=np.random.normal(mean,std,n)
+#
+alpha=0.05  # confidence level 
+stdErr=std/np.sqrt(n)
+z=stats.norm.ppf(alpha)
+marginOfErr=abs(z)*stdErr
+lowerBound=mean-marginOfErr
+upperBound=mean+marginOfErr
+print(f"LowerBound={lowerBound} and upperBound={upperBound}")
+--- PAGE 76 ---
+Student-T distributions
+The t-distribution, also known as Student’s t-
+distribution, is a way of describing data that follow a bell 
+curve when plotted on a graph, with the greatest 
+number of observations close to the mean and fewer 
+observations in the tails.
+It is a type of normal distribution used for smaller 
+sample sizes, where the variance in the data is 
+unknown.
+--- PAGE 77 ---
+Student-T: four key functions
+1) Density functions
+2) cumulative density function
+3) Inverse function of the cumulative function
+4) Random number generator (from a normal 
+destruction)
+Import numpy as np
+import scipy.stats as stats
+stats.t.pdf()   # Density function 
+stats.t.cdf()   # cumulative Density function 
+stats.t.ppf()   # inverse of cumulative density function 
+np.random.standard_t(mean,std,n) 
+                 # draw random numbers from a standard student-t distribution 
+--- PAGE 78 ---
+T-density distribution
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+df=30
+x=np.arange(-3,3,0.10)
+y=stats.t.pdf(x,df)
+plt.plot(x,y)
+plt.title(f"T- Probability density function (df={df})")
+plt.xlabel("Our X-values")
+plt.ylabel("Density function")
+plot.show()
+
+--- PAGE 79 ---
+T-cumulative density distribution
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+#
+df=30
+x=np.arange(-3,3,0.10)
+y=stats.t.cdf(x,df)
+plt.plot(x,y)
+plt.title(f"T- Cumulative density function (df={df})")
+plt.xlabel("Our X-values")
+plt.ylabel("Cumulative Density function")
+plot.show()
+
+--- PAGE 80 ---
+Rule of thumb for a T-test
+1) With a high T-value, we tend to reject the 
+     null hypothesis.
+2) With a lower p-value, we tend to reject the 
+     null hypothesis.
+3) When the value falls outside our confidence    
+    interval, reject the null hypothesis. 
+Usually, we remember a critical value of 2 for a T 
+test or 0.05 for a p-value.
+--- PAGE 81 ---
+Three common values for α
+• The significant level of α takes three values: 
+1%, 5%, and 10%.
+• α =1%      Confidence interval =99%
+• α =5%      Confidence interval =95%
+• α =10%    Confidence interval =90%
+--- PAGE 82 ---
+Is our estimate statistically different from 
+zero
+• Three decision rules:
+• Range Rule
+• Distance Rule
+• Shaded area Rule
+• Assume that we want to test 
+whether our beta is zero or 
+not, see the null hypothesis 
+and an alternative 
+hypothesis
+
+--- PAGE 83 ---
+Decision Rule #1: Range Rule
+• Range Rule:
+• Step 1: Constructing a confidence interval.
+                    For example, if alpha is 5%, we construct a 95%  
+                   confidence  around our beta 
+• Step 2: if zero is inside the range, we accept H0. If zero is               
+                   outside the range, we reject H0.     
+--- PAGE 84 ---
+Decision Rule #2: Distance Rule
+• Distance Rule:
+ if zero is inside the range, we accept H0. If zero is               
+                   outside the range, we reject H0.     
+
+--- PAGE 85 ---
+T-distribution: cumulative density function 
+and its inverse
+• import scipy.stats as stats
+• x=0
+• p=stats.t.cdf(x,df=34)  # T cumulative density function 
+• print(p)   # 0.5
+• x=-2
+• p=stats.t.cdf(x,df=34)  
+• print(p) # 0.026769917735225204
+• # Percent point function (inverse of ‘cdf’) at q of the given RV .
+• stats.t.ppf(p,df=34)  # To find the T critical value
+• #  -2.0000000000000004
+--- PAGE 86 ---
+Decision Rule #3: Shaded Area Rule
+• Decision Rule:
+
+--- PAGE 87 ---
+Using the statsmodels
+import numpy as np
+import statsmodels.api as sm
+y=[1,2,3,4,2,3,4]
+x=range(1,len(y)+1)
+x=sm.add_constant(x)
+results=sm.OLS(y,x).fit()
+print(results.params)
+
+--- PAGE 88 ---
+Is the mean return zero?
+• After estimating the mean daily 
+return, is it zero since its value is 
+so small? 
+• Decision rule #1: we construct a 
+95% confidence interval (assume 
+alpha=0.05)
+• If zero is inside this confidence 
+interval, we conclude that  the 
+mean return is zero. 
+• If zero is outside this confidence 
+interval, we conclude that  the 
+mean return is  not zero. 
+import yfinance as yf
+ticker="ibm"
+df=yf.download(ticker)
+df["ret"]=df["Adj Close"].pct_change()
+df.ret.mean()
+Out[89]: 0.00043141783268968713
+--- PAGE 89 ---
+Python program
+Method I: 
+Step 1: get the data
+Step 2: calculate returns
+Step 3: calculate mean, std, stdErr, margin of errors
+Step 4: generate 1-alpha confidence interval
+Step 5: is zero inside the above interval?
+--- PAGE 90 ---
+F-distribution: density 
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+x=np.arange(0,3,0.1)
+df1=10
+df2=12
+y=stats.f.pdf(x,df1,df2)
+plt.plot(x,y)
+plt.title("F-distribution: probability density distribution")
+plt.xlabel("Our X-values")
+plt.ylabel("Density function")
+plot.show()
+
+--- PAGE 91 ---
+F-distribution: cumulative density 
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+x=np.arange(0,3,0.1)
+df1=10
+df2=12
+y=stats.f.cdf(x,df1,df2)
+plt.plot(x,y)
+plt.title("F-distribution: cumulative density")
+plt.xlabel("Our X-values")
+plt.ylabel("cumulative density function")
+plot.show()
+
+--- PAGE 92 ---
+F-distribution: usages (applications) 
+Test equal variances
+Method I:
+    Step 1: calculate two variances
+   Step 2: F-statistics = big Var/small var
+   Step 3: calculate critical F-value
+   Step 4: compare those two values
+--- PAGE 93 ---
+F-distributions: four functions
+import numpy as np
+import scipy.stats as stats
+stats.f.pdf()       # Density function 
+stats.f.cdf()       # cumulative Density function 
+stats.f.ppf()       # inverse of cumulative density function 
+# draw random numbers from a standard student-t distribution 
+np.random.f(df1,df2,n) 
+df1=10
+df2=20
+n=100
+data=np.random.f(df1,df2,n)
+--- PAGE 94 ---
+Chisq-distribution: density 
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+x=np.arange(0,3,0.025)
+df=4
+y=stats.chi.pdf(x,df)
+plt.plot(x,y)
+plt.title("Chisq probability 
+density function")
+plt.xlabel("our x value")
+plt.ylabel("Density probability 
+function ")
+plt.show()
+
+--- PAGE 95 ---
+Chisq: cumulative density 
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+x=np.arange(0,3,0.025)
+df=4
+y=stats.chi.cdf(x,df)
+plt.plot(x,y)
+plt.title("Chisq cumulative density 
+function")
+plt.xlabel("our x value")
+plt.ylabel("Cumulative Density 
+function ")
+plt.show()
+
+--- PAGE 96 ---
+Chi-sq-distribution: usages (applications) 
+• Test whether our data from a given distribution
+where                         is the frequency of our observations for the interval i
+                                       is the frequency based on the theory, i.e., our target 
+                                            distribution for the interval i
+                 n is the number of intervals
+
+--- PAGE 97 ---
+Chisq-distributions: four functions
+1) Density functions
+2) cumulative density function
+3) Inverse function of the cumulative 
+function
+4) Random number generator (from a 
+normal destruction)
+import numpy as np
+import scipy.stats as stats
+# stats.chi.pdf(x,df)
+# stats.chi.cdf(x,df)
+# stats.chi.ppf(x,df)
+# draw random numbers  
+df=4
+n=10
+np.random.chisquare(df,n)
+--- PAGE 98 ---
+Definitions: percentage vs. log returns
+• Assume we have two prices, p0 and p1
+Our percentage return is defined as
+•                 
+
+--- PAGE 99 ---
+Conversion: percentage vs. log returns
+•                 
+#  for a given percentage return of 10%, what is its log return?
+from math import exp, log
+--- PAGE 100 ---
+𝛔𝐚𝐧𝐧𝐮𝐚𝐥, 𝛔𝐦𝐨𝐧𝐭𝐡𝐥𝐲 𝐚𝐧𝐝 𝛔𝐝𝐚𝐢𝐥𝐲
+• Conversion formulae
+
+--- PAGE 101 ---
+Converting daily returns to monthly ones
+import yfinance as yf
+import numpy as np
+df=yf.download("ibm")
+df['logRet']=np.log(df["Adj Close"].pct_change()+1)
+df['YYYYMM']=df.index.year*100+df.index.month
+monthlyRet=np.exp(df["logRet"].groupby(df['YYYYMM']).sum())-1
+monthlyRet.head()
+--- PAGE 102 ---
+Output from the previous program
+• Verify one return
+
+--- PAGE 103 ---
+Test of equal variances (Method 1)
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+infile="http://datayyy.com/data_csv/sleep.csv"
+df=pd.read_csv(infile)
+group1=df[df.group==1]
+group2=df[df.group==2]
+var1=round(group1.extra.var(),4) # 3.2005
+var2=round(group2.extra.var(),4) #4 .00899
+Fvalue=round(max(var1,var2)/min(var1,var2),4)
+df1=group1.shape[0]-1  
+df2=group2.shape[0]-1  
+alpha=0.05
+Fcritical=round(stats.f.ppf(1-alpha,df1,df2),4)
+print(f"var1={var1}, var2={var2}")
+print(f"Fvalue={Fvalue},Fcritical={Fcritical}")
+if(Fvalue>Fcritical):
+    print("Reject H0: var1=var2")
+else:
+    print("Accept H0: var1 = var2")
+
+--- PAGE 104 ---
+Test of equal variances (Method 2)
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+infile="http://datayyy.com/data_csv/sleep.c
+sv"
+df=pd.read_csv(infile)
+#
+group1=df[df.group==1]
+group2=df[df.group==2]
+group1.extra.var() #  3.2005555555
+group2.extra.var() #  4.0089999999
+stats.levene(group1.extra,group2.extra)
+
+--- PAGE 105 ---
+Tests for equal means
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+infile="http://datayyy.com/data_csv/sleep.csv"
+df=pd.read_csv(infile)
+#
+group1=df[df.group==1]
+group2=df[df.group==2]
+group1.extra.mean()  # Out[200]: 0.75
+group2.extra.mean()  # Out[201]: 2.3299999999999996
+stats.ttest_ind(a=group1.extra, b=group2.extra, equal_var=True)
+stats.ttest_ind(a=group1.extra, b=group2.extra, equal_var=False)
+
+--- PAGE 106 ---
+Are daily IBM and Apple mean equal
+import pandas as pd
+import yfinance as yf
+import scipy.stats as stats
+ticker1="ibm"
+ticker2="aapl"
+df1=yf.download(ticker1)
+df1["IBMret"]=df1["Adj Close"].pct_change()
+df2=yf.download(ticker2)
+df2["AAPLret"]=df2["Adj Close"].pct_change()
+df=df1.merge(df2,left_on=df1.index,right_on=df2.index)
+df=df.dropna()
+stats.levene(df.IBMret,df.AAPLret)  # test equal variances
+stats.ttest_ind(a=df.IBMret, b=df.AAPLret, equal_var=True)
+
+--- PAGE 107 ---
+Constant variance?
+import pandas as pd
+import yfinance as yf
+import scipy.stats as stats
+ticker="ibm"
+df=yf.download(ticker)
+df["ret"]=df["Adj Close"].pct_change()
+df["year"]=df.index.year
+ret1962=df[df.year==1962].dropna()
+ret1963=df[df.year==1963].dropna()
+ret1964=df[df.year==1964].dropna()
+stats.levene(ret1962.ret,ret1963.ret,ret1964.ret)  # test equal variances
+
+--- PAGE 108 ---
+Durbin-Watson autocorrelation test 
+Assume that we have n error terms: e1, e2, …, en
+
+--- PAGE 109 ---
+Are IBM daily returns auto-correlated?
+import statsmodels.api as sm
+import yfinance as yf
+df=yf.download("ibm")
+ret=df["Adj Close"].pct_change().dropna()
+#calculate autocorrelations
+result=sm.tsa.acf(ret)
+print(result)
+[ 1.00000000e+00 -1.92791968e-02 -1.23898581e-02 -1.57705637e-03
+ -5.29537634e-03 -1.25846549e-03 -4.45219900e-03  1.49586820e-02
+ -8.44707025e-03  1.23577728e-02  2.91040427e-03 -6.97073790e-03
+  8.69280141e-03  3.56108679e-03  2.20416632e-02  3.33575637e-04
+  1.21788921e-02  1.55269495e-02 -1.82737150e-02 -1.83616441e-02
+  1.22349027e-02 -4.80099186e-03 -3.69546619e-02 -1.50987070e-02
+-7.11866162e-03  9.81395847e-03]
+print(result[1])   # lag 1
+-0.019279196816435553
+--- PAGE 110 ---
+Durbin-Watson autocorrelation test 
+
+--- PAGE 111 ---
+Durbin-Watson test decision rules
+• Based on dL and dH, we could have the following 5 regions:
+  0        dL          dH          2       4-dH        4-dL          4
+  |---------|-----------| ---------|---------|-----------|-----------|
+      +     |      ?    |          0         |    ?      |     -     | 
+  |<------->|<--------->|<-------------------><--------->|<--------->|  
+Region 1          2               3                4          5
+   Region 1: positively correlated 
+   Region 2: inclusive
+   Region 3: zero correlation 
+   Region 4: inclusive
+   Region 5: negatively correlated
+--- PAGE 112 ---
+Granger Causality test
+In our everyday life, we say, “A causes B. ”
+This means that A is the source or the reason, while B is the 
+consequence. 
+For example, it rained this morning, and the ground is wet. 
+--- PAGE 113 ---
+Which is first: chick or egg?
+import pandas as pd
+infile="http://datayyy.com/data_pickle/chickEgg.pi
+ckle"
+df=pd.read_pickle(infile)
+df.head()
+
+--- PAGE 114 ---
+Chick (Granger) cases egg?
+
+--- PAGE 115 ---
+Python code 
+import pandas as pd
+import statsmodels.api as sm
+infile="http://datayyy.com/data_pickle/chickEgg
+.pickle"
+df=pd.read_pickle(infile)
+df["chicker_lag1"]=df.chicken.shift(1)
+df["chicker_lag2"]=df.chicken.shift(2)
+df["chicker_lag3"]=df.chicken.shift(3)
+df["egg_lag1"]=df.egg.shift(1)
+df["egg_lag2"]=df.egg.shift(2)
+df["egg_lag3"]=df.egg.shift(3)
+pd.set_option('display.max_columns' ,None)  
+df.head()
+df=df.dropna()
+y=df["egg"]
+x=df[["egg_lag1" , "egg_lag2" , "e
+gg_lag3"]]
+x=sm.add_constant(x)
+results=sm.OLS(y,x).fit()
+print(results.summary())
+--- PAGE 116 ---
+output
+
+--- PAGE 117 ---
+Does chicken cause eggs?
+import pandas as pd
+import statsmodels.api as sm
+infile="http://datayyy.com/data_pickle/chickE
+gg.pickle"
+df=pd.read_pickle(infile)
+df["chicken_lag1"]=df.chicken.shift(1)
+df["chicken_lag2"]=df.chicken.shift(2)
+df["chicken_lag3"]=df.chicken.shift(3)
+df["egg_lag1"]=df.egg.shift(1)
+df["egg_lag2"]=df.egg.shift(2)
+df["egg_lag3"]=df.egg.shift(3)
+pd.set_option('display.max_columns' ,None)  
+df.head()
+df=df.dropna()
+y=df["egg"]
+x=df[["egg_lag1" , "egg_lag2" , "e
+gg_lag3" , "chicken_lag1" , "chick
+en_lag2" , "chicken_lag3"]]
+x=sm.add_constant(x)
+results=sm.OLS(y,x).fit()
+print(results.summary())
+--- PAGE 118 ---
+Output (with three lags for chicken)
+• One without chicken lags
+Since the adjusted R2 (0.963) < the original one (0.964), adding chicken lags will not explain 
+the variation of eggs better. We conclude that chicken will not Granger cause eggs. 
+--- PAGE 119 ---
+Do eggs Granger cause chicken?
+y=df["chicken"]
+x=df[["chicken_lag1" , "chicken_lag2" , "chicken_lag3"]]
+x=sm.add_constant(x)
+results=sm.OLS(y,x).fit()
+print(results.summary())
+import pandas as pd
+import statsmodels.api as sm
+infile="http://datayyy.com/data_pickle/chickEgg.pickle"
+df=pd.read_pickle(infile)
+df["chicken_lag1"]=df.chicken.shift(1)
+df["chicken_lag2"]=df.chicken.shift(2)
+df["chicken_lag3"]=df.chicken.shift(3)
+df["egg_lag1"]=df.egg.shift(1)
+df["egg_lag2"]=df.egg.shift(2)
+df["egg_lag3"]=df.egg.shift(3)
+pd.set_option('display.max_columns' ,None)  
+df.head()
+df=df.dropna()
+--- PAGE 120 ---
+Do eggs (Granger) cause chicken?
+
+--- PAGE 121 ---
+import pandas as pd
+import statsmodels.api as sm
+infile="http://datayyy.com/data_pickle/chickE
+gg.pickle"
+df=pd.read_pickle(infile)
+df["chicken_lag1"]=df.chicken.shift(1)
+df["chicken_lag2"]=df.chicken.shift(2)
+df["chicken_lag3"]=df.chicken.shift(3)
+df["egg_lag1"]=df.egg.shift(1)
+df["egg_lag2"]=df.egg.shift(2)
+df["egg_lag3"]=df.egg.shift(3)
+pd.set_option('display.max_columns' ,None)  
+df.head()
+df=df.dropna()
+y=df["chicken"]
+x=df[["chicken_lag1" ,"chicken_lag2" , "chicken_lag3" , "egg_lag1" , "egg_lag2" , "egg_lag3"]]
+x=sm.add_constant (x)
+results=sm.OLS(y,x).fit()
+print(results.summary ())
+Do eggs cause chicken (add eggs)?
+--- PAGE 122 ---
+Is the new adj R2 higher?
+New one with 6 x’s Old one with three x’s
+Since the new adj R2 is higher, we conclude that eggs Granger cause chicken. 
+--- PAGE 123 ---
+Normality assumption
+• In finance, it is assumed that returns follow a 
+normal distribution. 
+• The famous Black-Scholes call and put options 
+models are based on this assumption. 
+--- PAGE 124 ---
+Normality test: T_value vs. T_critical
+import numpy as np
+from scipy import stats 
+np.random.seed(12345)
+mean=0.1
+std=0.2
+n=5000
+ret=np.random.normal(loc=0,scale=std,size=n)
+alpha=0.05 # confidence level
+Tcritical=abs(stats.t.ppf(alpha,df=n-1))
+stdErr=ret.std()/np.sqrt(n)
+target=0   # H0:   mean = target
+Tvalue=abs((ret.mean()-target)/stdErr)
+print(f"Tvalue={Tvalue}, and Tcritical={Tcritical}")
+if(Tvalue>Tcritical):
+    print("reject H0, i.e., returns don't follow a normal distribution. ")
+else:
+    print("Accept H0, i.e., yes, returns follow a normal distribution. ")
+
+--- PAGE 125 ---
+interpolation technique
+import pandas as pd 
+import numpy as np 
+nn=np.nan
+x=pd.Series([1,2,nn,nn,6]) 
+print(x)
+print(x.interpolate())
+
+--- PAGE 126 ---
+Test of equal variances
+import scipy.stats as stats
+# Test whether the lists `a`, `b` and `c` come from populations with 
+equal variances.
+a = [8.88, 9.12, 9.04, 8.98, 9.00, 9.08, 9.01, 8.85, 9.06, 8.99]
+b = [8.88, 8.95, 9.29, 9.44, 9.15, 9.58, 8.36, 9.18, 8.67, 9.05]
+c = [8.95, 9.12, 8.95, 8.85, 9.03, 8.84, 9.07, 8.98, 8.86, 8.98]
+stat, p = stats.levene(a, b, c)
+print(f"p-value = {p}")
+# The small p-value suggests that the populations do not have equal 
+variances.
+--- PAGE 127 ---
+The January-effect
+January effect:  stock returns in January are statistically different 
+from those in other months. 
+• Procedure to test the effect:
+• Step 1: collect the daily price for IBM 
+• Step 2: calculate daily returns
+• Step 3: convert daily returns to monthly ones
+• Step 4: classify all monthly returns into two groups: returns in January 
+versus returns in other months.
+• Step 5: test whether those two groups have equal means
+--- PAGE 128 ---
+Test of the January effect
+import scipy as sp
+import numpy as np
+import pandas as pd
+import yfinance as yf
+df=yf.download("ibm")
+df['logRet']=np.log(df["Adj Close"].pct_change()+1)
+df['YYYYMM']=df.index.year*100+df.index.month
+retM=np.exp(df["logRet"].groupby(df['YYYYMM']).sum())-1
+retM=pd.DataFrame(retM)
+retM.columns=["retM"]
+janRet=[]
+nonJanRet=[]
+for i in retM.index:
+    mm=i-int(i/1e2)*100
+    ret=retM[retM.index==i].retM
+    if mm==1:
+        print(i)
+        janRet.append(ret.values)
+    else:
+        nonJanRet.append(ret.values)
+#        
+janRet=pd.DataFrame(janRet)      
+nonJanRet=pd.DataFrame(nonJanRet)      
+  
+result=sp.stats.ttest_ind(janRet,nonJanRet)
+print(result) 
+Test of the odd month effect
+--- PAGE 129 ---
+Benford Law
+Benford's law, also known as the Newcomb–Benford law, the law of 
+anomalous numbers, or the first-digit law, is an observation that in many 
+real-life sets of numerical data, the leading digit is likely to be small.
+In sets that obey the law, the number 1 appears as the leading significant 
+digit about 30% of the time, while 9 appears as the leading significant 
+digit less than 5% of the time. If the digits were distributed uniformly, they 
+would each occur about 11.1% of the time.
+Benford's law also makes predictions about the distribution of second 
+digits, third digits, digit combinations, and so on.
+--- PAGE 130 ---
+Benford Law formula
+For digit i, i=1,2,.., 9, the probability 
+of this digit is:
+log10() if the log function with a base of 10
+
+--- PAGE 131 ---
+Benford Law formula
+import numpy as np
+from math import log10
+a=np.arange(1,10)
+for i in a:
+    prob=round(log10((i+1)/i),3)
+    print(f"i={i} and prob={prob}")
