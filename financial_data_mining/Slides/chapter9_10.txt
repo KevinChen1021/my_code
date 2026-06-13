@@ -1,0 +1,750 @@
+--- PAGE 1 ---
+Financial Data Mining 
+and Analysis
+Chapter 9: Portfolio Theory
+--- PAGE 2 ---
+Agenda
+• Introduction to portfolio theory 
+• A 2-stock portfolio 
+• N-stock portfolio
+• Correlation versus diversification effect 
+• Producing a return matrix 
+• Generating an optimal portfolio based on Sharpe ratio, Treynor ratio, and 
+Sortinor ratio 
+• Constructing an efficient frontier 
+• Modigliani and Modigliani performance measure (M2 measure) 
+--- PAGE 3 ---
+Two key words
+The key word for portfolio theory is
+diversification 
+The key word for diversification is 
+correlation 
+--- PAGE 4 ---
+Total, market, and firm-specific risks 
+Total risk have two components:
+total risk = market risk + firm-specific risk
+   1) we use standard deviation of returns
+                  to measure the total risk
+     2) we use beta to measure the market risk
+--- PAGE 5 ---
+Covariance’s definition
+Assume that we have n pairs of returns from stocks A and B:
+Three scenarios:
+    when the covariance > 0, it suggest that wo stocks move in the same directions most of times.
+    when the covariance = 0, it suggest that wo stocks are not related to each other.
+    when the covariance <  0, it suggest that wo stocks move in the opposite directions most of times
+  
+--- PAGE 6 ---
+Correlation’s definition
+Assume that we have n pairs of returns from stocks A and B:
+    Step 1: we estimate two standard deviation and their covariance
+    Step 2: apply the following formula
+
+--- PAGE 7 ---
+Correlation is better 
+• A correlations is a better measure than its corresponding 
+covariance. 
+• For a covariance, we have three cases:
+• covar > 0, positively correlated
+• covar =0, no correlation 
+• covar <0, no correlation
+• When covar(A,B) > covar(A,C), we can not claim that A is more 
+closely correlated with B than with C. 
+• When corr(A,B) > corr(A,C), we can claim that A is more closely 
+correlated with B than with C. 
+--- PAGE 8 ---
+Radom times series with a correlation 
+This is a 2-step approach
+     Step 1: generate two random time series x1 and x2 with a 
+                     zero-correlation 
+     Step 2 apply the following formula
+
+--- PAGE 9 ---
+Python code
+import numpy as np
+np.random.seed(123)
+n=1000
+rho=0.3
+x1=np.random.normal(size=n)
+x2=np.random.normal(size=n)
+y1=x1
+y2=rho*x1+np.sqrt(1-rho**2)*x2
+print(np.corrcoef(y1,y2))
+
+--- PAGE 10 ---
+2-stock variance formula
+variance of a 2-stock portfolio
+                        weight of stock A
+                         weight of stock B 
+                         covariance between A and B
+                         correlation between A and B
+
+--- PAGE 11 ---
+Example: 2-stock volatility 
+def var2stock(wA,varA,varB,covAB):
+    wB=1-wA
+    var=wA**2*varA+wB**2*varB**2+2*wA*wB*covAB
+    return(var)
+
+--- PAGE 12 ---
+Var of 2-stock portfolio (2nd format)
+def var2stock2(wA,stdA,stdB,corrAB):
+    wB=1-wA
+    cov=corrAB*stdA*stdB
+    var=wA**2*stdA**2+wB**2*stdB**2+2*wA*wB*cov
+    return(var)
+
+--- PAGE 13 ---
+Formula to estimate variance and standard 
+deviation 
+
+--- PAGE 14 ---
+𝛔𝐚𝐧𝐧𝐮𝐚𝐥, 𝛔𝐦𝐨𝐧𝐭𝐡𝐥𝐲 𝐚𝐧𝐝 𝛔𝐝𝐚𝐢𝐥𝐲
+• Conversion formulae
+
+--- PAGE 15 ---
+Minimization
+from scipy.optimize import minimize
+def myFunction(x):
+    return (3.2+5*x**2)
+#
+x0=100
+result= minimize(myFunction,x0,method='nelder-mead' ,tol=1e-6)
+print(result)
+
+--- PAGE 16 ---
+Lambda function
+fun = lambda x: (x[0] - 10)**2 + (x[1] - 25)**2
+a=(10,25)
+fun(a)
+In Python, the lambda keyword is a shortcut 
+used to create small, anonymous functions.
+--- PAGE 17 ---
+Practice
+• Create a Lambda function for
+• 𝑓 𝑥1, 𝑥2, 𝑥3 = 𝑥1 + 1 + 𝑥2 + 2 2 + 𝑥3 + 3 3
+--- PAGE 18 ---
+Two input parameters and Lambda fun
+from scipy.optimize import minimize
+fun = lambda x: (x[0] - 1)**2 + (x[1] - 2.5)**2
+bonds = ((0, None), (0, None))
+cons = ({'type': 'ineq' , 'fun': lambda x:  x[0] - 2 * x[1] + 2},
+        {'type': 'ineq' , 'fun': lambda x: -x[0] - 2 * x[1] + 6},
+        {'type': 'ineq' , 'fun': lambda x: -x[0] + 2 * x[1] + 2})
+#
+result=minimize(fun, (2, 0), method='SLSQP' , 
+bounds=bonds,constraints=cons)
+--- PAGE 19 ---
+Feasible Region Visualization
+
+--- PAGE 20 ---
+Annualized vol
+• volDaily=volStock(ticker,date1,date2)
+• [*********************100%%**********************]  1 of 
+1 completed
+
+--- PAGE 21 ---
+ret_monthly()  function
+def ret_monthly(ticker):
+    import numpy as np
+    import pandas as pd
+    import yfinance as yf
+    df=yf.download(ticker)
+    df["logret"]=np.log(df["Adj Close"].pct_change()+1)
+    df["yyyymm"]=df.index.year*100+df.index.month
+    retMonthly=np.exp(df.logret.groupby(df.yyyymm).sum())-1
+    retMonthly=pd.DataFrame(retMonthly)
+    retMonthly.columns=["ret_"+ticker]
+    return(retMonthly)
+df=ret_monthly("ibm")
+df.head()
+
+--- PAGE 22 ---
+Covariance and correlation (coefficient)
+
+--- PAGE 23 ---
+Python code
+import numpy as np
+from scipy import optimize
+import matplotlib.pyplot as plt
+# define a function 
+a=3.4
+b=2.0
+c=0.8
+def f(x):
+ return a-b*np.exp(-(x - c)**2)
+x=np.arange(-3,3,0.1)
+y=f(x)
+plt.title("y=a-b*exp(-(x-c)^2)")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.plot(x,y)
+plt.show()
+# find the minimum
+solution= optimize.brent(f) 
+print(solution)
+--- PAGE 24 ---
+Output: solution and graph 
+
+--- PAGE 25 ---
+Correlation matrix
+> cor(data.frame(base[,2:n]))
+         X.GSPC      IBM        C     MSFT     DELL
+X.GSPC 1.000000 0.645613 0.676316 0.689405 0.662133
+IBM    0.645613 1.000000 0.325842 0.351916 0.543048
+C      0.676316 0.325842 1.000000 0.409860 0.409733
+MSFT   0.689405 0.351916 0.409860 1.000000 0.611168
+DELL   0.662133 0.543048 0.409733 0.611168 1.000000
+--- PAGE 26 ---
+Variance of a n-stock portfolio
+Assume that our portfolio has n stocks. 
+Where            is the weight of stock 1, 
+                          is the mean return of stock 1. 
+where                 is the covariance between stocks i and j
+when i=j, then                         
+
+--- PAGE 27 ---
+
+--- PAGE 28 ---
+Performance measures (2)
+• Concept #2: For a high-risk investment, investors demand a 
+high return
+• A general form
+
+--- PAGE 29 ---
+Performance measures (3): Sharpe Ratio
+Notations:
+          is the mean return of the underlying stock of a portfolio 
+            is the risk-free rate or man risk-free rate
+            is the standard deviation of returns. This value represents 
+            the total risk of the underlying security or the portfolio. 
+
+--- PAGE 30 ---
+Performance measures (4): Treynor Ratio
+Notations:
+          is the mean return of the underlying stock of a portfolio 
+            is the risk-free rate or man risk-free rate
+            is the market risk of the underlying security or the portfolio. 
+
+--- PAGE 31 ---
+Performance measures (5): LPSD
+• LPSD stands for Lower Partial Standard. 
+• It is a measure of downside risk that considers only the 
+negative deviations from the mean or a benchmark. It is 
+calculated as the square root of the average of the squared 
+deviations of the observations that are below the mean or the 
+benchmark. 
+--- PAGE 32 ---
+LPSD formula
+n is the number of observations (returns)
+                      is a benchmark return
+m is the number of observations (returns) satisfying  the condition, i.e., 
+returns are less than the benchmark returns
+If Rf is used as a benchmark:
+
+--- PAGE 33 ---
+Utility function 
+• we could not quantify certain effects, such as 
+happiness, willingness, risk preference, wellness, 
+emotion, etc. 
+• For example, your boss asks you to work extra hours 
+on Saturday and promises you a bonus. 
+• What is your trade-off between your value of leisure 
+time and bonus?
+
+--- PAGE 34 ---
+Utility function with risk and return
+• Assume that our utility function depends on two 
+components: expected return and risk. It has the 
+following form:
+
+--- PAGE 35 ---
+Financial Data Mining 
+and Analysis
+Chapter 10: Options and Futures
+--- PAGE 36 ---
+• For an option buyer, he/she has a right to buy or sell something
+• For an option seller, he/she has an obligation to sell or buy 
+something
+2
+What is an option?
+--- PAGE 37 ---
+What is a call option?
+• A call option buyer has a right to buy an asset 
+(commodity) in the future with a fixed price. 
+• A call option seller must sell an asset (commodity) in the 
+future with a fixed price if the option buyer decides to 
+exercise her option. 
+--- PAGE 38 ---
+Payoff function for a call
+def payoff_call(sT,x):
+    return (sT-x+abs(sT-x))/2
+where sT is the stock price at time T
+ x is the exercise price of the call option
+--- PAGE 39 ---
+Graph of the payoff of a call option
+import numpy as np
+import matplotlib.pyplot as plt
+#
+def payoff_call(sT,x):
+    return (sT-x+abs(sT-x))/2
+sT=np.arange(0,100,5)
+x=50
+payoff=payoff_call(sT,x)
+plt.plot(sT,payoff)
+plt.title(f"Payoff of a call with the 
+Excercise price of {x}")
+plt.xlabel("stock price at T")
+plt.ylabel("payoff of call")
+plt.show()
+
+--- PAGE 40 ---
+Profit/loss function of a call option buyer
+• For a call option buyer, his/her profit or loss function is 
+simply the difference between the payoff function and 
+the cost of the call 
+•   profit/loss (buyer)  = payoff (buyer) - cost
+--- PAGE 41 ---
+Profit loss function for a call option
+def profitLoss_call(sT,x,c):
+    profit=(sT-x+abs(sT-x))/2-c
+    return(profit) 
+sT=40
+x=50
+c=1.5
+profitLoss_call(sT,x,c)
+
+--- PAGE 42 ---
+Buyer vs. seller
+• The options transaction is a zero-sum game.
+• Thus, the payoff and profit loss functions of a 
+seller are the opposite of that of a buyer
+--- PAGE 43 ---
+Profit/loss function of a call option seller
+• For a call option seller, his/her profit or loss function is  
+the summation of the payoff function and the cost of 
+the call 
+•   profit/loss (seller) = payoff (seller) +  cost
+•   profit/loss (seller) = - (profit/loss of the buyer)
+--- PAGE 44 ---
+What is a put option?
+• A put option buyer has a right to sell an asset (commodity) 
+in the future with a fixed price. 
+• A put option seller must buy an asset (commodity) in the 
+future with a fixed price if the option buyer decides to 
+exercise her option. 
+--- PAGE 45 ---
+Payoff function for a put option
+def payoff_put(sT,x):
+    payoff=(abs(x-sT)+x-sT)/2 
+    return(payoff)
+--- PAGE 46 ---
+Graph of the payoffs for a put
+import numpy as np
+import matplotlib.pyplot as plt
+def payoff_put(sT,x):
+    payoff=(abs(x-sT)+x-sT)/2 
+    return(payoff)
+sT=np.arange(0,50,5)
+x=30
+y=payoff_put(sT,x)
+plt.plot(sT,y)
+plt.title(f"Payoff of a put with the ecercise price={x}")
+plt.xlabel("Stock price at T")
+plt.ylabel("Payoff of a put")
+plt.show()
+
+--- PAGE 47 ---
+European vs. American options
+• A European option can be exercised only on the 
+maturity date
+• An American option can be exercised any time 
+before or on the maturity date
+--- PAGE 48 ---
+Cost of European and American options
+• Other things equal, the cost of an American 
+option is more valuable than a European option. 
+• CA is the cost of an American call option
+• Ce is the cost of an American call option
+• PA is the cost of an American put option
+• Pe is the cost of an American put option
+
+--- PAGE 49 ---
+Positions, cash flow, rights and 
+obligation
+--- PAGE 50 ---
+Black-Scholes-Merton call 
+Where S0 is the current stock price
+X is the exercise price 
+Rr  is a continuously compounded rate
+T is the time to maturity (in years)
+Sigma is the volatility of the underlying stock 
+--- PAGE 51 ---
+How to remember B-S call options 
+Step 1: draw a timeline
+              |--------------------------|
+              0                          T
+Step 2: at T, the payoff is        Max(sT-X,0)
+Step 3: Drop ‘max’ and ( )             sT-X 
+Step 4: discount both sT and X
+           s0 <-------------<------------| sT
+     exp(-rT)X<-------------<------------| X
+      i.e.,    S0 -exp(-rT)X
+Step 5: add distribution in front of those two values
+        call = S0 * N()  - exp(-r*T)*X* N()          
+  where N() is the cumulative standard normal distribution. 
+
+--- PAGE 52 ---
+Python code for Black-Scholes-Merton call
+from scipy import stats
+from math import log, exp, sqrt
+#
+def bs_call(S,X,T,r,sigma):
+    d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T))
+    d2 = d1-sigma*sqrt(T)
+    c=S*stats.norm.cdf(d1)-X*exp(-r*T)*stats.norm.cdf(d2)
+    return(c)
+bs_call(30,30,0.5,0.01,0.2)
+
+--- PAGE 53 ---
+Black-Scholes-Merton put 
+Where S0 is the current stock price
+X is the exercise price 
+Rr  is a continuously compounded rate
+T is the time to maturity (in years)
+Sigma is the volatility of the underlying stock 
+
+--- PAGE 54 ---
+Python code for Black-Scholes-Merton put
+from scipy import stats
+from math import log, exp, sqrt
+#
+def bs_put(S,X,T,r,sigma):
+    d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T))
+    d2 = d1-sigma*sqrt(T)
+    p=X*exp(-r*T)*stats.norm.cdf(-d2)-S*stats.norm.cdf(-d1)
+    return(p)
+#
+bs_put(30,30,0.5,0.01,0.2)
+
+--- PAGE 55 ---
+Put-Call Parity
+Portfolio I: cash plus a call option Portfolio II:   stock  plus a put option 
+• Let’s assume that the exercise price is x
+• For Portfolio #1: 
+           a) if sT> x, we exercise the call
+           b) if sT< x, we do nothing
+       The value of our portfolio is max( x,sT)
+• For Portfolio #2: 
+           a) if sT>x, we let the put option expires
+           b) if sT<x, we exercise the put
+       The value of our portfolio is max( x,sT)
+• C + PV(x) = S+P
+
+--- PAGE 56 ---
+Standard normal distribution
+import scipy as sp
+sp.stats.norm.pdf(0)
+from math import sqrt, pi
+ 1/sqrt(2*pi)
+
+--- PAGE 57 ---
+Four functions for normal distributions
+import numpy as np
+import scipy.stats as stats
+# 1) density 
+x=0
+d=stats.norm.pdf(x)
+d=round(d,5)
+print(f"Density function when x is zero 
+{d}")
+# 2) cumulative density 
+c=stats.norm.cdf(x)
+c=round(c,5)
+print(f"Cumulative Density function 
+when x is zero {c}")
+# 3) inverse of the cumulative 
+density 
+x2=stats.norm.ppf(c)
+x2=round(x2,5)
+print(f"Inverse of the 
+Cumulative is {x2}")
+# 4) Random values from a normal 
+distribution
+x=np.random.normal(3, 2.5, 
+size=(2, 4))
+print(x)
+--- PAGE 58 ---
+Output: 4 functions
+
+--- PAGE 59 ---
+Formula for FV and PV formulae
+
+--- PAGE 60 ---
+From Rm to Rc
+• The formula is given: 
+def Rm2Rc(Rm,freq):
+    from math import log
+    Rc=freq*log(1+Rm)
+    return(Rc)
+We have the following results for a given annual 
+percentage rate of 10% compounded annually. 
+Verify: what is the future value of $100 in 2 years given 
+those two rates?
+convert a discretely compounded interest rate into an 
+equivalent continuously compounded interest rate.
+--- PAGE 61 ---
+from APR (Annual Percentage Rate) to Rc
+I
+--- PAGE 62 ---
+Implied volatility
+• We know that when we have the following set of input 
+values, the price of a call is $2.77
+• The last input is volatility which is estimated from a stock’s 
+returns
+• Assume that we observe a call with $2 with the same other 
+input value. Then we ask what is the last input (volatility)?
+
+--- PAGE 63 ---
+Implied volatility (based on call)
+from scipy import stats
+from math import log,exp,sqrt
+def implied_vol_call(S,X,T,r,c):
+    for i in range(200):
+        sigma=0.005*(i+1)
+        d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T))
+        d2 = d1-sigma*sqrt(T)
+        diff=c-(S*stats.norm.cdf(d1)-X*exp(-r*T)*stats.norm.cdf(d2))
+        if abs(diff)<=0.01:
+            print("           i,   std,    diff")
+            sigma=round(sigma,7)
+            diff=round(diff,7)
+            return(i,sigma, diff)
+
+--- PAGE 64 ---
+Implied volatility using a put
+import numpy as np
+from scipy import stats 
+from math import log,exp,sqrt
+def implied_vol_put_min(S,X,T,r,p):
+    implied_vol=1.0
+    min_value=100.0
+    for i in np.arange(1,10000): 
+        sigma=0.0001*(i+1)
+        d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T)) 
+        d2 = d1-sigma*sqrt(T)
+        put=X*exp(-r*T)*stats.norm.cdf(-d2)-S*stats.norm.cdf(-d1) 
+        abs_diff=abs(put-p)
+        if abs_diff<min_value: 
+            min_value=abs_diff 
+            implied_vol=sigma 
+            k=i
+        put_out=put
+    print('        k, implied_vol, put, abs_diff') 
+    return(k,implied_vol, put_out,min_value)
+--- PAGE 65 ---
+Output: implied vol based on a put
+
+--- PAGE 66 ---
+Logic behind various trading strategies
+Assume that we expect a stock will increase its value is the 
+near future (such as in 3 months). What might be our 
+strategies?
+     1) buy the underlying stock (long)
+     2) long a future contract (long)
+     3) buy a call option
+     4) short (sell) a put option
+--- PAGE 67 ---
+Logic behind buying a put and a call at the 
+same time
+If expecting the price of a stock going up, we could long a call. 
+If expecting the price of a stock going down, we could long a put. 
+Assume that one company is going through a re -structuring 
+process. It succeeding, its price will go up. However, if failed its 
+price will fall. 
+Thus, our trading strategy could be: buy a call and put at the same 
+time. 
+ 
+--- PAGE 68 ---
+Logic behind buying a put and a call at the 
+same time
+If the price rising, we will profit from our call. 
+If the price falling, we will profit from our put. 
+import numpy as np
+import matplotlib.pyplot as plt 
+sT = np.arange(30,80,5)
+x=50
+c=2
+p=1
+straddle=(abs(sT-x)+sT-x)/2-c + (abs(x-sT)+x-sT)/2-p 
+plt.plot(sT,straddle)
+
+--- PAGE 69 ---
+Straddle: buy a call and a put
+import numpy as np
+import matplotlib.pyplot as plt 
+#
+sT = np.arange(30,80,5)
+x=50; c=2; p=1
+straddle=(abs(sT-x)+sT-x)/2-c + (abs(x-sT)+x-sT)/2-p 
+y0=np.zeros(len(sT))
+plt.ylim(-6,20) 
+plt.xlim(40,70) 
+plt.plot(sT,y0) 
+plt.plot(sT,straddle,'r')
+plt.plot([x,x],[-6,4],'g-.')
+plt.title("Profit-loss for a Straddle") 
+plt.xlabel('Stock price') 
+plt.ylabel('Profit (loss)')
+plt.annotate('Point 1='+str(x-c-p), xy=(x-p-c,0), xytext=(x-p-c,10),
+arrowprops=dict(facecolor='red',shrink=0.01),) 
+plt.annotate('Point 2='+str(x+c+p), xy=(x+p+c,0), xytext=(x+p+c,13),
+arrowprops=dict(facecolor='blue',shrink=0.01),) 
+plt.annotate('exercise price', xy=(x+1,-5))
+plt.annotate('Buy a call and buy a put with the same exercise 
+price',xy=(45,16))
+plt.show()
+--- PAGE 70 ---
+What is so-called Put-call parity?
+• The formula is shown below.
+The present values of two portfolios are equal. 
+With the next two slides, the logic will be 
+explained. 
+
+--- PAGE 71 ---
+Put-call parity: portfolio #1
+ Portfolio 1: cash plus a call option 
+              assume the exercise price is X
+              payoff at the maturity
+                 if sT>x   we exercise our call get stock 
+                 if sT<=x  we let the option expires
+                               i.e., keep our money X
+             the value of our portfolio is
+                 max(sT,X)
+--- PAGE 72 ---
+Put-call parity: portfolio #2
+Portfolio 2: one share plus a put option 
+              assume the exercise price is X
+              payoff at the maturity
+                 if sT<=x  we exercise our put to have X
+                 if sT>x  we let the option expires
+                               i.e., keep the stock
+             the value of our portfolio is
+                 max(sT,X)
+--- PAGE 73 ---
+Put-call parity: conclusion
+Since the final values of those two portfolio are the same, 
+    their present values should be the same as well. 
+PV(portfolio #1) = PV(portfolio #2)
+         
+
+--- PAGE 74 ---
+Covered call 
+import numpy as np
+import matplotlib.pyplot as plt 
+sT = np.arange(0,40,5) 
+k=15;s0=10;c=2
+y0=np.zeros(len(sT))
+y1=sT-s0                # stock only
+y2=(abs(sT-k)+sT-k)/2-c # long a call 
+y3=y1-y2                # covered-call 
+plt.ylim(-10,30)
+plt.plot(sT,y1) 
+plt.plot(sT,y2) 
+plt.plot(sT,y3,'red')
+plt.plot(sT,y0,'b-.') 
+plt.plot([k,k],[-10,10],'black')
+plt.title('Covered call (long one share and short 
+one call)') 
+plt.xlabel('Stock price')
+plt.ylabel('Profit (loss)')
+plt.annotate('Stock only (long one share)', 
+xy=(24,15),xytext=(15,20), 
+arrowprops=dict(facecolor='blue',shrink=0.01),)
+plt.annotate('Long one share, short a call', 
+xy=(10,4), xytext=(9,25), 
+arrowprops=dict(facecolor='red',shrink=0.01),)
+plt.annotate('Exercise price= '+str(k), 
+xy=(k+0.2,-10+0.5))
+plt.show()
+--- PAGE 75 ---
+CRR’s procedure
+Step 1. Draw a n-step tree
+Step 2. At the end of n-step, estimate 
+terminal prices. 
+Step 3. Calculate the option value at 
+each node based on the terminal 
+price, exercise, call or put.
+Step 4. Discount it back one step, that 
+is, from nth to nth-1, according to the 
+risk neutral probability. 
+Step 5. Repeat the previous step until 
+we find the final value at step 0. 
+The formulas for u, d, p are 
+given here: 
+
+--- PAGE 76 ---
+Options Greeks
+
+--- PAGE 77 ---
+
+--- PAGE 78 ---
+One example: delta
+from scipy import stats
+from math import log,exp,sqrt
+#
+tiny=1e-9;S=40;X=40;T=0.5;r=0.01;sigma=0.2
+def bsCall(S,X,T,r,sigma):
+    d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T))
+    d2 = d1-sigma*sqrt(T)
+    return S*stats.norm.cdf(d1)-X*exp(-r*T)*stats.norm.cdf(d2)
+def delta1_f(S,X,T,r,sigma):
+    d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T))
+    delta=stats.norm.cdf(d1)
+    return(delta) 
+#
+def delta2_f(S,X,T,r,sigma):
+    s1=S
+    s2=S+tiny
+    c1=bsCall(s1,X,T,r,sigma)
+    c2=bsCall(s2,X,T,r,sigma)
+    delta=(c2-c1)/(s2-s1)
+    return(delta)
+#
+delta1=round(delta1_f(S,X,T,r,sigma),6)
+delta2=round(delta2_f(S,X,T,r,sigma),6)
+print(f"delta (close form)={delta1}")
+print(f"delta (tiny number)={delta2}")
+
+--- PAGE 79 ---
+Practice
+• Try to code for Gamma
+
+--- PAGE 80 ---
+• 2. Numerical Gamma (Finite Difference)
+To estimate the second derivative numerically, we use a technique called the central 
+difference method. Instead of just looking forward (like what we did with Delta), we look 
+slightly up and slightly down from the current stock price:
+--- PAGE 81 ---
+Volatility smile
+• A volatility smile is a common graph shape that 
+results from plotting the strike price and 
+implied volatility of a group of options with the 
+same underlying asset and expiration date.
+• The volatility smile is so named because it 
+looks like a smiling mouth.
+--- PAGE 82 ---
+SQL basics with SQLite
+• Have them imagine two separate spreadsheets that need to be 
+combined:
+• Table A (employees): Lists the employee's name and their 
+department ID. 
+• Table B (departments): Lists the department ID and the department 
+name. 
+--- PAGE 83 ---
+• Notice Charlie hasn't been assigned a department yet
+• Notice Marketing has no employees yet
+SQL basics with SQLite
+
+--- PAGE 84 ---
+SQL basics with SQLite

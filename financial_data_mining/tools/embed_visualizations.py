@@ -245,6 +245,92 @@ def make_visuals():
     gamma = normal_pdf(d1) / (S * sigma * np.sqrt(T))
     visuals[("assignment_3.ipynb", 1)] = ("Gamma curve", line_chart("Black-Scholes Gamma by Strike", strikes, [gamma], ["Gamma"], "Strike price", "Gamma"))
     visuals[("assignment_3.ipynb", 3)] = ("Volatility smile", line_chart("Implied Volatility Smile", [36, 40, 44], [[0.2520, 0.2044, 0.2188]], ["Implied volatility"], "Strike price", "Volatility"))
+
+    correlations = np.linspace(-1, 1, 81)
+    portfolio_volatility = np.sqrt(
+        0.6**2 * 0.20**2
+        + 0.4**2 * 0.12**2
+        + 2 * 0.6 * 0.4 * correlations * 0.20 * 0.12
+    )
+    visuals[("chapter_9.ipynb", 2)] = (
+        "Diversification and correlation",
+        line_chart(
+            "Portfolio Volatility versus Correlation",
+            correlations,
+            [portfolio_volatility],
+            ["Portfolio volatility"],
+            "Correlation",
+            "Volatility",
+        ),
+    )
+    visuals[("chapter_9.ipynb", 4)] = (
+        "Optimized portfolio weights",
+        bar_chart(
+            "Maximum-Sharpe Portfolio Weights",
+            ["Asset 1", "Asset 2", "Asset 3"],
+            [0.369, 0.273, 0.358],
+            "Weight",
+        ),
+    )
+
+    terminal = np.arange(20, 81, 2)
+    strike, call_premium, put_premium = 50, 4.5, 3.5
+    call_profit = np.maximum(terminal - strike, 0) - call_premium
+    put_profit = np.maximum(strike - terminal, 0) - put_premium
+    visuals[("chapter_10.ipynb", 1)] = (
+        "Option profit profiles",
+        line_chart(
+            "Long Call and Put Profit",
+            terminal,
+            [call_profit, put_profit],
+            ["Long call", "Long put"],
+            "Terminal stock price",
+            "Profit",
+            True,
+        ),
+    )
+    visuals[("chapter_10.ipynb", 3)] = (
+        "Implied volatility by strike",
+        line_chart(
+            "Implied Volatility by Strike",
+            [90, 100, 110],
+            [[0.248, 0.201, 0.226]],
+            ["Implied volatility"],
+            "Strike",
+            "Volatility",
+        ),
+    )
+
+    rng = np.random.default_rng(1103)
+    risk_returns = 0.0003 + 0.011 * rng.standard_t(df=6, size=1500)
+    visuals[("chapter_11.ipynb", 3)] = (
+        "Fat-tailed return distribution",
+        histogram("Historical Return Distribution", risk_returns, "Daily return"),
+    )
+
+    rng = np.random.default_rng(12345)
+    terminal_prices = 50 * np.exp(
+        (0.12 - 0.5 * 0.25**2)
+        + 0.25 * rng.standard_normal(5000)
+    )
+    visuals[("chapter_12.ipynb", 2)] = (
+        "Simulated terminal prices",
+        histogram("GBM Terminal Stock Prices", terminal_prices, "Terminal return"),
+    )
+
+    visuals[("chapter_13.ipynb", 4)] = (
+        "Exotic option comparison",
+        bar_chart(
+            "European and Path-Dependent Call Values",
+            ["European", "Asian", "Up-and-out"],
+            [4.29, 2.48, 0.85],
+            "Option value",
+        ),
+    )
+    visuals[("assignment_4.ipynb", 2)] = (
+        "Assignment terminal prices",
+        histogram("Assignment 4 Terminal Stock Prices", terminal_prices, "Terminal return"),
+    )
     return visuals
 
 

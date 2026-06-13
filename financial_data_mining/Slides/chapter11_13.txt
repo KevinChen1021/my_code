@@ -1,0 +1,1173 @@
+--- PAGE 1 ---
+Financial Data Mining 
+and Analysis
+Chapter 11: Value at Risk
+--- PAGE 2 ---
+Chapter 11: VaR (Value at Risk) 
+Price of 100 shares 
+One sentence definition of VaR
+An example 
+VaR based on the assumption of normality
+A normal distribution 
+Standard normal distribution 
+VaR based on sorting 
+1st, 2nd, 3rd, and 4th moments
+Modified VaR
+VaR of a portfolio 
+--- PAGE 3 ---
+Value of 100 shares of IBM stock
+import yfinance as yf
+ticker="ibm"
+df=yf.download(ticker)
+print(df.tail(1))
+nStocks=100
+wealth=nStocks*df.Close.iloc[-1]
+wealth=round(wealth,2)
+print(f"n={nStocks},wealth={wealth}")
+
+--- PAGE 4 ---
+What is VaR (Value at Risk)?
+The maximum loss with a confidence level over 
+a predetermined period
+--- PAGE 5 ---
+Examples of VaR
+• Today, I own 200 shares of DELL stocks worth 
+$2,942. The maximum loss tomorrow is $239 with a 
+99% confidence level.
+• Our mutual fund has a value of $10m today. The 
+maximum loss over the next 3 months is 0.5m with 
+95% confidence. 
+• The value of our bank is $150m. The VaR of our bank 
+is $10m with 99% confidence over the next 6 
+months. 
+--- PAGE 6 ---
+Normality assumption related to VaR
+• The first method to calculate VaR is based on the 
+normality assumption of stock returns. 
+• Thus, we should understand normal distributions. 
+--- PAGE 7 ---
+Standard normal distribution
+import scipy as sp
+sp.stats.norm.pdf(0)
+from math import sqrt, pi
+ 1/sqrt(2*pi)
+
+--- PAGE 8 ---
+Normal distributions
+𝒇 𝒙 = 𝟏
+𝟐𝝅𝝈𝟐 𝒆
+− (𝒙−𝝁)𝟐
+𝟐𝝈𝟐
+When μ=0 and σ =1, we have a standard normal 
+distribution 
+ 𝒇 𝒙 = 𝟏
+𝟐𝝅 𝒆− 𝒙𝟐
+𝟐  
+--- PAGE 9 ---
+A formula to estimate VaR
+𝑽𝒂𝑹𝒑𝒆𝒓𝒊𝒐𝒅 = 𝒑𝒐𝒔𝒊𝒕𝒊𝒐𝒏 ∗ 𝝁𝒑𝒆𝒓𝒊𝒐𝒅 − 𝒛 ∗ 𝝈𝒑𝒆𝒓𝒊𝒐𝒅
+VaR is the Value of Risk
+Positon is dollar amount of your portfolio 
+𝜇𝑝𝑒𝑟𝑖𝑜𝑑 is the mean of the period
+z depends on the confidence level
+𝜎𝑝𝑒𝑟𝑖𝑜𝑑 is the standard deviation of the return of your 
+portfolio 
+--- PAGE 10 ---
+For a normal distribution 
+• z=2.33 for a 99% confidence level  
+• z=1.64 for a 95% confidence level 
+--- PAGE 11 ---
+A simplified formula
+When the mean return is small, we drop it
+𝑉𝑎𝑅 = 𝑝 ∗ 𝑧 ∗ 𝜎
+Try the above simplified version and compare the 
+difference by using IBM daily data
+--- PAGE 12 ---
+A trivial issue: sign
+• Sometimes, we got two values with different signs, see 
+below. Usually, it has a negative value
+𝑽𝒂𝑹𝒑𝒆𝒓𝒊𝒐𝒅 = 𝒑𝒐𝒔𝒊𝒕𝒊𝒐𝒏 ∗ 𝝁𝒑𝒆𝒓𝒊𝒐𝒅 − 𝒛 ∗ 𝝈𝒑𝒆𝒓𝒊𝒐𝒅
+•  When the mean return is small, we drop it, see the 
+following formula. However, its value is positive
+•𝑉𝑎𝑅 = 𝑝 ∗ 𝑧 ∗ 𝜎
+--- PAGE 13 ---
+z-value for a given significance  level
+from scipy.stats import norm
+alpha=0.05
+z=norm.ppf(alpha)
+print(z)
+
+--- PAGE 14 ---
+Show the z-value for given confidence level
+from scipy.stats import norm
+confidence_level=0.99
+z=norm.ppf(1-confidence_level)
+print(z)
+
+--- PAGE 15 ---
+10-day VaR
+• Two methods to calculate an n-day VaR
+• Method #1: calculate the mean and standard 
+deviation of daily returns. The apply the 
+following formulae to calculate n-day mean and 
+returns. 
+• Method #2: calculate n-day returns first, then 
+calculate their mean and standard deviation
+--- PAGE 16 ---
+Formulae for an n-day VaR
+൞
+ 𝜇𝑛_𝑑𝑎𝑦 = (𝜇𝑑𝑎𝑖𝑙𝑦 + 1)𝑛−1
+𝜎𝑛_𝑑𝑎𝑦 = 𝜎𝑑𝑎𝑖𝑙𝑦 𝑛
+ 𝑉𝑎𝑅𝑛_𝑑𝑎𝑦= 𝑝 ∗ [𝜇𝑛_𝑑𝑎𝑦 + 𝑧𝜎𝑛_𝑑𝑎𝑦]
+ቐ 𝜎𝑛_𝑑𝑎𝑦
+2 = 𝑛 ∗ 𝜎𝑑𝑎𝑖𝑙𝑦
+2
+𝜎𝑛_𝑑𝑎𝑦 = 𝑛 ∗ 𝜎𝑑𝑎𝑖𝑙𝑦
+--- PAGE 17 ---
+For the confidence levels of 99% and 95%, we 
+have:
+ቐ𝑉𝑎𝑅𝑛_𝑑𝑎𝑦 = 𝑝 ∗ [ 𝜇𝑑𝑎𝑖𝑙𝑦 + 1
+𝑛
+− 1 − 2.33𝜎𝑑𝑎𝑖𝑙𝑦 𝑛]
+𝑉𝑎𝑅𝑛_𝑑𝑎𝑦 = 𝑝 ∗ [ 𝜇𝑑𝑎𝑖𝑙𝑦 + 1
+𝑛
+− 1 − 1.64𝜎𝑑𝑎𝑖𝑙𝑦 𝑛]
+--- PAGE 18 ---
+Modified VaR (mVaR)
+𝑧 = 𝑞𝑛𝑜𝑟𝑚(1 − 𝑐𝑜𝑛𝑓𝑖𝑑𝑒𝑛𝑡)
+𝑆 = 𝑠𝑘𝑒𝑤𝑛𝑒𝑠𝑠(𝑟𝑒𝑡)
+𝐾 = 𝑒𝑥𝑐𝑒𝑠𝑠 𝑘𝑢𝑟𝑡𝑜𝑠𝑖𝑠(𝑟𝑒𝑡)
+𝑡 = 𝑧 + 1
+6 𝑧2 − 1 𝑆 + 1
+24 𝑧3 − 3𝑧 𝐾 − 1
+36 (2𝑧3 − 5𝑧)𝑆2
+𝑚𝑉𝑎𝑅 = 𝑝𝑜𝑠𝑖𝑡𝑖𝑜𝑛∗ (𝜇 − 𝑡 ∗ 𝜎)
+Unlike traditional VaR, which assumes normally distributed returns, mVaR accounts for "fat 
+tails" and asymmetry (skewness and kurtosis), providing a more realistic risk assessment for 
+assets like hedge funds. 
+--- PAGE 19 ---
+Issues with the normality assumptions
+• Many argue that stock returns do not necessarily 
+follow a normal distribution
+• The fat tail (on the left)  will make our VaR 
+underestimate the true risk
+• Other moments do exist
+--- PAGE 20 ---
+stats.shapiro test (Shapiro-Wilk test)
+• Hypothesis
+• Null Hypothesis: The data is normally distributed.
+• Alternative Hypothesis: The data is not normally distributed. 
+• Interpreting Results
+• The test outputs a statistic and a p-value. 
+• p > 0.05: Fail to reject the null hypothesis. The data is likely drawn from a 
+normal distribution.
+• p <= 0.05: Reject the null hypothesis. There is a statistically significant 
+deviation from normality.
+--- PAGE 21 ---
+stats.anderson test (Anderson-Darling test)
+• Hypothesis
+• Null Hypothesis: The data comes from the specified distribution.
+• Alternative Hypothesis: The data does not come from the specified 
+distribution.
+• Interpreting Results
+• The test outputs a statistic and a p-value. 
+• p > 0.05: Fail to reject the null hypothesis. The data is likely drawn from a 
+specified distribution.
+• p <= 0.05: Reject the null hypothesis. There is a statistically significant 
+deviation from a specified distribution.
+--- PAGE 22 ---
+VaR based on sorted historical returns
+൞
+𝑛 = 𝑙𝑒𝑛𝑔𝑡ℎ(𝑟𝑒𝑡)
+ 𝑡 = 𝑎𝑠. 𝑖𝑛𝑡𝑒𝑔𝑒𝑟((1 − 𝑐𝑜𝑛𝑓𝑖𝑑𝑒𝑛𝑡) ∗ 𝑛)
+ 𝑉𝑎𝑅 = 𝑝𝑜𝑠𝑖𝑡𝑖𝑜𝑛∗ 𝑠𝑜𝑟𝑡𝑒𝑑_𝑟𝑒𝑡[𝑡]
+Step 1: Sort returns from the lowest to the highest
+Step 2:  Choose appropriate return from the lowest ret as 
+                 our cut-off point
+Step 3:  VaR = position times * this return
+--- PAGE 23 ---
+VaR based on sorted historical returns
+• Historical Value at Risk (VaR) using the historical 
+simulation method (sorting historical returns to find the 
+worst-case scenario at a specific confidence level).
+--- PAGE 24 ---
+Skewness and kurtosis
+• For a normal distribution, its skewness is zero and 
+kurtosis is 3. 
+• Sometimes, kurtosis is defined as below. 
+
+--- PAGE 25 ---
+Formulae
+𝑠𝑘𝑒𝑤𝑛𝑒𝑠𝑠 𝑥 = σ𝑖=1
+𝑛 𝑥𝑖 − ҧ𝑥 3
+𝑛 − 1 𝜎3
+𝑘𝑢𝑟𝑡𝑜𝑠𝑖𝑠 𝑥 = σ𝑖=1
+𝑛 𝑥𝑖 − ҧ𝑥 4
+𝑛 − 1 𝜎4
+𝐸𝑥𝑐𝑒𝑠𝑠 𝑘𝑢𝑟𝑡𝑜𝑠𝑖𝑠= σ𝑖=1
+𝑛 𝑥𝑖 − ҧ𝑥 4
+𝑛 − 1 𝜎4 − 3
+--- PAGE 26 ---
+Calculating skewness and kurtosis ourselves
+import numpy as np
+from scipy import stats
+from numpy import random
+#
+np.random.seed(12345)
+n=5000000 
+ret = random.normal(0,1,n)
+mean=ret.mean()
+std=ret.std()
+skew=0
+kurt=0
+for r in ret:
+    skew+=(r-mean)**3
+    kurt+=(r-mean)**4
+#    
+skew/=(std**3*(n-1))    
+kurt/=(std**5*(n-1))    
+print(f"mean ={round(mean,5)}")
+print(f"std ={round(std,5)}")
+print(f"skewness={round(skew,8)}")
+print(f"kurtosis={round(kurt,8)}")
+
+--- PAGE 27 ---
+Generate 4 moments from a standard 
+normal 
+import numpy as np
+from scipy import stats
+from numpy import random
+np.random.seed(12345)
+n=5000000 
+#
+ret = random.normal(0,1,n)
+skew=round(stats.skew(ret),5)
+kurt=round(stats.kurtosis(ret),5)
+print(f"mean ={round(ret.mean(),5)}")
+print(f"std ={round(ret.std(),5)}")
+print(f"skewness={skew}")
+print(f"kurtosis={kurt}")
+• For a standard normal 
+distribution 
+• Mean=0, std=1
+• Skew-0, Kurt =0 or 3
+Based on the previous slide, we know the defintion of 
+stats.curtosis is based on minus 3. 
+--- PAGE 28 ---
+Expected shortfall
+𝐸𝑆 = 𝑙𝑜𝑠𝑠 𝑧 < −𝛼 =
+׬−∞
+−𝛼 𝑥𝑓 𝑥 𝑑𝑥
+׬−∞
+−𝛼 𝑓 𝑥 𝑑𝑥 = 
+−∅(𝛼)
+𝐹(𝛼)  
+     where ES is the expected shortfall
+• Using R codes
+• 𝐸𝑆 = 𝑙𝑜𝑠𝑠 𝑧 < −𝛼 =
+−𝑑𝑛𝑜𝑟𝑚(𝑞𝑛𝑜𝑟𝑚 1−𝑑𝑖𝑣𝑖𝑑𝑒𝑛𝑡 ,0,𝑠𝑖𝑔𝑚𝑎)
+1−𝑐𝑜𝑛𝑓𝑖𝑑𝑒𝑛𝑡
+--- PAGE 29 ---
+VaR of a 2-stock portfolio 
+• For a two-stock portfolio
+ቐ 𝜎2 𝑅𝑝 = 𝑥1
+2𝜎1
+2 + 𝑥2
+2𝜎2
+2 + 𝑥1𝑥2𝑐𝑜𝑣(𝑅1, 𝑅2) 
+𝜎2 𝑅𝑝 = 𝑥1
+2𝜎1
+2 + 𝑥2
+2𝜎2
+2 + 𝑥1𝑥2𝜌1,2𝜎1𝜎2
+--- PAGE 30 ---
+Volatility of a 2-stock portfolio
+# volatility of two-stock portfolio
+import numpy as np
+#
+def portfolio_vol_2stocks(ret1,ret2,w1):
+     x1=w1
+     x2=1-x1
+     s1=ret1.std()
+     s2=ret2.std()
+     v=x1**2*s1**2+x2**2*s2**2+2*x1*x2*np.cov(ret1,ret2)
+     return(sqrt(v))
+--- PAGE 31 ---
+Variance of an n-stock portfolio 
+• 𝜎2 𝑅𝑝 = σ𝑖=1
+𝑛 σ𝑗=1
+𝑛 𝑤𝑖𝑤𝑗𝜎𝑖,𝑗
+2
+𝜎2 𝑅𝑝  is the variance of an n-stock portfolio.
+𝑤𝑖 is weight of stock i.
+𝜎𝑖,𝑗
+2  is the variance between stocks i and j. 
+--- PAGE 32 ---
+VaR for portfolios
+One basic concept is:
+VaR for a portfolio is not the weighted VaR of individual 
+stocks
+--- PAGE 33 ---
+VaR for portfolios
+import numpy as np
+from math import sqrt
+def vol_portfolio(ret_matrix,weights):
+    m=ret_matrix.shape[1]
+    m2=len(weights)
+    if(m!=m2):
+        print("# of stocks  not = # of weights!")
+    else:
+        cov=np.cov(ret_matrix.T)
+        final=0
+        n=np.arange(0,m)
+        for i in n:
+            for j in n:
+                final+=weights[i]*weights[j]*cov[i,j]
+    stdP=sqrt(final)
+    return(stdP)
+--- PAGE 34 ---
+Financial Data Mining 
+and Analysis
+Chapter 12: Monte Carlo Simulations
+--- PAGE 35 ---
+Agenda
+• A simple example
+•np.random
+• Uniform distribution
+• Standard normal distribution 
+• Normal distribution 
+• Correlation 
+• Correlated random numbers
+--- PAGE 36 ---
+Why are normal distributions so important 
+for finance?
+• There are the most important reasons:
+1)  if our model is good, the error terms should 
+follow a normal distribution with a mean error of 
+zero.
+2) In finance, we assume that stock prices follow a 
+log-normal distribution, stock returns follow a 
+normal distribution, and stock prices follow a log -
+normal distribution. 
+--- PAGE 37 ---
+numpy.random
+import numpy.random as random
+print(dir(random))
+print(dir(random))
+['BitGenerator', 'Generator', 'MT19937', 'PCG64', 
+'PCG64DXSM', 'Philox', 'RandomState', 'SFC64', 
+'SeedSequence', '__RandomState_ctor', '__all__', 
+'__builtins__', '__cached__', '__doc__', '__file__', 
+'__loader__', '__name__', '__package__', '__path__', 
+'__spec__', '_bounded_integers', '_common', 
+'_generator', '_mt19937', '_pcg64', '_philox', 
+'_pickle', '_sfc64', 'beta', 'binomial', 
+'bit_generator', 'bytes', 'chisquare', 'choice', 
+'default_rng', 'dirichlet', 'exponential', 'f', 
+'gamma', 'geometric', 'get_bit_generator', 
+'get_state', 'gumbel', 'hypergeometric', 'laplace', 
+'logistic', 'lognormal', 'logseries', 'mtrand', 
+'multinomial', 'multivariate_normal', 
+'negative_binomial', 'noncentral_chisquare', 
+'noncentral_f', 'normal', 'pareto', 'permutation', 
+'poisson', 'power', 'rand', 'randint', 'randn', 
+'random', 'random_integers', 'random_sample', 
+'ranf', 'rayleigh', 'sample', 'seed', 
+'set_bit_generator', 'set_state', 'shuffle', 
+'standard_cauchy', 'standard_exponential', 
+'standard_gamma', 'standard_normal', 'standard_t', 
+'test', 'triangular', 'uniform', 'vonmises', 'wald', 
+'weibull', 'zipf']
+--- PAGE 38 ---
+A simple example
+import numpy as np
+x=np.random.standard_normal(size=10)
+print(x)
+
+--- PAGE 39 ---
+Concept of a random seed
+We must choose the same random seed for a given 
+distribution to get the same set of random values. 
+import numpy.random as random
+random.seed(12345)
+x=random.standard_normal(size=10)
+print(x)
+ 
+# comment out the second line to see the effect
+
+--- PAGE 40 ---
+Random values from a uniform distribution
+import numpy.random as random 
+random.seed(123345) 
+x=random.uniform(low=1,high=100,size=10) 
+print(x[0:5])
+
+--- PAGE 41 ---
+Randomly choose 15 values from [1,100]
+import numpy as np
+import numpy.random as random 
+#
+random.seed(123345) 
+x=random.uniform(low=1,high=100,size=15)
+print(x)
+
+--- PAGE 42 ---
+Return matrix from a uniform distribution
+import numpy.random as random 
+random.seed(1234567)
+nReturns=100
+nStocks=5
+minRet=-0.1
+maxRet=0.05
+returns= 
+random.uniform(minRet,maxRet,size=[nReturns,nStocks])
+print(returns[0:2,])
+
+--- PAGE 43 ---
+Random values from a standard normal 
+distribution
+import numpy.random as random
+random.seed(12345) 
+x=random.normal(0,1,20) 
+print(x)
+[-0.20470766  0.47894334 -0.51943872 -0.5557303   1.96578057  1.39340583
+  0.09290788  0.28174615  0.76902257  1.24643474  1.00718936 -1.29622111
+  0.27499163  0.22891288  1.35291684  0.88642934 -2.00163731 -0.37184254
+  1.66902531 -0.43856974]
+--- PAGE 44 ---
+Roll a dice function
+import random
+def rollDice():
+    roll = random.randint(1,6)
+    return roll
+i =1
+n=10
+result=[]
+#random.seed(123)
+while i<n:
+    result.append(rollDice())
+    i+=1
+print(result)
+--- PAGE 45 ---
+With/without replacements 
+Assume that we have the historical data, such as price and return, for a stock.  We 
+could estimate their mean, standard deviation, and other related statistics. 
+What are their expected annual mean and risk next year? 
+• The simplest, maybe naïve way is to use the historical mean and standard 
+deviation. 
+• A better way is to construct the distribution of annual return and risk. This 
+means we must find a way to use historical data more effectively to predict the 
+future. 
+• In such cases, we could apply the bootstrapping methodology. For example, for 
+one stock, we have its last 20-year monthly returns, that is, 240 observations
+--- PAGE 46 ---
+Random.permutation() function
+import numpy as np 
+x=np.arange(1,11) 
+print(f"raw data set={x}") 
+#
+for i in np.arange(1,6):
+    y=np.random.permutation(x) 
+    print(f"resampling i={i}, new 
+data={y}")
+
+--- PAGE 47 ---
+Simulation of stock terminal price movements
+
+--- PAGE 48 ---
+Simulation of stock terminal price movements
+import scipy as sp 
+from math import sqrt
+import numpy.random as random
+import matplotlib.pyplot as plt
+#input area
+S0 = 9.15               # stock price at time zero 
+T =1.                   # years
+n_steps=100             # number of steps 
+mu =0.15                # expected annual return 
+sigma = 0.2             # volatility (annual) 
+random.seed(12345)      # fix those random numbers 
+n_simulation = 1000     # number of simulation 
+dt =T/n_steps 
+#
+S = np.zeros([n_simulation], dtype=float) 
+x = np.arange(0, int(n_steps), 1) 
+for j in np.arange(0, n_simulation): 
+    tt=S0 
+    for i in x[:-1]: 
+        e=np.random.normal() 
+        tt+=tt*(mu-0.5*pow(sigma,2))*dt+sigma*tt*sqrt(dt)*e; 
+        S[j]=tt 
+#
+plt.title('Histogram of terminal price') 
+plt.ylabel('Number of frequencies') 
+plt.xlabel('Terminal price') 
+plt.figtext(0.5,0.8,'S0='+str(S0)+',mu='+str(mu)+',sigma='+s
+tr(sigma)) 
+plt.figtext(0.5,0.76,'T='+str(T)+', 
+steps='+str(int(n_steps))) 
+plt.figtext(0.5,0.72,'Number of terminal 
+prices='+str(int(n_simulation))) 
+plt.hist(S) 
+plt.show()
+--- PAGE 49 ---
+Graph from the previous slide
+
+--- PAGE 50 ---
+Simulation and finance
+• This method was first introduced to corporate 
+finance by Hertz (1964). 
+• Later, Boyle (1977) uses simulation to price 
+various options.  
+--- PAGE 51 ---
+Black-Scholes-Merton by simulation 
+(explained later)
+for j in np.arange(0, n_simulation): 
+    sT=S0 
+    for i in x[:-1]: 
+        e=random.normal() 
+        sT*=exp((r-0.5*sigma*sigma)*dt+sigma*e*sqrt(dt)) 
+        call[j]=max(sT-X,0) 
+#
+call_price=round(call.mean()*exp(-r*T) ,4)
+print(f"call price = {call_price}") 
+--- PAGE 52 ---
+Path independent vs. path dependent
+• Some options are path-independent, such as  
+European call and put options.
+•  The reason is that the option price on maturity 
+depends on the underlying stock price and the 
+exercise price. It has nothing to do with the path. 
+• Some options are path-dependent, such as 
+Asian options (explained later). 
+--- PAGE 53 ---
+Call simulation
+import numpy as np
+import numpy.random as random
+from math import exp,sqrt
+#
+S0 = 40.              # stock price at time zero 
+X= 40.                # exercise price 
+T =0.5                # years 
+r =0.05               # risk-free rate 
+sigma = 0.2           # annualized volatility 
+n_steps=100           # number of steps 
+random.seed(12345)    # fix those random numbers 
+n_simulation = 5000   # number of simulation 
+dt =T/n_steps 
+call = np.zeros([n_simulation], dtype=float) 
+x = np.arange(0, int(n_steps), 1) 
+for j in np.arange(0, n_simulation): 
+    sT=S0 
+    for i in x[:-1]: 
+        e=random.normal() 
+        a=sigma*e*sqrt(dt)
+        sT*=exp((r-0.5*sigma*sigma)*dt+a) 
+        call[j]=max(sT-X,0) 
+#
+call_price=round(call.mean()*exp(-r*T) ,4)
+print(f"call price = {call_price}") 
+
+--- PAGE 54 ---
+Paths of stock price
+import numpy as np
+from math import pow,sqrt
+import numpy.random as random
+import matplotlib.pyplot as plt
+# input area
+stock_price_today = 9.15 # stock price at time zero 
+T =1.                    # maturity date (in years) 
+n_steps=100              # number of steps 
+mu =0.15                 # expected annual return 
+sigma = 0.2              # annualized volatility
+random.seed(12345)       # fixed our seed 
+n_simulation = 5         # number of simulations 
+dt =T/n_steps 
+S = np.zeros([n_steps],dtype=float) 
+x = range(0, int(n_steps), 1) 
+for j in range(0, n_simulation): 
+    S[0]= stock_price_today 
+    for i in x[:-1]: 
+        e=random.normal() 
+        aa=sigma*S[i]*sqrt(dt)*e
+        S[i+1]=S[i]+S[i]*(mu-0.5*pow(sigma,2))*dt+aa; 
+    plt.plot(x, S)
+#
+plt.figtext(0.2,0.8,'S0='+str(S[0])+',mu='+str(mu)+',
+sigma='+str(sigma)) 
+plt.figtext(0.2,0.76,'T='+str(T)+', 
+steps='+str(int(n_steps))) 
+plt.title('Stock price (number of simulations = %d ' 
+% n_simulation +')') 
+plt.xlabel('Total number of steps 
+='+str(int(n_steps))) 
+plt.ylabel('stock price') 
+plt.show()
+--- PAGE 55 ---
+Visual presentation of 5 paths
+
+--- PAGE 56 ---
+Simulating stock prices (paths)
+• The next stock price is a function of the current 
+stock price, a tiny time interval, standard 
+deviation, mean plus a random factor
+
+--- PAGE 57 ---
+In a risk-neutral world
+• We have mean = risk-free rate
+• The function of the next stock price is given below. 
+ST_f<-function(S,r ,T,sigma){ 
+      S*exp((r-0.5*sigma*sigma)*T+sigma*rnorm(1)*sqrt(T))
+}
+
+--- PAGE 58 ---
+Price an Asian options
+• European options are called path-independent 
+options. It means that their final payoff has 
+nothing to do with their path. 
+• Below is one example. 
+•              depends on the path
+
+--- PAGE 59 ---
+Why average instead of a terminal price?
+• Assume that company A will pay 5 million pounds in three 
+months. One option is to buy a call option with an exercise 
+price. The company cares only about the exchange rate 
+when it pays or exercises the option. 
+• One refinery uses crude oil every day. Although they worry 
+about the price of crude oil, they are more concerned with 
+the average price than with a specific day’s price. The 
+average price is better than the terminal price to hedge their 
+risk. 
+--- PAGE 60 ---
+import numpy as np
+import numpy.random as random
+from math import exp,sqrt
+#
+s0=40.                # today stock price 
+x=40.                 # exercise price 
+T=0.5                 # maturity in years 
+r=0.05                # risk-free rate 
+sigma=0.2             # volatility (annualized) 
+random.seed(123)      # fix a seed here 
+n_simulation=100      # number of simulations 
+n_steps=100           # number of steps
+dt=T/n_steps 
+call=np.zeros([n_simulation], dtype=float) 
+Average price an Asian options
+--- PAGE 61 ---
+Correlated random sequences 
+Step 1: Generate two sequences of uncorrelated 
+                normal distributed random numbers, let’s      
+                 call them x1 and x2. 
+Step 2: Generate y1 and y2 according to the 
+                 following formulae. 
+
+--- PAGE 62 ---
+Correlated random series
+import numpy as np
+from math import sqrt
+import numpy.random as random
+#
+random.seed(123)
+n=1000
+rho=0.3
+x1=random.normal(size=n)
+x2=random.normal(size=n)
+#
+y1=x1
+y2=rho*x1+sqrt(1-rho**2)*x2
+corrMatrix=np.corrcoef(y1,y2)
+print(f"check new corrlation matrix:\n = {corrMatrix}")
+
+--- PAGE 63 ---
+• We have a normal call option.
+• We add a fixed price. If the price of the 
+underlying stock reach this price, then our 
+option become zero. If the price never reaches 
+this pre-fixed price, it is a normal option. 
+Up-and-out call 
+--- PAGE 64 ---
+Up-and-out call 
+import numpy as np
+import scipy.stats as stats 
+from math import log,exp,sqrt
+import numpy.random as random
+#
+def bsCall(S,X,T,r,sigma):
+    d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T)) 
+    d2 = d1-sigma*sqrt(T)
+    c=S*stats.norm.cdf(d1)-X*exp(-r*T)*stats.norm.cdf(d2)
+    return(c) 
+#
+def up_and_out_call(s0,x,T,r,sigma,n_simulation,barrier):
+    n_steps=100 
+    dt=T/n_steps 
+    total=0 
+    for j in np.arange(0, n_simulation): 
+        sT=s0 
+        out=False
+        for i in np.arange(0,int(n_steps)): 
+            e=random.normal() 
+            sT*=exp((r-0.5*sigma*sigma)*dt+sigma*e*sqrt(dt)) 
+            if sT>barrier: 
+               out=True 
+        if out==False: 
+            total+=bsCall(s0,x,T,r,sigma) 
+    return(total/n_simulation) 
+#
+s0=40.              # today stock price 
+x=40.               # exercise price 
+barrier=42          # barrier level 
+T=0.5               # maturity in years 
+r=0.05              # risk-free rate 
+sigma=0.2           # volatility (annualized) 
+n_simulation=1009   # number of simulations 
+#random.seed(12)     # fix a seed
+#
+call=round(bsCall(s0,x,T,r,sigma),2)
+result=up_and_out_call(s0,x,T,r,sigma,n_simulation,barrier) 
+print(f"price of Black-Scholes call = {call}")
+print(f"price (up-and-out-call)={round(result,3)}")
+
+--- PAGE 65 ---
+Liking two methods for VaR using simulation
+import numpy as np
+import numpy.random as random
+import scipy.stats as stats
+#
+position=1e6 # portfolio value
+std=0.2 # volatility
+mean=0.08 # mean return
+confidence=0.99 # confidence level
+nSimulations=50000 # number of simulations
+#
+# Method I
+z=stats.norm.ppf(1-confidence)
+VaR=round(position*(mean+z*std),2)
+print(f"Holding={position}, VaR={VaR} tomorrow")
+# Method II: Monte Carlo simulaiton 
+random.seed(12345) 
+ret2=random.normal(mean,std,nSimulations) 
+ret3=np.sort(ret2) 
+m=int(nSimulations*(1-confidence))
+VaR2=round(position*(ret3[m]),2)
+print(f"Holding= {position}, VaR2={VaR2} tomorrow")
+
+--- PAGE 66 ---
+Simulation for a capital budget (base case)
+import scipy as sp
+import numpy as np
+import numpy_financial as npf
+#
+nYear=5                 # number of years
+costEquipment=5e6       # 5 million 
+n=nYear+1               # add year zero
+price=28                # price of the product
+units=100000            # estimate # of units sold 
+otherCost=100000        # other costs
+sellingCost=1500        # selling/adm cost 
+R_and_D=200000          # Research and development
+costRawMaterials=0.3    # % cost of raw materials
+R=0.15                  # discount rate
+tax=0.38                # corporate tax rate
+sales=np.ones(n)*price*units
+sales[0]=0              # sales for 1st year is zero
+cost1=costRawMaterials*sales
+cost2=np.ones(n)*otherCost
+cost3=np.ones(n)*sellingCost
+cost4=np.zeros(n)
+cost4[0]=costEquipment
+RD=np.zeros(n)
+RD[0]=R_and_D             # assume R&D at time zero
+D=np.ones(n)*costEquipment/nYear # straight line 
+depreciation 
+D[0]=0                   # no depreciation at time 0
+EBIT=sales-cost1-cost2-cost3-cost4-RD-D
+NI=EBIT*(1-tax)
+FCF=NI+D                      # add back depreciation
+npvProject=round(npf.npv(R,FCF),2) # estimate NPV
+print("NPV of project=",round(npvProject,0))
+
+--- PAGE 67 ---
+Case #1: input values are not 
+related to returns 
+Arithmetic mean vs. geometric mean
+For the geomean, assume we have three 
+numbers, a, b, and c. 
+Geomean = (a*b*c)**(1/3)
+a=2
+b=4
+c=5.3
+(a*b*c)**(1/3)
+
+--- PAGE 68 ---
+Python code: Arithmetic/geometric means
+import scipy.stats as stats
+import numpy as np
+print("\nCase #1: not related to returns")
+x=[1,2,3,4,5]
+a_mean=np.mean(x)
+g_mean=round(stats.gmean(x),5)
+print(f"input values are ={x}")
+print(f"arimetic mean={a_mean}, geoMean={g_mean}\n")
+
+--- PAGE 69 ---
+Arithmetic and geometric mean for returns
+For the geomean, assume we have three 
+numbers, a, b, and c. 
+Geomean = [(a+1)*(b+1)*(c+1)]**(1/3)-1
+a=0.1
+b=-0.04
+c=0.03
+((a+1)*(b+1)*(c+1))**(1/3)-1
+
+--- PAGE 70 ---
+Arithmetic and geometric mean for returns
+import scipy.stats as stats
+import numpy as np
+print("\nCase #2: for returns")
+ret=[0.1,0.1,0.2,0,-0.05]
+a_mean2=np.mean(ret)
+retPlus1 = [x + 1 for x in ret]
+g_mean2=round(stats.gmean(retPlus1)-1,5)
+print(f"input returns are ={ret}")
+print(f"arimetic mean={a_mean2}, geoMean={g_mean2}")
+
+--- PAGE 71 ---
+Long-term forecast
+• For equity, using an arithmetic mean would overestimate 
+short-term forecast returns
+• On the other hand, using a geomean mean would 
+underestimate short-term forecasted returns. 
+--- PAGE 72 ---
+Sobol sequence 
+Sobol sequences are low-discrepancy, quasi-random 
+numbers useful for various applications, including 
+numerical integration, optimization, and Monte Carlo 
+simulations. 
+--- PAGE 73 ---
+import pandas as pd
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+d = 2   # Specify the dimensionality (e.g., 2, 3, etc.)
+sobol_sequence = stats.qmc.Sobol(d, scramble=True)
+n=100
+sample = sobol_sequence.random(n) # Generate n points 
+df=pd.DataFrame(sample)
+df.columns=["x","y"]
+plt.scatter(df.x,df.y,c="red")
+plt.show()
+Sobol sequence 
+
+--- PAGE 74 ---
+Bootstrapping
+• Bootstrapping is any test or metric that uses random 
+sampling with replacement (e.g., mimicking the sampling 
+process) and falls under the broader class of resampling 
+methods. 
+• Bootstrapping assigns measures of accuracy (bias, variance, 
+confidence intervals, prediction error, etc.) to sample 
+estimates.
+• This technique allows estimation of the sampling 
+distribution of almost any statistic using random sampling 
+methods.
+--- PAGE 75 ---
+Bootstrapping: boots_f() function
+import numpy as np 
+def boots_f(data,n_obs,replacement=None):
+    n=len(data) 
+    if (n<n_obs):
+        print("n is less than n_obs") 
+    else: 
+        if replacement==None:
+            y=np.random.permutation(data) 
+            return y[0:n_obs] 
+        else:
+            y=[] 
+    for i in range(n_obs): 
+        k=np.random.permutation(data) 
+        y.append(k[0]) 
+    return y 
+# test
+x=[1,2,3,4,5,0,-9,2,-10]
+print(f"x={x}")
+y=boots_f(x,6)
+print(f"u={y}")
+
+--- PAGE 76 ---
+Financial Data Mining 
+and Analysis
+Chapter 13: Exotic options
+--- PAGE 77 ---
+Agenda
+• European, American, and Bermudan options 
+• Close-form solutions
+• Path-independent vs. path-dependent options
+• Simple chooser options 
+• Shout, rainbow, and binary options 
+• Average price option 
+• Barrier options 
+• up-and-in options and up-and-out option 
+•  down-and-in and down-and-out options 
+--- PAGE 78 ---
+What are exotic options?
+• Exotic options are a class of derivative contracts that possess 
+features or structures that differ from standard or vanilla options.
+•  These options are typically tailored to meet specific needs or to 
+hedge against particular risks that may not be adequately 
+addressed by standardized options contracts traded on 
+exchanges. 
+• Exotic options often offer greater flexibility and customization but 
+may also involve more complex payoff structures and pricing 
+mechanisms.
+--- PAGE 79 ---
+Some common types of exotic options
+1. Asian Options: The payoff of an Asian option depends on the average price of the 
+underlying asset over a specified period rather than the asset's price at expiration.
+2. Barrier Options: Barrier options come into existence or cease to exist if the price of 
+the underlying asset reaches a predetermined barrier level during the life of the 
+option. Examples include knock-in and knock-out options.
+3. Binary Options: Binary options have a fixed payoff determined at the outset of the 
+contract, depending on whether the underlying asset's price reaches a certain level or 
+not.
+4. Lookback Options: Lookback options provide the holder with the right to buy or sell 
+the underlying asset at its highest or lowest price during the option's life.
+--- PAGE 80 ---
+Some common types of exotic options (2)
+5. Compound Options: Compound options are options on other options. They 
+provide the holder with the right to buy or sell another option at a 
+predetermined price and date.
+6. Chooser Options: Chooser options allow the holder to choose whether the 
+option will be a call or put at a specified future date.
+7. Bermudan Options: Bermudan options can be exercised at predetermined 
+dates before expiration, similar to American options, but typically with limited 
+exercise dates.
+8. Quanto Options: Quanto options are denominated in one currency but 
+settled in another, mitigating currency risk.
+--- PAGE 81 ---
+Exotic options
+For example, if an option buyer could exercise their right several times 
+before the maturity date, it is called a Bermudan option. Many exotic 
+options (derivatives) may have several triggers relating to their payoffs. 
+An exotic option may also include non-standard underlying security or 
+instrument, developed for a specific client or for a particular market. 
+Exotic options are often traded over-the-counter (OTC) rather than on 
+organized exchanges, and their prices may be determined through complex 
+models or negotiated between counterparties. Due to their complexity and 
+customization, exotic options may require sophisticated risk management 
+techniques and pricing models for accurate valuation and analysis. 
+Institutional investors, hedge funds, and corporations with specific risk 
+management needs commonly use them.
+--- PAGE 82 ---
+Exotic: call or put options
+from scipy import stats 
+from math import log,exp,sqrt
+#
+def call_or_Put(S,X,T,r,sigma,type='C'):
+    d1=(log(S/X)+(r+sigma*sigma/2.)*T)/(sigma*sqrt(T)) 
+    d2 = d1-sigma*sqrt(T)
+    if type.upper()=='C':
+        c=S*stats.norm.cdf(d1)-X*exp(-r*T)*stats.norm.cdf(d2)
+        return c
+    else:
+        p=X*exp(-r*T)*stats.norm.cdf(-d2)-S*stats.norm.cdf(-d1)
+        return p
+#
+s=40
+X=42
+T=1 
+r=0.04 
+sigma=0.18 
+call_or_Put(s,X,T,r,sigma)
+call_or_Put(s,X,T,r,sigma, "P")
+
+--- PAGE 83 ---
+Average price option 
+In Chapter 12, Monte Carlo Simulation, we discussed two exotic 
+options. For convenience, we will include them in this chapter as 
+well. Because of this, readers will find some duplicates. 
+European options are path-independent options. This means that 
+an option's payoff depends only on the terminal stock price and 
+strike price. 
+One related issue for path-dependent options is market 
+manipulation at the maturity date. Another issue is that some 
+investors or hedgers might care more about the average price 
+instead of a terminal price
+--- PAGE 84 ---
+Barrier options
+Unlike the Black-Scholes-Merton option model's call and put options, which are 
+path-independent, a barrier option is path-dependent. A barrier option is similar in 
+many ways to an ordinary option, except a trigger exists. An in option starts its life 
+worthless unless the underlying stock reaches a predetermined knock-in barrier. 
+On the contrary, an out barrier option starts its life active and turns useless when a 
+knock-out barrier price is breached. In addition, if a barrier option expires inactive, 
+it may be worthless, or there may be a cash rebate paid out as a fraction of the 
+premium. 
+The four types of barrier options are given in the next slide. 
+--- PAGE 85 ---
+Four types of barrier-options
+• Up-and-out: In this barrier option, the price starts from below a barrier level. 
+If it reaches the barrier, it is knocked out.
+• Down-and-out: In this barrier option, the price starts from above a barrier. If it 
+reaches the barrier, it is knocked out.
+• Up-and-in: In this barrier option, the price starts down a barrier and has to 
+reach the barrier to be activated.
+• Down-and-in: In this barrier option, the price starts over a barrier and has to 
+reach the barrier to be activated
+--- PAGE 86 ---
+Using Monte Carlo Simulation to price 
+barrier options
+• For example, we have an up-and-call option. In this barrier option, the 
+price starts from below a barrier level. If it reaches the barrier, the 
+ordinal call is knocked out. The price of a given call is shown below. 
+bs_call(s0,x, T ,r,sigma)
+bs_call(40,40,0.5,0.05,0.2)   => 2.755
+For a given barrier such as 43, what is the up-and-out call?
+We can run 200 simulations. Assume that 146 are not out. Then the 
+price will be (146/200)*2.755
+--- PAGE 87 ---
+Simulation of stock terminal price movements
+
+--- PAGE 88 ---
+Simulation of stock terminal price movements
+import scipy as sp 
+from math import sqrt
+import numpy.random as random
+import matplotlib.pyplot as plt
+#input area
+S0 = 9.15               # stock price at time zero 
+T =1.                   # years
+n_steps=100             # number of steps 
+mu =0.15                # expected annual return 
+sigma = 0.2             # volatility (annual) 
+random.seed(12345)      # fix those random numbers 
+n_simulation = 1000     # number of simulation 
+dt =T/n_steps 
+#
+S = np.zeros([n_simulation], dtype=float) 
+x = np.arange(0, int(n_steps), 1) 
+for j in np.arange(0, n_simulation): 
+    tt=S0 
+    for i in x[:-1]: 
+        e=random.normal() 
+        tt+=tt*(mu-0.5*pow(sigma,2))*dt+sigma*tt*sqrt(dt)*e; 
+        S[j]=tt 
+#
+plt.title('Histogram of terminal price') 
+plt.ylabel('Number of frequencies') 
+plt.xlabel('Terminal price') 
+plt.figtext(0.5,0.8,'S0='+str(S0)+',mu='+str(mu)+',sigma='+s
+tr(sigma)) 
+plt.figtext(0.5,0.76,'T='+str(T)+', 
+steps='+str(int(n_steps))) 
+plt.figtext(0.5,0.72,'Number of terminal 
+prices='+str(int(n_simulation))) 
+plt.hist(S) 
+plt.show()
+--- PAGE 89 ---
+Paths of stock price with a barrier
+import numpy as np
+from math import pow,sqrt
+import numpy.random as random
+import matplotlib.pyplot as plt
+# input area
+barrier=43              # barrier
+stock_price_today = 40  # stock price at time zero 
+T =0.5                  # maturity date (in years) 
+n_steps=100             # number of steps 
+mu =0.05                # expected annual return 
+sigma = 0.2             # annualized volatility
+random.seed(12345)      # fixed our seed 
+n_simulation = 10       # number of simulations 
+dt =T/n_steps 
+S = np.zeros([n_steps],dtype=float) 
+x = range(0, int(n_steps), 1) 
+for j in range(0, n_simulation): 
+    S[0]= stock_price_today 
+    for i in x[:-1]: 
+        e=random.normal() 
+        aa=sigma*S[i]*sqrt(dt)*e
+        S[i+1]=S[i]+S[i]*(mu-0.5*pow(sigma,2))*dt+aa; 
+    plt.plot(x, S)
+#
+plt.figtext(0.2,0.8,'S0='+str(S[0])+',mu='+str(mu)+',sigma='+str(sigma)) 
+plt.figtext(0.2,0.76,'T='+str(T)+', steps='+str(int( n_steps))) 
+aa='Stock price (# of simulations = %d ' % n_simulation +','
+plt.title(aa+'barrier='+str(barrier)) 
+plt.xlabel('Total number of steps ='+str(int( n_steps))) 
+plt.ylabel('stock price') 
+plt.axhline(y=barrier, color='red', linestyle='--')
+plt.show()
+--- PAGE 90 ---
+Visual presentation stock path with a barrier
+
+--- PAGE 91 ---
+Chooser options
+•  A chooser option allows the option buyer to choose whether to 
+purchase a European call or a European put at a predetermined 
+point before the option matures.
+•  For a simple chooser option, the underlying call and put options 
+have the same maturities and exercise prices.
+--- PAGE 92 ---
+What are the chooser options?
+Chooser options, also known as "extendible options" or "delayed 
+options, " are a type of exotic option that grants the holder the right 
+to choose the type of option (call or put) they wish to exercise at a 
+predetermined future date. 
+This additional flexibility distinguishes chooser options from 
+standard options, where the type of option (call or put) is fixed at 
+the time of purchase.
+--- PAGE 93 ---
+The key features of chooser options
+1. Flexibility: Chooser options allow the holder to assess market conditions 
+and select the most advantageous option type (call or put) at a later date. This 
+flexibility can be valuable in uncertain market environments or when the holder 
+anticipates significant price movements but is unsure about the direction.
+2. Exercise Period: The holder of a chooser option has the right to choose the 
+option type (call or put) during a specified exercise period, which typically 
+occurs before the option's expiration date. The exercise period may be a single 
+date or a range of dates.
+3. Premium: Chooser options generally command a higher premium compared 
+to standard options due to the additional flexibility they offer. The premium is 
+influenced by factors such as the underlying asset's volatility, time to 
+expiration, and the length of the exercise period.
+--- PAGE 94 ---
+The key features of chooser options (2)
+4. Expiration: Chooser options have a fixed expiration date, like standard 
+options. The holder must exercise the option within the specified 
+exercise period or let it expire worthless.
+5. Risk Management: Chooser options can be used for risk management 
+purposes, allowing the holder to adapt their option position based on 
+evolving market conditions and their outlook for the underlying asset.
+6. Complexity: Due to their added flexibility, chooser options are 
+considered more complex than standard options. As a result, they are 
+typically traded over-the-counter (OTC) rather than on organized 
+exchanges and may require customized terms to meet the specific 
+needs of the parties involved.
+--- PAGE 95 ---
+Chooser option:  call or put
+from scipy import stats 
+from math import log, exp, sqrt
+def call_or_Put(S,X,T,r,sigma,tao,type='C'):
+    d1=(log(S/X)+r*T+0.5*sigma*sigma*tao)/(sigma*sqrt(tao)) 
+    d2 = d1-sigma*sqrt(tao)
+    if type.upper()=='C':
+        c=S*stats.norm.cdf(d1)-X*exp(-r*T)*stats.norm.cdf(d2)
+        return c
+    else:
+        p=X*exp(-r*T)*stats.norm.cdf(-d2)-S*stats.norm.cdf(-d1)
+        return p
+def chooserOption(S,X,T,r,sigma,tao):
+    call_T=call_or_Put (S,X,T,r,sigma,T)
+    put_tao=call_or_Put (S,X,T,r,sigma,tao,type='P')
+    return call_T- put_tao
+s=40.        # stock price today 
+x=40.        # exercise price
+T=6./12      # maturity date ii years
+tao=1./12.   # when to choose
+r=0.05       # risk-free rate
+sigma=0.2    # volatility 
+#
+price=round(chooserOption(s,x,T,r,sigma,tao),3)
+print(f"price of a chooser option={price}")

@@ -12,12 +12,12 @@ This audit treats the instructor's classroom script as an independent source, no
 | 210-292 | CAPM; linregress; OLS; regression chart; joins; adjusted prices; t distribution | Chapters 6 and 8 | Integrated |
 | 295-474 | Fama-French regression; F distribution; rolling beta; Sharpe; Treynor; LPSD | Chapter 7 | Integrated |
 | 475-673 | Confidence intervals; F/Levene/t tests; Durbin-Watson; bidirectional Granger; interpolation; January effect | Chapter 8 | Integrated |
-| 680-848 | Portfolio variance, constrained optimization, and maximum-Sharpe portfolios | Chapter 7 extension / later portfolio chapter | Core Sharpe optimization integrated; full portfolio theory reserved |
-| 849-1065 | Option payoffs, Black-Scholes, implied volatility, FX futures, Greeks, volatility smile | Later options chapter; Assignment 3 previews | Not part of Chapters 1-8 |
+| 680-848 | Portfolio variance, constrained optimization, and maximum-Sharpe portfolios | Chapter 9 | Integrated |
+| 849-1065 | Option payoffs, Black-Scholes, implied volatility, FX futures, Greeks, volatility smile | Chapter 10; Assignment 3 previews | Integrated |
 | 1067-1115 | SQLite joins | Later database topic; Assignment 3 | Assignment example integrated |
-| 1117-1380 | Parametric, historical, modified VaR, expected shortfall, and portfolio volatility | Later risk-management chapter | Not part of Chapters 1-8 |
-| 1381-1580 | Monte Carlo, stock paths, option simulation, barrier option, simulation VaR | Later simulation chapter | Not part of Chapters 1-8 |
-| 1582-end | Long-horizon arithmetic/geometric return comparison | Later forecasting topic | Not part of Chapters 1-8 |
+| 1117-1380 | Parametric, historical, modified VaR, expected shortfall, and portfolio volatility | Chapter 11; Assignment 4 | Integrated |
+| 1381-1580 | Monte Carlo, stock paths, option simulation, barrier option, simulation VaR | Chapters 12-13; Assignment 4 | Integrated |
+| 1582-end | Long-horizon return forecasts, Sobol, bootstrap, and exotic options | Chapters 12-13 | Integrated |
 
 ## Raw Labeled-Block Inventory
 

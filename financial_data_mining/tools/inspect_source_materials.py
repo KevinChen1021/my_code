@@ -24,11 +24,11 @@ def inspect_pdf_support():
         print(name, bool(importlib.util.find_spec(name)))
 
 
-def extract_chapter_7_8():
+def extract_pdf(source_name, output_name):
     from pypdf import PdfReader
 
-    source = ROOT / "Slides" / "chapter7_8.pdf"
-    output = ROOT / "Slides" / "chapter7_8.txt"
+    source = ROOT / "Slides" / source_name
+    output = ROOT / "Slides" / output_name
     reader = PdfReader(str(source))
     pages = []
     for page_number, page in enumerate(reader.pages, start=1):
@@ -40,4 +40,9 @@ def extract_chapter_7_8():
 if __name__ == "__main__":
     inspect_assignments()
     inspect_pdf_support()
-    extract_chapter_7_8()
+    for source_name, output_name in (
+        ("chapter7_8.pdf", "chapter7_8.txt"),
+        ("chapter9_10.pdf", "chapter9_10.txt"),
+        ("chapter11_13.pdf", "chapter11_13.txt"),
+    ):
+        extract_pdf(source_name, output_name)

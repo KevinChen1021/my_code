@@ -1607,3 +1607,122 @@ w = min(n_forecast / n_history, 1)
 future_ret = round(w*g_mean + (1-w)*a_mean, 4)
 print(f"the forecast return of {ticker} in {n_forecast} years is {future_ret}")
 
+
+
+'''sobol sequence'''
+d = 2
+sobol_sequence = stats.qmc.Sobol(d, scramble=True)
+n = 100
+
+sample = sobol_sequence.random(n)
+df = pd.DataFrame(sample)
+df.columns = ["x", "y"]
+plt.scatter(df.x, df.y, c='red')
+plt.show()
+
+
+'''bootstrapping:boots_f() function'''
+
+def boots_f(data, n_obs, replacement = None):
+    n = len(data)
+    if n < n_obs:
+        print("the number of observations to be drawn is larger than the size of the data")
+        return None
+    else:
+        if replacement == None:
+            y = np.random.permutation(data)
+            return y[:n_obs]
+        else:
+            y = []
+    for i in range(n_obs):
+        k = np.random.permutation(data)
+        y.append(k[0])
+    return y
+
+'''test'''
+x = [1, 2, 3, 4, 5, 0, -9, 2, -10]
+y = boots_f(x, 6)
+print(y)
+
+
+'''exotic options: barrier options, lookback options, Asian options, etc.'''
+
+'''simulate stock price movement'''
+
+S0 = 9.15
+T = 1
+n_steps = 100
+mu = 0.15
+sigma = 0.2
+np.random.seed(123456)
+n_simulation = 1000
+dt = T/n_steps
+
+S = np.zeros([n_simulation], dtype=float)
+x = np.arange(0, int(n_steps), 1)
+
+for j in np.arange(0, n_simulation):
+    tt = S0
+    for i in x[:-1]:
+        e = np.random.normal()
+        tt += tt*(mu - 0.5*sigma*sigma)*dt + tt*sigma*e*np.sqrt(dt)
+        S[j] = tt
+
+plt.hist(S)
+plt.show()
+
+
+'''path of stock with a barrier'''
+barrier = 43
+stock_price_today = 40
+T = 0.5
+n_steps = 100
+mu = 0.05
+sigma = 0.2
+np.random.seed(123456)
+n_simulation = 10
+dt = T/n_steps
+
+S = np.zeros([n_simulation], dtype=float)
+x = np.arange(0, int(n_steps), 1)
+
+for j in np.arange(0, n_simulation):
+    S[0] = stock_price_today
+    for i in x[:-1]:
+        e = np.random.normal()
+        aa = sigma * S[i]*sqrt(dt)*e
+        S[i+1] = S[i] + S[i]*(mu - 0.5*sigma*sigma)*dt + aa
+    plt.plot(x, S)
+
+plt.show()
+
+
+def call_or_put(S, X, T, r, sigma, tao, type="C"):
+    d1 = (log(S/X) + (r + sigma*sigma/2)*T)/(sigma * sqrt(T))
+    d2 = d1 - sigma*sqrt(T)
+    if type.upper() == "C":
+        return S*stats.norm.cdf(d1) - X*exp(-r*T)*stats.norm.cdf(d2)
+    elif type.upper() == "P":
+        return - S*stats.norm.cdf(-d1) + X*exp(-r*T)*stats.norm.cdf(-d2)
+    else:
+        print("the type of the option is not correct")
+        return None
+
+
+def chooser_option(S, X, T, r, sigma, tao):
+    call_price = call_or_put(S, X, T, r, sigma, tao, type="C")
+    put_price = call_or_put(S, X, T, r, sigma, tao, type="P")
+
+s = 40
+X = 40
+T = 0.5
+tao = 1/12
+sigma = 0.2
+r = 0.05
+
+price = chooser_option(s, X, T, r, sigma, tao)
+
+
+
+
+

@@ -15,7 +15,7 @@
 - **可视化展示**：重要图表以内嵌图片放在结果 Markdown 中。
 - **覆盖审计**：同时核对 PPT 和老师课堂展示的源代码，减少知识点遗漏。
 
-目前已整理课程前八章和三次编程作业。
+目前已整理课程全部十三章和四次编程作业。
 
 ## Notebook 内容
 
@@ -29,9 +29,15 @@
 | `chapter_6.ipynb` | CAPM、线性回归、数据连接、Beta 显著性、滚动 Beta 和组合 Beta |
 | `chapter_7.ipynb` | Fama-French 模型、多因子回归、绩效指标、LPSD 和 Sharpe Ratio 优化 |
 | `chapter_8.ipynb` | 概率分布、假设检验、置信区间、自相关、Granger 因果和日历效应 |
+| `chapter_9.ipynb` | 投资组合理论、相关性、组合方差、约束优化和风险收益效用 |
+| `chapter_10.ipynb` | 期权损益、Black-Scholes、隐含波动率、交易策略、Greeks 和远期套利 |
+| `chapter_11.ipynb` | 参数 VaR、修正 VaR、历史 VaR、Expected Shortfall 和组合 VaR |
+| `chapter_12.ipynb` | 随机数、GBM、Monte Carlo 定价、相关模拟、Sobol 和 Bootstrap |
+| `chapter_13.ipynb` | Asian、Barrier、Chooser 等奇异期权及路径依赖定价 |
 | `assignment_1.ipynb` | 环境检查、多股票收益率处理、Sharpe Ratio 和累计财富 |
 | `assignment_2.ipynb` | 债券价格与久期、CAPM Beta 估计 |
 | `assignment_3.ipynb` | Gamma、SQL Left Join 和隐含波动率 |
+| `assignment_4.ipynb` | VaR、正态性检验、GBM 模拟和欧式看涨期权定价 |
 
 ## 目录结构
 
@@ -76,7 +82,8 @@ financial_data_mining/
 包含项目维护脚本：
 
 - `build_chapters_1_3.py`：生成前三章。
-- `build_chapters_4_8_and_assignments.py`：生成第 4 至第 8 章和三个作业。
+- `build_chapters_4_8_and_assignments.py`：生成第 4 至第 8 章和前三个作业。
+- `build_chapters_9_13_and_assignment_4.py`：生成第 9 至第 13 章和作业 4。
 - `execute_notebooks.py`：执行代码单元并将结果写回 Notebook。
 - `embed_visualizations.py`：生成并嵌入结果图表。
 - `audit_source_coverage.py`：生成课堂源代码覆盖矩阵。
@@ -118,15 +125,12 @@ jupyter lab
 
 ## 当前状态
 
-- 8 个章节 Notebook
-- 3 个作业 Notebook
-- 65 个独立代码模块
-- 15 张内嵌结果图
+- 13 个章节 Notebook
+- 4 个作业 Notebook
+- 92 个独立代码模块
+- 22 张内嵌结果图
 - 所有当前代码模块均已完成执行检查
-
-后续课程 PPT 发布后，可继续按照相同结构补充新章节。
 
 ## 说明
 
 本项目用于课程学习、复习和代码复用。课程课件、原始作业和教师课堂代码的版权归其原作者所有。
-

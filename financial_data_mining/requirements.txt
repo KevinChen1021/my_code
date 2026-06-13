@@ -5,3 +5,5 @@ matplotlib
 yfinance
 numpy-financial
 statsmodels
+pypdf
+pillow

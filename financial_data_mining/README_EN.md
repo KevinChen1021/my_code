@@ -15,7 +15,7 @@ It is more than a direct conversion of slides and scripts. The materials are reo
 - **Visual results:** Important charts are embedded in the result Markdown sections.
 - **Coverage auditing:** Both the slides and the instructor's classroom script are reviewed to reduce omitted topics.
 
-The first eight chapters and three programming assignments are currently available.
+All thirteen chapters and four programming assignments are currently available.
 
 ## Notebook Guide
 
@@ -29,9 +29,15 @@ The first eight chapters and three programming assignments are currently availab
 | `chapter_6.ipynb` | CAPM, linear regression, joins, beta significance, rolling beta, and portfolio beta |
 | `chapter_7.ipynb` | Fama-French models, multifactor regression, performance measures, LPSD, and Sharpe optimization |
 | `chapter_8.ipynb` | Probability distributions, hypothesis testing, confidence intervals, autocorrelation, Granger causality, and calendar effects |
+| `chapter_9.ipynb` | Portfolio theory, correlation, portfolio variance, constrained optimization, and risk-return utility |
+| `chapter_10.ipynb` | Option payoffs, Black-Scholes, implied volatility, strategies, Greeks, and forward arbitrage |
+| `chapter_11.ipynb` | Parametric, modified, and historical VaR, expected shortfall, and portfolio VaR |
+| `chapter_12.ipynb` | Random generation, GBM, Monte Carlo pricing, correlated simulation, Sobol, and bootstrap |
+| `chapter_13.ipynb` | Asian, barrier, chooser, and other path-dependent exotic options |
 | `assignment_1.ipynb` | Environment checks, multi-stock returns, Sharpe ratios, and cumulative wealth |
 | `assignment_2.ipynb` | Bond price and duration, CAPM beta estimation |
 | `assignment_3.ipynb` | Gamma, SQL left joins, and implied volatility |
+| `assignment_4.ipynb` | VaR, normality testing, GBM simulation, and European call pricing |
 
 ## Repository Structure
 
@@ -76,7 +82,8 @@ This is the main project output. A typical topic is organized as:
 Project maintenance utilities include:
 
 - `build_chapters_1_3.py`: builds Chapters 1-3.
-- `build_chapters_4_8_and_assignments.py`: builds Chapters 4-8 and the assignments.
+- `build_chapters_4_8_and_assignments.py`: builds Chapters 4-8 and Assignments 1-3.
+- `build_chapters_9_13_and_assignment_4.py`: builds Chapters 9-13 and Assignment 4.
 - `execute_notebooks.py`: executes code cells and writes results back to the notebooks.
 - `embed_visualizations.py`: generates and embeds result charts.
 - `audit_source_coverage.py`: creates the classroom-code coverage matrix.
@@ -118,15 +125,12 @@ Open a notebook from `Notebooks/` and run its cells in order. Since each module 
 
 ## Current Status
 
-- 8 chapter notebooks
-- 3 assignment notebooks
-- 65 independent code modules
-- 15 embedded result charts
+- 13 chapter notebooks
+- 4 assignment notebooks
+- 92 independent code modules
+- 22 embedded result charts
 - All current code modules have passed execution checks
-
-Additional chapters can be added with the same structure when the remaining course slides become available.
 
 ## Notice
 
 This project is intended for course learning, revision, and code reuse. Copyright in the original slides, assignments, and instructor-provided classroom code remains with their respective authors.
-
